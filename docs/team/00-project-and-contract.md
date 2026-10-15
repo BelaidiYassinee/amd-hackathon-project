@@ -65,11 +65,11 @@ React SPA (Vite + TS + Tailwind + Recharts)        polls /api every 1–3 s
 FastAPI (ONE process, ONE uvicorn worker, in-memory state, also serves frontend/dist)
   ├─ sim/       Engine: accelerated clock, 4 machines, fault injection, markers      (P1)
   ├─ detect/    load-regressed robust z-score + EWMA drift + threshold baseline      (P1)
-  ├─ decide/    repair-vs-replace TCO + fit scoring (+1 LLM call for justification)  (P1)
+  ├─ decide/    repair-vs-replace TCO + fit scoring (+1 LLM call for justification)  (P2)
   ├─ agent/     LLM client + call log, tools, diagnosis loop, evidence validation    (P2)
   │               └──► AMD Radeon API (OpenAI-compatible)  ← all AI reasoning runs here
-  ├─ alerts/    alert lifecycle, routing to on-shift person, escalation, Telegram    (P2)
-  └─ data/      machines.yaml, roster, maintenance log, spare parts, catalog, manual
+  ├─ alerts/    alert lifecycle, routing to on-shift person, escalation, Telegram    (P4)
+  └─ data/      machines.yaml (P1); roster, maintenance log, parts, manual + loaders (P4); catalog (P2)
 ```
 
 **How the pieces talk:**
@@ -86,7 +86,7 @@ engine.step: generate samples → detector.update → threshold monitor
 UI: POST /api/alerts/{id}/ack → work order;  POST /api/alerts/{id}/resolve → engine.clear_fault
 ```
 
-**Deployment:** one Docker image. Node builds `frontend/dist`, then a Python image runs uvicorn and serves both the API and the SPA. It is hosted on Hugging Face Spaces (Docker SDK, port 7860). Run **one worker only**, because all state lives in memory.
+**Deployment:** one Docker image. Node builds `frontend/dist`, then a Python image runs uvicorn and serves both the API and the SPA. It is hosted on Hugging Face Spaces (Docker SDK, port 7860); P4 owns the image and the Space. Run **one worker only**, because all state lives in memory.
 
 ---
 
@@ -105,31 +105,32 @@ amd-hackathon-project/
 │  │  ├─ state.py                      P1  (global engine, reset hooks, realtime loop)
 │  │  ├─ config.py                     P1  (paths, loads machines.yaml)
 │  │  ├─ models.py                     P1 commits it VERBATIM from §7.1 (contract)
-│  │  ├─ data.py                       P2  (loaders for roster, maintenance, parts, manual, catalog)
+│  │  ├─ data.py                       P4  (loaders for roster, maintenance, parts, manual, catalog)
 │  │  ├─ sim/engine.py                 P1
 │  │  ├─ sim/machines.py               P1
 │  │  ├─ sim/faults.py                 P1
 │  │  ├─ detect/detector.py            P1
 │  │  ├─ detect/threshold.py           P1
-│  │  ├─ decide/replace.py             P1
-│  │  ├─ api/plant.py                  P1  (health, plant, series, demo/*, replace-analysis)
-│  │  ├─ api/alerts.py                 P2  (alerts, people, manual, maintenance, amd/stats)
+│  │  ├─ decide/replace.py             P2
+│  │  ├─ api/plant.py                  P1  (health, plant, series, demo/*)
+│  │  ├─ api/decide.py                 P2  (replace-analysis; P1 commits the stub)
+│  │  ├─ api/alerts.py                 P4  (alerts, people, manual, maintenance, amd/stats; P1 commits the stub)
 │  │  ├─ agent/llm.py                  P2
 │  │  ├─ agent/tools.py                P2
 │  │  ├─ agent/prompts.py              P2
 │  │  ├─ agent/validate.py             P2
 │  │  ├─ agent/fallback.py             P2
 │  │  ├─ agent/diagnose.py             P2
-│  │  ├─ alerts/service.py             P2
-│  │  ├─ alerts/routing.py             P2
-│  │  └─ alerts/notify.py              P2
+│  │  ├─ alerts/service.py             P4
+│  │  ├─ alerts/routing.py             P4
+│  │  └─ alerts/notify.py              P4
 │  ├─ data/
 │  │  ├─ machines.yaml                 P1
-│  │  ├─ roster.json                   P1 commits from §10 (then P2 maintains)
-│  │  ├─ spare_parts.json              P1 commits from §10 (then P2 maintains)
-│  │  ├─ catalog.json                  P1 commits from §10 (then P1 maintains)
-│  │  ├─ maintenance_log.json          P4 (P1 commits a placeholder Thursday)
-│  │  └─ manuals/pump_p101.md          P4 (P1 commits a placeholder Thursday)
+│  │  ├─ roster.json                   P1 commits from §10 (then P4 maintains)
+│  │  ├─ spare_parts.json              P1 commits from §10 (then P4 maintains)
+│  │  ├─ catalog.json                  P1 commits from §10 (then P2 maintains)
+│  │  ├─ maintenance_log.json          P4 (P1 commits a placeholder in the skeleton)
+│  │  └─ manuals/pump_p101.md          P4 (P1 commits a placeholder in the skeleton)
 │  └─ tests/                           each owner writes tests for their own modules
 ├─ eval/
 │  ├─ __init__.py                      P1
@@ -140,11 +141,11 @@ amd-hackathon-project/
 │  └─ report.md                        generated
 ├─ scripts/check_radeon.py             P2
 ├─ frontend/                           P3  (src/types.ts is VERBATIM from §7.2)
-├─ Dockerfile, .dockerignore           P3
+├─ Dockerfile, .dockerignore           P4
 ├─ .env.example                        P1 (§11)
 ├─ .gitignore                          P1
-├─ README.md                           P4
-└─ docs/team/                          P4 keeps these briefs up to date
+├─ README.md                           P4 adds the Space front matter; the pitch person writes the rest after the freeze
+└─ docs/team/                          briefs; tell the team when you change one
 ```
 
 `test.py` is replaced by `agent/llm.py`. P2 deletes `test.py` once `llm.py` works.
@@ -177,7 +178,7 @@ amd-hackathon-project/
 - **Signal names (exact strings):**
   - Pumps: `vibration_rms`, `vibration_hf`, `bearing_temp`, `motor_temp`, `motor_current`, `discharge_pressure`, `flow`.
   - All machines also carry the context value `load_pct` in samples. It is not a sensor and is never an evidence ref.
-- **Branches:** each person works on a branch (`p1-detection`, `p2-agent`, `p3-frontend`, `p4-pitch`) and merges to `main` at every checkpoint (§12), at least twice a day. Pull `main` often. File ownership keeps conflicts rare.
+- **Branches:** each person works on a branch (`p1-detection`, `p2-agent`, `p3-frontend`, `p4-alerts`) and merges to `main` at every checkpoint (§12), at least twice a day. Pull `main` often. File ownership keeps conflicts rare.
 - **Commits:** small, with a clear message. Never commit `.env`, `node_modules/`, `frontend/dist/`, `backend/logs/`, or `.venv/`.
 - **Secrets:** `RADEON_API_KEY` and `TELEGRAM_BOT_TOKEN` go only in `.env` locally and in Hugging Face Space secrets in prod.
 - **Content:** all brands, models, and people in seed data are **fictional**. Don't copy text from real manuals.
@@ -630,15 +631,15 @@ All endpoints are under `/api`. Errors use FastAPI's default `{"detail": "..."}`
 | POST | `/api/demo/inject` | `InjectRequest` | `PlantState` | P1 |
 | POST | `/api/demo/control` | `ControlRequest` | `PlantState` | P1 |
 | POST | `/api/demo/reset` | `ResetRequest` | `PlantState` (alerts cleared too) | P1 |
-| POST | `/api/machines/{id}/replace-analysis` | `ReplaceRequest` | `ReplaceAnalysis` | P1 |
-| GET | `/api/alerts` | – | `Alert[]`, newest first | P2 |
-| GET | `/api/alerts/{id}` | – | `Alert` | P2 |
-| POST | `/api/alerts/{id}/ack` | `AckRequest` | `Alert` (accepted → work order; rejected → state rejected) | P2 |
-| POST | `/api/alerts/{id}/resolve` | `ResolveRequest` | `Alert` (machine back to healthy) | P2 |
-| GET | `/api/people` | – | `Person[]` with `on_shift` computed | P2 |
-| GET | `/api/manual/{section_id}` | – | `ManualSection` | P2 |
-| GET | `/api/maintenance/{machine_id}` | – | `MaintenanceRecord[]`, newest first | P2 |
-| GET | `/api/amd/stats` | – | `AmdStats` | P2 |
+| POST | `/api/machines/{id}/replace-analysis` | `ReplaceRequest` | `ReplaceAnalysis` | P2 |
+| GET | `/api/alerts` | – | `Alert[]`, newest first | P4 |
+| GET | `/api/alerts/{id}` | – | `Alert` | P4 |
+| POST | `/api/alerts/{id}/ack` | `AckRequest` | `Alert` (accepted → work order; rejected → state rejected) | P4 |
+| POST | `/api/alerts/{id}/resolve` | `ResolveRequest` | `Alert` (machine back to healthy) | P4 |
+| GET | `/api/people` | – | `Person[]` with `on_shift` computed | P4 |
+| GET | `/api/manual/{section_id}` | – | `ManualSection` | P4 |
+| GET | `/api/maintenance/{machine_id}` | – | `MaintenanceRecord[]`, newest first | P4 |
+| GET | `/api/amd/stats` | – | `AmdStats` | P4 |
 
 **Polling cadence (P3):**
 - `/api/plant` every 1 s
@@ -668,7 +669,7 @@ open / escalated ──resolve──► resolved
 
 ---
 
-## 8. Engine interface (Python, P1 provides, P2 consumes)
+## 8. Engine interface (Python, P1 provides, P2 and P4 consume)
 
 The live app and the eval use the **same** `Engine` class. The eval runs it headless and steps it manually.
 
@@ -729,7 +730,7 @@ class Engine:
 ```python
 # backend/app/state.py  (P1)
 engine: Engine                                       # the live engine
-RESET_HOOKS: list[Callable[[Engine], None]] = []     # P2 appends alerts.service.attach at import time
+RESET_HOOKS: list[Callable[[Engine], None]] = []     # P4 appends alerts.service.attach at import time
 def get_engine() -> Engine: ...
 def reset(seed: int = 7) -> Engine: ...              # new Engine, then calls every RESET_HOOK(engine)
 async def run_loop() -> None: ...                    # every 100 ms: if not paused, step(speed * 0.1 samples, accumulated)
@@ -737,11 +738,11 @@ async def run_loop() -> None: ...                    # every 100 ms: if not paus
 
 **Hook rules:**
 - Hooks run synchronously inside `engine.step()` and must return fast.
-- P2's `on_anomaly` schedules the slow LLM work with `asyncio.get_running_loop().create_task(asyncio.to_thread(...))` when an event loop is running.
+- P4's `on_anomaly` schedules the slow LLM work with `asyncio.get_running_loop().create_task(asyncio.to_thread(...))` when an event loop is running.
 - When the engine emits an anomaly and `auto_pause_on_alert` is true, the engine sets `paused = True` **before** calling the hooks.
 - The engine never emits a new event for a machine that has an active alert, is suppressed, or is down.
 
-### 8.1 LLM client interface (P2 provides, P1 uses it for the repair-vs-replace justification)
+### 8.1 LLM client interface (P2 provides; used by P2's repair-vs-replace and P4's alert messages and `/api/amd/stats`)
 
 ```python
 # backend/app/agent/llm.py  (P2)
@@ -785,7 +786,7 @@ from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 
 from backend.app import state  # noqa: E402
-from backend.app.api import alerts, plant  # noqa: E402  (importing alerts registers its reset hook)
+from backend.app.api import alerts, decide, plant  # noqa: E402  (importing alerts registers its reset hook)
 
 
 @asynccontextmanager
@@ -802,17 +803,18 @@ app.add_middleware(
 )
 app.include_router(plant.router, prefix="/api")
 app.include_router(alerts.router, prefix="/api")
+app.include_router(decide.router, prefix="/api")
 
 dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 if dist.exists():
     app.mount("/", StaticFiles(directory=dist, html=True), name="web")
 ```
 
-On Thursday, P1 also commits a **stub** `backend/app/api/alerts.py` (`router = APIRouter()` and nothing else) so the app starts. P2 then owns that file.
+In the skeleton, P1 also commits **stubs** `backend/app/api/alerts.py` and `backend/app/api/decide.py` (`router = APIRouter()` and nothing else) so the app starts. P4 then owns `alerts.py` and P2 owns `decide.py`.
 
 ---
 
-## 10. Shared seed data (P1 commits these files Thursday, exactly as below)
+## 10. Shared seed data (P1 commits these files in the skeleton, exactly as below)
 
 ### 10.1 `backend/data/roster.json`
 
@@ -951,25 +953,22 @@ PORT=7860
 
 ## 12. Timeline and checkpoints (all times GMT+1)
 
+These checkpoints cover the build only. Pitch and submission are not part of the 4-way split: one person takes `later-pitch-and-submission.md` after the feature freeze.
+
 | When | Checkpoint | Who |
 |---|---|---|
-| **Thu 15 Oct, 21:00** | Backend skeleton on `main`: models.py, main.py, stubs, seed data; `uvicorn` starts and `/api/health` answers | P1 |
-| Thu 23:00 | `types.ts` + mocks on `main`; the UI renders the overview from mocks. Radeon API capability check posted in chat | P3, P2 |
-| Thu 23:00 | Discord eligibility question posted; product name chosen | P4 |
-| **Fri 16 Oct, 12:00** | Manual + maintenance log on `main` | P4 |
-| Fri 13:00 | Live engine: `/api/plant`, `/series`, `/demo/*` work with real simulated data | P1 |
-| Fri 13:00 | Agent runs headless on a fake/real engine and returns a validated Diagnosis | P2 |
-| Fri 18:00 | **Integration:** inject → detect → alert → diagnosis on AMD → UI shows it | P1+P2+P3 |
-| **Fri 22:00** | **Full loop works on the deployed URL** (HF Spaces) | P3 (+all) |
-| Sat 17 Oct, 12:00 | Repair-vs-replace done; eval report with final numbers on `main` | P1, P2 |
-| **Sat 14:00** | **Feature freeze.** Only bug fixes after this | all |
-| Sat 15:00–20:00 | Demo video recorded and edited; slides done | P4 (+P3 drives the UI) |
-| Sun 18 Oct, 10:00 | README final; the deployed app tested from a phone and a second laptop | P4, P3 |
-| **Sun 12:00** | **Submitted on lablab** | P4 |
-
-If the team has only 3 people, P4's work is split as follows: P1 writes the manual and maintenance log on Thursday night, and P2 and P3 do video and slides on Saturday afternoon.
-
----
+| **Fri 16 Oct, 10:00** | Backend skeleton on `main`: models.py, main.py, stubs, seed data; `uvicorn` starts and `/api/health` answers | P1 |
+| Fri 11:00 | Radeon API capability check posted in chat; `AGENT_MODE` decided | P2 |
+| **Fri 12:00** | `data.py`, manual and maintenance log on `main` | P4 |
+| Fri 12:00 | `llm.py` on `main`; `types.ts` + mocks on `main`, UI renders the overview from mocks | P2, P3 |
+| Fri 15:00 | Live engine: `/api/plant`, `/series`, `/demo/*` work with real simulated data | P1 |
+| Fri 15:00 | `diagnose()` runs headless on the real engine and returns a validated Diagnosis | P2 |
+| **Fri 19:00** | **Integration:** inject → detect → alert → diagnosis on AMD → UI shows it | all |
+| Fri 20:00 | `npm run build` passes on `main` | P3 |
+| **Fri 23:00** | **Full loop works on the deployed URL** (HF Spaces) | P4 |
+| Sat 17 Oct, 11:00 | Repair-vs-replace endpoint live | P2 |
+| Sat 12:00 | Eval report with final numbers on `main`; QA pass on the deployed URL | P1, P2, P4 |
+| **Sat 14:00** | **Feature freeze.** Only bug fixes after this; the pitch person takes over | all |
 
 ## 13. Definition of done (whole project)
 
@@ -986,7 +985,7 @@ If the team has only 3 people, P4's work is split as follows: P1 writes the manu
 
 ## 14. Example payloads
 
-These examples are consistent with each other and with the seed data. P3 uses them as mock fixtures; P1 and P2 use them as the expected shape.
+These examples are consistent with each other and with the seed data. P3 uses them as mock fixtures; P1, P2 and P4 use them as the expected shape.
 
 > ⚠️ Latency, token, and score values in these examples are **illustrative, not measurements**. Never put them in the pitch. Real numbers come from `/api/amd/stats` and `eval/report.md`.
 

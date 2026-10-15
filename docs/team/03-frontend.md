@@ -1,4 +1,4 @@
-# 03: P3 brief: dashboard (React) and deployment
+# 03: P3 brief: dashboard (React)
 
 > **Paste this into your AI model, together with `00-project-and-contract.md`:**
 >
@@ -12,7 +12,7 @@
 2. **what the AI did and which data backs it**, through the evidence list and the agent trace
 3. **that it ran on AMD**, via the AMD inference chip and panel
 
-You also own the Docker image and the Hugging Face Space deployment.
+P4 owns the Docker image and the Hugging Face Space; your part is that `npm run build` always works, because the Docker build runs it.
 
 ---
 
@@ -20,21 +20,18 @@ You also own the Docker image and the Hugging Face Space deployment.
 
 ```
 frontend/**            (Vite + React 18 + TypeScript + Tailwind 3 + Recharts + lucide-react + clsx)
-Dockerfile
-.dockerignore
-Hugging Face Space setup (secrets, pushes)
 ```
 
-**Do not touch:** anything in `backend/`, `eval/`, or `docs/`. For `README.md`, only the Space front matter block, coordinated with P4.
+**Do not touch:** anything in `backend/`, `eval/`, `docs/`, `Dockerfile`, or `README.md`.
 
 ## You depend on
 
 | From | What | When |
 |---|---|---|
-| P1 | Stub API (00 §14 payloads) | Thu 21:00 |
-| P1 | Live `/api/plant`, `/series`, `/demo/*` | Fri 13:00 |
-| P1 | `/replace-analysis` | Sat 10:00 |
-| P2 | `/api/alerts*`, `/api/people`, `/api/manual`, `/api/maintenance`, `/api/amd/stats` | Fri 18:00 |
+| P1 | Stub API (00 §14 payloads) | Fri 10:00 |
+| P1 | Live `/api/plant`, `/series`, `/demo/*` | Fri 15:00 |
+| P4 | `/api/alerts*`, `/api/people`, `/api/manual`, `/api/maintenance`, `/api/amd/stats` | Fri 19:00 |
+| P2 | `/api/machines/{id}/replace-analysis` | Sat 11:00 |
 
 Until those dates, use **mocks** built from 00 §14.
 
@@ -42,12 +39,12 @@ Until those dates, use **mocks** built from 00 §14.
 
 | Who | Needs | By |
 |---|---|---|
-| Whole team | Deployed URL with the full loop | **Fri 22:00** |
-| P4 | A polished, recording-ready UI and you driving it during the recording | Sat 15:00 |
+| P4 | `npm run build` passes on `main` (the Docker build runs it) | Fri 20:00 |
+| Whole team | A polished, recording-ready UI at feature freeze | **Sat 14:00** |
 
 ---
 
-## Task 1: Scaffold, types, mocks (Thu, push by 23:00)
+## Task 1: Scaffold, types, mocks (Fri morning, push by 12:00)
 
 ```bash
 npm create vite@latest frontend -- --template react-ts
@@ -211,7 +208,7 @@ The target screen is **1920×1080** (video recording), and it must still work at
 
 **Acceptance:**
 - With mocks, the layout renders at 1920 and 1366 widths with no horizontal scroll.
-- With P1's live API (Fri 13:00), the clock ticks, cards update, and inject, pause, and speed work.
+- With P1's live API (Fri 15:00), the clock ticks, cards update, and inject, pause, and speed work.
 
 ---
 
@@ -262,7 +259,7 @@ The target screen is **1920×1080** (video recording), and it must still work at
 
 ---
 
-## Task 4: Alert panel and diagnosis (Fri afternoon, live by 18:00)
+## Task 4: Alert panel and diagnosis (Fri afternoon, live by 19:00)
 
 Pick the alert to show:
 - the selected machine's `active_alert_id`
@@ -373,7 +370,7 @@ Pick the alert to show:
 
 ---
 
-## Task 6: Repair vs. replace tab (Sat morning, after P1's endpoint is ready around 10:00)
+## Task 6: Repair vs. replace tab (Sat morning, after P2's endpoint is ready around 11:00)
 
 - Works on the selected machine. Machines without a duty (C-201, M-301) show "Available for pumps".
 - **Button:** "Run repair-vs-replace analysis". It calls `POST /api/machines/{id}/replace-analysis` with `{fault}`, taken from the machine's active (or newest) alert diagnosis; otherwise send `{}`. Show a loading state; one LLM call takes a few seconds.
@@ -395,95 +392,13 @@ Pick the alert to show:
 
 **Formatting:** `new Intl.NumberFormat("en-IE", {style: "currency", currency: "EUR", maximumFractionDigits: 0})`.
 
-**Acceptance:** with P1's endpoint, the numbers match 00 §14.4 exactly, and the chart is readable at 1920×1080.
+**Acceptance:** with P2's endpoint, the numbers match 00 §14.4 exactly, and the chart is readable at 1920×1080.
 
 ---
 
-## Task 7: Docker and Hugging Face Space (Fri evening, live URL by 22:00)
+## Task 7: Polish and recording mode (Sat, before 14:00 freeze)
 
-### `Dockerfile` (repo root)
-
-```dockerfile
-FROM node:20-alpine AS web
-WORKDIR /web
-COPY frontend/package*.json ./
-RUN npm ci
-COPY frontend/ ./
-RUN npm run build
-
-FROM python:3.11-slim
-WORKDIR /app
-COPY backend/requirements.txt backend/requirements.txt
-RUN pip install --no-cache-dir -r backend/requirements.txt
-COPY backend/ backend/
-COPY eval/ eval/
-COPY --from=web /web/dist frontend/dist
-ENV PORT=7860 LOG_DIR=/tmp/logs PYTHONUNBUFFERED=1
-EXPOSE 7860
-CMD ["sh", "-c", "uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT} --workers 1"]
-```
-
-### `.dockerignore`
-
-```
-**/node_modules
-frontend/dist
-.venv
-.git
-.env
-backend/logs
-**/__pycache__
-docs
-```
-
-**Local check:**
-
-```bash
-docker build -t mc .
-docker run --rm -p 7860:7860 --env-file .env mc
-```
-
-Open http://localhost:7860: the UI is served by FastAPI and the full loop works.
-
-### Hugging Face Space
-
-1. **Create the Space:** huggingface.co → New Space → SDK **Docker** → Blank → **Public** (judges must open it) → name e.g. `maintenance-copilot`.
-2. **Secrets:** Settings → *Variables and secrets* → add **secret** `RADEON_API_KEY`. Add variables `AGENT_MODE` (from P2's check) and `LLM_MODEL`. Never paste the key anywhere else.
-3. **README front matter:** a Space needs this block at the **top** of its `README.md`. Agree with P4 that it stays at the top of the repo README (GitHub just renders it as a small table):
-
-   ```
-   ---
-   title: Maintenance Copilot
-   emoji: 🛠️
-   colorFrom: red
-   colorTo: gray
-   sdk: docker
-   app_port: 7860
-   pinned: false
-   ---
-   ```
-
-4. **Push:**
-   ```bash
-   git remote add space https://huggingface.co/spaces/<user>/<space>
-   git push space main
-   ```
-   - Log in with your HF username and an access token with **write** scope as the password; the token is yours to create.
-   - **If the push is rejected for binary files** (PNG/GIF in the repo), track them with LFS: `git lfs install`, `git lfs track "*.png" "*.jpg" "*.gif"`, commit `.gitattributes`, and push again.
-5. **Watch the build logs** in the Space. When it shows *Running*, open the URL **from your phone** and run the full demo once.
-6. **Post the URL** in the team chat. P4 puts it in the README and the submission.
-
-**Backup host:** if HF fails, use Render.com (New → Web Service → connect the GitHub repo → Docker → env var `RADEON_API_KEY`). The free tier sleeps after idle, so open it before judging.
-
-**Notes:**
-- State is in memory: a Space restart resets the demo. That's fine, because the reset state is the clean demo start.
-- Redeploy after every merge to `main` that touches the app, at least at each checkpoint.
-
----
-
-## Task 8: Polish and recording mode (Sat, before 14:00 freeze)
-
-**Keyboard shortcuts** (help P4 record smoothly):
+**Keyboard shortcuts** (they make the demo recording smooth):
 
 | Key | Action |
 |---|---|
@@ -500,7 +415,7 @@ Open http://localhost:7860: the UI is served by FastAPI and the full loop works.
 - **No console errors.** Check `npm run build` output size.
 - **Check both screen sizes:** 1920×1080 and 1366×768.
 - **Browser tab:** title = product name, plus a simple favicon.
-- **Rehearse the demo path** with P4 twice. Agree on the speed changes: start at speed 2 so the drift is visible, then switch to 30 to reach the legacy alarm quickly.
+- **Rehearse the demo path** with the team twice. Agree on the speed changes: start at speed 2 so the drift is visible, then switch to 30 to reach the legacy alarm quickly.
 
 ---
 
@@ -508,13 +423,12 @@ Open http://localhost:7860: the UI is served by FastAPI and the full loop works.
 
 | When | Do |
 |---|---|
-| Thu → 23:00 | Task 1 (scaffold, types, mocks, cards from mocks), push |
-| Fri → 13:00 | Tasks 2–3 on mocks, then switch plant/series to live at 13:00 |
-| Fri → 18:00 | Tasks 4–5, then switch alerts to live at 18:00 (integration with P1+P2) |
-| Fri → 22:00 | Task 7: Docker + HF Space live, URL to team |
-| Sat → 14:00 | Task 6 repair tab, Task 8 polish, redeploy; then freeze |
-| Sat 15:00–20:00 | Drive the UI for P4's recording |
-| Sun → 10:00 | Final redeploy; test from a phone and a second laptop |
+| Fri → 12:00 | Task 1 (scaffold, types, mocks, cards from mocks), push |
+| Fri → 15:00 | Tasks 2–3 on mocks, then switch plant/series to live at 15:00 |
+| Fri → 19:00 | Tasks 4–5, then switch alerts to live at 19:00 (integration with P1, P2, P4) |
+| Fri → 20:00 | Make sure `npm run build` passes on `main`, so P4 can deploy |
+| Sat → 11:00 | Fix what P4's QA pass found; Task 7 polish |
+| Sat → 14:00 | Task 6 repair tab, finish Task 7; then freeze |
 
 ## Pitfalls
 

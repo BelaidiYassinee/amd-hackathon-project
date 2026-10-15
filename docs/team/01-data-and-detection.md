@@ -1,4 +1,4 @@
-# 01: P1 brief: simulator, detection, repair vs. replace, eval
+# 01: P1 brief: backend skeleton, simulator, detection, eval
 
 > **Paste this into your AI model, together with `00-project-and-contract.md`:**
 >
@@ -6,7 +6,7 @@
 
 **Owner:** P1 (name: ____________)
 
-**Your mission:** make a believable plant run in fast-forward, inject faults on demand, detect them early with a transparent statistical model, and prove with numbers that this beats a fixed-threshold alarm. You also own the repair-vs-replace math and the eval harness that produces the numbers for the pitch.
+**Your mission:** make a believable plant run in fast-forward, inject faults on demand, detect them early with a transparent statistical model, and prove with numbers that this beats a fixed-threshold alarm. You also own the backend skeleton everyone builds on, and the eval harness that produces the headline numbers.
 
 ---
 
@@ -21,38 +21,36 @@ backend/app/state.py
 backend/app/config.py
 backend/app/sim/__init__.py, sim/engine.py, sim/machines.py, sim/faults.py
 backend/app/detect/__init__.py, detect/detector.py, detect/threshold.py
-backend/app/decide/__init__.py, decide/replace.py
 backend/app/api/__init__.py, api/plant.py
-backend/app/api/alerts.py      (stub only on Thursday; P2 owns it after that)
+backend/app/api/alerts.py      (stub only, in the skeleton; P4 owns it after that)
+backend/app/api/decide.py      (stub only, in the skeleton; P2 owns it after that)
 backend/data/machines.yaml
-backend/data/roster.json, spare_parts.json, catalog.json   (commit from 00 §10, then hands off)
+backend/data/roster.json, spare_parts.json, catalog.json   (commit from 00 §10 in the skeleton; P4 maintains them after)
 backend/data/maintenance_log.json, manuals/pump_p101.md    (placeholders only; P4 replaces them)
-backend/tests/test_sim.py, test_detector.py, test_replace.py
+backend/tests/test_sim.py, test_detector.py
 eval/__init__.py, eval/scenarios.py, eval/detection_eval.py, eval/run_eval.py
 .env.example, .gitignore
 ```
 
-**Do not touch:** `agent/*`, `alerts/*`, `api/alerts.py` (after the stub), `data.py`, `frontend/*`, `Dockerfile`.
+**Do not touch:** `agent/*`, `alerts/*`, `decide/*`, `api/alerts.py` and `api/decide.py` (after the stubs), `data.py`, `frontend/*`, `Dockerfile`.
 
 ## You depend on
 
-- **P2:** `backend.app.agent.llm.chat` and `is_mock` (00 §8.1), for the justification sentence only. Until P2 has merged it, use the template fallback.
-- **P2:** `alerts.service.attach`, registered in `state.RESET_HOOKS`, so alerts get created. You can test everything without it.
+- **P4:** `alerts.service.attach`, registered in `state.RESET_HOOKS`, so alerts get created. You can test everything without it.
 - **P2:** `eval/diagnosis_eval.evaluate(runs)` for the full eval report.
 
 ## Others depend on you
 
 | Who | Needs | By |
 |---|---|---|
-| Everyone | Skeleton on `main` | **Thu 21:00** |
-| P2 | `Engine` interface (00 §8) with real data, for tools and diagnosis | Fri 13:00 |
-| P3 | Live `/api/plant`, `/api/machines/{id}/series`, `/api/demo/*` | Fri 13:00 |
-| P3 | `/api/machines/{id}/replace-analysis` | Sat 10:00 |
-| P4 | `eval/report.md` with final numbers | Sat 12:00 |
+| Everyone | Skeleton on `main` | **Fri 10:00** |
+| P2, P4 | `Engine` interface (00 §8) with real data and hooks, for tools, diagnosis and alerts | Fri 15:00 |
+| P3 | Live `/api/plant`, `/api/machines/{id}/series`, `/api/demo/*` | Fri 15:00 |
+| Team (and the pitch afterwards) | `eval/report.md` with final numbers | Sat 12:00 |
 
 ---
 
-## Task 1: Skeleton (Thu, target 21:00, about 1.5 h)
+## Task 1: Skeleton (Fri morning, target 10:00, about 1.5 h)
 
 1. **Folders and files.** Create the folder structure from 00 §4 with empty `__init__.py` files.
 2. **Contract files.** Commit `models.py` (00 §7.1) and `main.py` (00 §9) **verbatim**.
@@ -70,7 +68,7 @@ eval/__init__.py, eval/scenarios.py, eval/detection_eval.py, eval/run_eval.py
    pytest>=8.0
    ```
 4. **Stubs:**
-   - `api/alerts.py` contains `from fastapi import APIRouter` and `router = APIRouter()`.
+   - `api/alerts.py` and `api/decide.py` each contain `from fastapi import APIRouter` and `router = APIRouter()`.
    - `api/plant.py` returns the **example payloads from 00 §14** (hard-coded) for `/api/plant` and `/series`, and a correct `/api/health`. This lets P3 hit a real server immediately.
 5. **`state.py` stub:** `reset()` and `run_loop()` that do nothing yet, with `RESET_HOOKS = []`.
 6. **Seed data:**
@@ -94,7 +92,7 @@ eval/__init__.py, eval/scenarios.py, eval/detection_eval.py, eval/run_eval.py
 
 ---
 
-## Task 2: `machines.yaml` and signal generation (Thu evening)
+## Task 2: `machines.yaml` and signal generation (Fri morning)
 
 ### `backend/data/machines.yaml`
 
@@ -206,7 +204,7 @@ value = base + load_coef * (load_pct - 75) / 25 + noise_t * fault_noise_factor +
 
 ---
 
-## Task 3: Fault signatures (`sim/faults.py`, Thu evening)
+## Task 3: Fault signatures (`sim/faults.py`, Fri morning)
 
 A fault has `fault`, `severity` (0.3–2.0), `start` (sim datetime), and `duration_h` (None means the default). Progress runs from 0 to 1:
 
@@ -256,7 +254,7 @@ The manual P4 writes describes the same fingerprints. Keep them in sync: if you 
 
 ---
 
-## Task 4: Detector and threshold baseline (Fri morning)
+## Task 4: Detector and threshold baseline (Fri, around midday)
 
 ### Baseline fit (`detect/detector.py`), once per machine at reset, on the 72 h healthy history
 
@@ -330,7 +328,7 @@ When it fires (first time only per fault episode):
 
 ---
 
-## Task 5: Engine and realtime loop (Fri morning, target 13:00)
+## Task 5: Engine and realtime loop (Fri, target 15:00)
 
 Implement `Engine` exactly as in 00 §8. Notes:
 
@@ -348,7 +346,7 @@ Implement `Engine` exactly as in 00 §8. Notes:
   - Raise `ValueError` if the machine is not a `centrifugal_pump` or already has an active fault.
   - Add a `fault_injected` marker: `"Demo: {fault} injected"`.
 - **`clear_fault()`:** remove the fault, set `failed=False`, reset the EWMA states and `above` counter to 0, re-arm the threshold monitor, and keep the baseline.
-- **`set_active_alert(machine_id, id_or_None)`:** only sets or clears the id. It never touches the fault. On resolve, P2 calls `clear_fault()` explicitly.
+- **`set_active_alert(machine_id, id_or_None)`:** only sets or clears the id. It never touches the fault. On resolve, P4 calls `clear_fault()` explicitly.
 - **`plant_state()`:** build `PlantState`. `open_alerts` = number of machines with `active_alert_id` set. `sparkline` = last 60 `health` values. `latest` = the last sample's values without `load_pct`.
 
 **`state.py`:**
@@ -394,7 +392,7 @@ async def run_loop() -> None:
 
 ---
 
-## Task 6: Plant API (`api/plant.py`, Fri, target 13:00)
+## Task 6: Plant API (`api/plant.py`, Fri, target 15:00)
 
 Replace the stubs with real handlers. All of them use `state.get_engine()`.
 
@@ -405,8 +403,7 @@ Replace the stubs with real handlers. All of them use `state.get_engine()`.
 | `GET /machines/{id}/series?hours=48&max_points=600` | 404 if the machine is unknown. Take `samples(id, hours)` and downsample by stride `ceil(n / max_points)`, **always keeping the last sample**. Each point = `SeriesPoint(t, values incl. load_pct, score)`. Markers = those with `t` inside the window. |
 | `POST /demo/inject` | `InjectRequest` → `engine.inject(...)`. Unknown machine → 404; `ValueError` → 409. Also set `paused=False` so the demo flows. Returns `PlantState`. |
 | `POST /demo/control` | Apply the non-null fields → `PlantState`. |
-| `POST /demo/reset` | `state.reset(body.seed)` → `PlantState`. P2's reset hook clears alerts. |
-| `POST /machines/{id}/replace-analysis` | See Task 7. |
+| `POST /demo/reset` | `state.reset(body.seed)` → `PlantState`. P4's reset hook clears alerts. |
 
 Remember the router has no prefix: `main.py` adds `/api`.
 
@@ -417,120 +414,19 @@ Remember the router has no prefix: `main.py` adds `/api`.
 
 ---
 
-## Task 7: Integration with P2 (Fri afternoon)
+## Task 7: Integration with P2, P3 and P4 (Fri, by 19:00)
 
-- P2's `alerts/service.py` appends `attach` to `state.RESET_HOOKS` at import. `main.py` imports `api.alerts`, which imports the service.
+- P4's `alerts/service.py` appends `attach` to `state.RESET_HOOKS` at import. `main.py` imports `api.alerts`, which imports the service.
 - **Check together:**
   - inject → event → alert in `/api/alerts` with `state: "diagnosing"`, then `open`
   - acknowledge → `acknowledged`
   - resume (`/demo/control {"paused": false}`) → the threshold alarm later fills `lead_time_h`
   - resolve → machine back to `ok`
-- **Fix any hook-timing issues.** P2 calls `engine.set_active_alert` inside the hook. Your step loop must read that before deciding the next event.
+- **Fix any hook-timing issues.** P4 calls `engine.set_active_alert` inside the hook. Your step loop must read that before deciding the next event.
 
 ---
 
-## Task 8: Repair vs. replace (`decide/replace.py`, Fri evening, or Sat by 10:00)
-
-**Inputs:**
-- `machines.yaml`: `duty` and `installed`.
-- `catalog.json`: `assumptions`, `repair_estimates[fault]`, and `candidates`.
-- `maintenance_log.json`: count `type == "corrective"` records for this machine with `date > sim_date - 365 days`.
-- Use P2's `backend.app.data` loaders if they exist; otherwise read the JSON directly.
-- The machine must have a `duty`, else return 400.
-
-**Formulas:**
-
-```
-P_hyd_kW          = flow_m3h * head_m / 367.2
-energy_year(eff)  = P_hyd_kW / (eff / 100) * hours_per_year * energy_eur_per_kwh
-H                 = horizon_years;  C = corrective_repairs_last_12m;  D = downtime_eur_per_h
-
-REPAIR  (option_id "repair", kind "repair", label "Repair current pump (<repair label>)")
-  repair label: bearing_wear "bearing replacement", cavitation "suction-side fix",
-                misalignment "realignment + coupling", motor_overheat "motor cooling repair", other "general repair"
-  capex        = parts_eur + labor_eur
-  energy_5y    = energy_year(efficiency_after_pct) * H
-  maint_5y     = base_maintenance_eur_year * (1 + maintenance_factor_per_corrective * C) * H
-  downtime_5y  = failures_per_corrective_repair * C * hours_per_failure * D * H  +  downtime_h * D
-  efficiency   = efficiency_after_pct; lead_time_days = repair lead_time_days; fits_duty = True
-
-REPLACE (each candidate)
-  capex        = price_eur + install_eur
-  energy_5y    = energy_year(efficiency_pct) * H
-  maint_5y     = maintenance_eur_year * H
-  downtime_5y  = failures_per_year_new * hours_per_failure * D * H  +  install_downtime_h * D
-  fits_duty    = rated_flow_m3h >= duty.flow_m3h and rated_head_m >= duty.head_m
-
-tco_5y      = capex + energy_5y + maint_5y + downtime_5y
-score       = 0 if not fits_duty else 100 * min_tco_of_fitting_options / tco_5y   (1 decimal)
-rank        = fitting options by tco ascending, then non-fitting by tco ascending
-payback     = only if rank-1 is a replacement:
-              annual_op(option) = (energy_5y + maint_5y + downtime_5y - one_off_downtime) / H
-                 where one_off_downtime = downtime_h*D (repair) or install_downtime_h*D (replace)
-              upfront(option)   = capex + one_off_downtime
-              payback_months    = 12 * (upfront(best) - upfront(repair)) / (annual_op(repair) - annual_op(best))   (1 decimal)
-```
-
-**Rounding:** round EUR fields to whole euros at the end, computing totals from unrounded parts.
-
-**`assumptions` in the response:** include every key from `catalog.json` plus `corrective_repairs_last_12m` (int) and `age_years` (1 decimal).
-
-**`fit_notes` templates:**
-- Fitting: `"Meets {flow} m3/h at {head} m (rated {rf} m3/h at {rh} m)"`, plus `"; same footprint."` or `"; {notes}"` if not footprint-compatible.
-- Not fitting: `"Rated {rf} m3/h at {rh} m: below the {flow} m3/h at {head} m duty."`
-- Repair: `"Keeps the {age:.0f}-year-old pump; {C} corrective repairs in the last 12 months."`
-
-**Test oracle (`test_replace.py`).** For P-101, fault `bearing_wear`, sim date 2026-10-15, and the 00 §10 seed data, results must match **00 §14.4** to ±1 €:
-
-| option | capex | energy_5y | maint_5y | downtime_5y | tco_5y | score | rank |
-|---|---|---|---|---|---|---|---|
-| AF-CP80-G2 | 16,300 | 100,159 | 4,500 | 21,600 | 142,559 | 100.0 | 1 |
-| HX-NB100 | 15,400 | 108,997 | 5,500 | 36,000 | 165,897 | 85.9 | 2 |
-| repair | 1,400 | 123,529 | 13,125 | 63,600 | 201,654 | 70.7 | 3 |
-| VT-ECO75 | 9,900 | 121,504 | 6,000 | 21,600 | 159,004 | 0.0 | 4 |
-
-The test also checks `payback_months == 15.0` and `recommendation == "AF-CP80-G2"`.
-
-### Justification (one LLM call on AMD)
-
-**Messages:**
-
-```
-system: You explain a maintenance investment decision to a plant maintenance supervisor.
-        Write exactly 3 sentences of plain text, no markdown, no lists.
-        Use ONLY numbers that appear in the JSON you are given. Do not invent or estimate new numbers.
-        Mention the recommended option, its 5-year cost versus repairing, the main reason (energy, downtime
-        or reliability), the payback if given, and any cheaper option that does not fit the duty point.
-user:   <the ReplaceAnalysis options, duty, assumptions and payback as compact JSON, numbers rounded>
-```
-
-Call `llm.chat(messages, purpose="replace_justification", temperature=0.2, max_tokens=300)`.
-
-**Verify the numbers:**
-1. Extract every number in the text with regex `\d[\d,]*(?:\.\d+)?`. Strip commas.
-2. The allowed set contains:
-   - every numeric field of every option
-   - all `duty` and `assumptions` values
-   - `payback_months` and its rounded integer
-   - `12` and `5`
-   - pairwise differences of `tco_5y_eur` and of `capex_eur`
-3. A number passes if it is within 1% (or ±0.5) of an allowed value, or of an allowed value divided by 1000 (for "€142.6k").
-
-If anything fails, retry once and tell the model which numbers were not allowed. If it fails again, or `llm.is_mock()`, or `LlmError` → use a **template**:
-
-```
-"{best.label} has the lowest 5-year cost at €{best.tco:,.0f}, against €{repair.tco:,.0f} to repair the current pump."
-+ " It pays back the extra upfront cost in about {payback:.0f} months." (if payback)
-+ " {unfit.label} is cheaper to buy but cannot meet the {flow:.0f} m3/h at {head:.0f} m duty." (first non-fitting, if any)
-```
-
-(If repair is rank 1: "Repairing is the cheapest option over 5 years at €X; the best replacement, Y, would cost €Z.")
-
-`justification_verified` is true for the template, and true for LLM text that passed the check.
-
----
-
-## Task 9: Eval harness (Sat morning, report by 12:00)
+## Task 8: Eval harness (Sat morning, report by 12:00)
 
 ### `eval/scenarios.py`
 
@@ -597,7 +493,7 @@ python -m eval.run_eval --limit 8         # quick smoke run with first 2 scenari
 **Outputs:**
 - `eval/report.json` (everything).
 - `eval/report.md`, containing:
-  1. a headline table (what P4 copies into the slides)
+  1. a headline table (what the pitch copies into the slides)
   2. per-fault detection table
   3. the diagnosis accuracy and confusion matrix (from P2)
   4. AMD stats: calls, tokens, average latency per diagnosis and per call, average tokens/s
@@ -606,7 +502,7 @@ python -m eval.run_eval --limit 8         # quick smoke run with first 2 scenari
 
 **Pass bars** (00 §13): lead time > 0 in ≥ 90% of fault scenarios; at most 1 false-alarm healthy run. Accuracy ≥ 80% is P2's bar.
 
-**Deliver:** commit `eval/report.md` with the full (LLM) run by **Sat 12:00** and send P4 the headline numbers.
+**Deliver:** commit `eval/report.md` with the full (LLM) run by **Sat 12:00** and post the headline numbers in the team chat.
 
 ---
 
@@ -614,13 +510,13 @@ python -m eval.run_eval --limit 8         # quick smoke run with first 2 scenari
 
 | When | Do |
 |---|---|
-| Thu → 21:00 | Task 1 skeleton, push, tell the team |
-| Thu evening | Tasks 2–3 (machines.yaml, signal generator, faults, tests) |
-| Fri morning → 13:00 | Tasks 4–6 (detector, threshold, engine, live API) |
-| Fri afternoon | Task 7 integration with P2 and P3; fix hook/timing bugs |
-| Fri evening | Task 8 repair vs. replace (math + oracle test; justification can use the template until P2's `llm.py` lands) |
-| Sat → 12:00 | Task 9 eval, tune the detector, report on `main`, numbers to P4 |
-| Sat 14:00 | Feature freeze, then bug fixes only; help P4/P3 with the video if needed |
+| Fri → 10:00 | Task 1 skeleton, push, tell the team |
+| Fri → midday | Tasks 2–3 (machines.yaml, signal generator, faults, tests) |
+| Fri → 15:00 | Tasks 4–6 (detector, threshold, engine, live API) |
+| Fri → 19:00 | Task 7 integration with P2, P3 and P4; fix hook/timing bugs |
+| Fri evening | Help P4 get the deployed loop working by 23:00; start Task 8 (scenarios, detection eval) |
+| Sat → 12:00 | Task 8 eval, tune the detector, report on `main`, numbers in chat |
+| Sat 14:00 | Feature freeze, then bug fixes only |
 
 ## Pitfalls
 
