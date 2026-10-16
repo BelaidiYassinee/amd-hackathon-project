@@ -1,0 +1,82 @@
+sim:
+  start: "2026-10-15T06:00:00Z"
+  sample_minutes: 5
+  history_hours: 72
+  default_speed: 6            # samples per real second -> 30 sim-minutes per second
+  auto_pause_on_alert: true
+load:                          # plant-wide production load, %
+  mean: 75
+  amplitude: 12
+  peak_hour: 15                # load peaks at 15:00
+  noise: 3
+  ar: 0.9
+  min: 40
+  max: 100
+detector:
+  ewma_alpha: 0.1
+  ewma_limit: 1.5
+  k_consecutive: 6             # 6 samples = 30 sim-minutes above the limit before an event
+  watch_ratio: 0.6
+  deviation_ratio: 0.5         # "deviating since" = score continuously >= 0.5 * limit
+  slope_window_h: 3
+  threshold_consecutive: 3
+  sigma_floor_ratio: 0.25      # sigma >= 0.25 * configured noise
+machines:
+  - id: P-101
+    name: Coolant pump P-101
+    type: centrifugal_pump
+    area: Cooling loop
+    model: AquaFlow CP-80
+    installed: "2017-03-14"
+    design_life_years: 15
+    duty: {flow_m3h: 120, head_m: 42, hours_per_year: 6000}
+    signals:
+      - {name: vibration_rms,      label: Vibration RMS,             unit: mm/s, base: 1.8,  noise: 0.12, load_coef: 0.15,  ar: 0.0, alarm_high: 7.1}
+      - {name: vibration_hf,       label: HF vibration energy,       unit: g,    base: 0.30, noise: 0.03, load_coef: 0.02,  ar: 0.0}
+      - {name: bearing_temp,       label: Bearing temperature,       unit: °C,   base: 55,   noise: 0.6,  load_coef: 2.0,   ar: 0.5, alarm_high: 85}
+      - {name: motor_temp,         label: Motor winding temperature, unit: °C,   base: 72,   noise: 0.8,  load_coef: 4.0,   ar: 0.5, alarm_high: 120}
+      - {name: motor_current,      label: Motor current,             unit: A,    base: 52,   noise: 0.8,  load_coef: 4.0,   ar: 0.0, alarm_high: 62}
+      - {name: discharge_pressure, label: Discharge pressure,        unit: bar,  base: 4.2,  noise: 0.04, load_coef: -0.10, ar: 0.0, alarm_low: 3.3}
+      - {name: flow,               label: Flow,                      unit: m³/h, base: 120,  noise: 1.5,  load_coef: 8.0,   ar: 0.0, alarm_low: 100}
+  - id: P-102
+    name: Process water pump P-102
+    type: centrifugal_pump
+    area: Utilities
+    model: AquaFlow CP-65
+    installed: "2021-06-02"
+    design_life_years: 15
+    duty: {flow_m3h: 80, head_m: 35, hours_per_year: 5000}
+    signals:
+      - {name: vibration_rms,      label: Vibration RMS,             unit: mm/s, base: 1.5,  noise: 0.10, load_coef: 0.12,  ar: 0.0, alarm_high: 7.1}
+      - {name: vibration_hf,       label: HF vibration energy,       unit: g,    base: 0.25, noise: 0.03, load_coef: 0.02,  ar: 0.0}
+      - {name: bearing_temp,       label: Bearing temperature,       unit: °C,   base: 50,   noise: 0.6,  load_coef: 1.5,   ar: 0.5, alarm_high: 85}
+      - {name: motor_temp,         label: Motor winding temperature, unit: °C,   base: 65,   noise: 0.8,  load_coef: 3.0,   ar: 0.5, alarm_high: 120}
+      - {name: motor_current,      label: Motor current,             unit: A,    base: 31,   noise: 0.5,  load_coef: 2.5,   ar: 0.0, alarm_high: 38}
+      - {name: discharge_pressure, label: Discharge pressure,        unit: bar,  base: 3.5,  noise: 0.04, load_coef: -0.08, ar: 0.0, alarm_low: 2.7}
+      - {name: flow,               label: Flow,                      unit: m³/h, base: 80,   noise: 1.2,  load_coef: 5.0,   ar: 0.0, alarm_low: 65}
+  - id: C-201
+    name: Air compressor C-201
+    type: screw_compressor
+    area: Utilities
+    model: Kompra SK-45
+    installed: "2019-01-20"
+    design_life_years: 12
+    signals:
+      - {name: vibration_rms,      label: Vibration RMS,             unit: mm/s, base: 2.2,  noise: 0.15, load_coef: 0.2,   ar: 0.0, alarm_high: 7.1}
+      - {name: discharge_pressure, label: Discharge pressure,        unit: bar,  base: 7.5,  noise: 0.05, load_coef: -0.15, ar: 0.0, alarm_low: 6.5}
+      - {name: motor_current,      label: Motor current,             unit: A,    base: 78,   noise: 1.2,  load_coef: 6.0,   ar: 0.0, alarm_high: 92}
+      - {name: oil_temp,           label: Oil temperature,           unit: °C,   base: 78,   noise: 0.7,  load_coef: 3.0,   ar: 0.5, alarm_high: 100}
+      - {name: motor_temp,         label: Motor winding temperature, unit: °C,   base: 80,   noise: 0.8,  load_coef: 4.0,   ar: 0.5, alarm_high: 125}
+  - id: M-301
+    name: Conveyor drive M-301
+    type: conveyor_drive
+    area: Packaging line
+    model: Line 2 conveyor drive
+    installed: "2020-09-10"
+    design_life_years: 15
+    signals:
+      - {name: vibration_rms,      label: Vibration RMS,             unit: mm/s, base: 1.2,  noise: 0.08, load_coef: 0.1,   ar: 0.0, alarm_high: 4.5}
+      - {name: motor_current,      label: Motor current,             unit: A,    base: 14,   noise: 0.3,  load_coef: 1.5,   ar: 0.0, alarm_high: 19}
+      - {name: motor_temp,         label: Motor winding temperature, unit: °C,   base: 60,   noise: 0.7,  load_coef: 3.0,   ar: 0.5, alarm_high: 110}
+      - {name: gearbox_temp,       label: Gearbox temperature,       unit: °C,   base: 52,   noise: 0.5,  load_coef: 2.0,   ar: 0.5, alarm_high: 85}
+      - {name: belt_speed,         label: Belt speed,                unit: m/s,  base: 1.2,  noise: 0.01, load_coef: 0.0,   ar: 0.0, alarm_low: 1.0}
