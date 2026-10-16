@@ -7,6 +7,7 @@ import peopleJson from "./people.json";
 import manualJson from "./manual.json";
 import maintenanceJson from "./maintenance_P-101.json";
 import { makeSeries } from "./makeSeries";
+import { applyMockState } from "./alertStates";
 
 const plant = plantJson as unknown as PlantState;
 const alerts = alertsJson as unknown as Alert[];
@@ -26,11 +27,11 @@ export const mock = {
     const m = plant.machines.find((x) => x.id === id);
     return m ? reply(makeSeries(m, hours)) : notFound(id);
   },
-  alerts: () => reply(alerts),
-  alert: (id: string) => {
-    const a = alerts.find((x) => x.id === id);
-    return a ? reply(a) : notFound(id);
-  },
+  alerts: () => reply(alerts).then(applyMockState),
+  alert: (id: string) =>
+    reply(alerts)
+      .then(applyMockState)
+      .then((list) => list.find((x) => x.id === id) ?? notFound(id)),
   people: () => reply(peopleJson as unknown as Person[]),
   manual: (sectionId: string) => {
     const s = (manualJson as ManualSection[]).find((x) => x.id === sectionId);

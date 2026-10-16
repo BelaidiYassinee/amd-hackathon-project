@@ -1,23 +1,9 @@
 import clsx from "clsx";
 import { BellRing } from "lucide-react";
-import type { MachineSummary } from "../types";
-import { STATUS_LABEL, fmtValue, statusColor } from "../lib/format";
-
-function Sparkline({ values, className }: { values: number[]; className?: string }) {
-  if (values.length < 2) return null;
-  const w = 100;
-  const h = 28;
-  const min = Math.min(...values, 0);
-  const max = Math.max(...values, 100);
-  const pts = values
-    .map((v, i) => `${(i / (values.length - 1)) * w},${h - ((v - min) / (max - min || 1)) * h}`)
-    .join(" ");
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className={clsx("h-7 w-full", className)}>
-      <polyline points={pts} fill="none" stroke="currentColor" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
-    </svg>
-  );
-}
+import type { MachineSummary } from "../../types";
+import { fmtValue, statusColor } from "../../lib/format";
+import { StatusPill } from "../ui/Pill";
+import { Sparkline } from "./Sparkline";
 
 export function MachineCard({
   machine,
@@ -47,10 +33,7 @@ export function MachineCard({
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           {machine.active_alert_id && <BellRing className="h-4 w-4 text-red-500" aria-label="Active alert" />}
-          <span className={clsx("inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium", c.bg, c.text)}>
-            <span className={clsx("h-1.5 w-1.5 rounded-full", c.dot)} />
-            {STATUS_LABEL[machine.status]}
-          </span>
+          <StatusPill status={machine.status} />
         </div>
       </div>
 
