@@ -143,3 +143,19 @@ def test_stats_average_ok_calls_only(monkeypatch):
     assert s.provider == "AMD Radeon API" and not s.mock
     assert [c.id for c in s.recent] == ["llm-0003", "llm-0002", "llm-0001"]  # newest first
     assert s.avg_latency_ms >= 0
+
+
+def test_response_without_choices_is_an_llm_error(monkeypatch):
+    use(monkeypatch, FakeClient(SimpleNamespace(choices=[], usage=None)))
+    with pytest.raises(llm.LlmError, match="bad API response"):
+        llm.chat([{"role": "user", "content": "x"}], purpose="alert_message")
+    s = llm.stats()
+    assert (s.calls, s.errors) == (1, 1) and s.recent[0].ok is False
+
+
+def test_usage_with_none_counts_is_estimated(monkeypatch):
+    resp = make_resp("x" * 40)
+    resp.usage = SimpleNamespace(prompt_tokens=None, completion_tokens=None)
+    use(monkeypatch, FakeClient(resp))
+    r = llm.chat([{"role": "user", "content": "y" * 100}], purpose="check")
+    assert r.call.ok and r.call.prompt_tokens > 0 and r.call.completion_tokens == 10 + len("[]") // 4

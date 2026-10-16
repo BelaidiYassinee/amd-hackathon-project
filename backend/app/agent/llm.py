@@ -231,23 +231,26 @@ def chat(messages: list[dict], *, purpose: LlmPurpose, tools: list[dict] | None 
         raise LlmError(call.error) from None
     latency_ms = int((time.perf_counter() - t0) * 1000)
 
-    msg = resp.choices[0].message
-    raw_content = msg.content or ""
-    tool_calls = _parse_tool_calls(msg)
+    try:  # a malformed response (no choices, odd usage) must still surface as LlmError
+        choice = resp.choices[0]
+        msg = choice.message
+        raw_content = msg.content or ""
+        tool_calls = _parse_tool_calls(msg)
+        usage = getattr(resp, "usage", None)
+        prompt_tokens = getattr(usage, "prompt_tokens", None)
+        completion_tokens = getattr(usage, "completion_tokens", None)
+        if prompt_tokens is None:  # estimate: ~4 characters per token
+            prompt_tokens = len(json.dumps(messages, default=str)) // 4
+        if completion_tokens is None:
+            completion_tokens = (len(raw_content) + len(json.dumps(tool_calls))) // 4
+        content = _strip_think(raw_content) or None
+        raw_message = _raw_message(msg, raw_content)
+    except Exception as e:
+        call = _record(purpose, latency_ms, 0, 0, ok=False, error="bad API response: " + _safe(e))
+        raise LlmError(call.error) from None
 
-    if resp.usage:
-        prompt_tokens, completion_tokens = resp.usage.prompt_tokens, resp.usage.completion_tokens
-    else:  # estimate: ~4 characters per token
-        prompt_tokens = len(json.dumps(messages)) // 4
-        completion_tokens = (len(raw_content) + len(json.dumps(tool_calls))) // 4
-
-    call = _record(purpose, latency_ms, prompt_tokens, completion_tokens, ok=True)
-    return ChatResult(
-        content=_strip_think(raw_content) or None,
-        tool_calls=tool_calls,
-        raw_message=_raw_message(msg, raw_content),
-        call=call,
-    )
+    call = _record(purpose, latency_ms, int(prompt_tokens), int(completion_tokens), ok=True)
+    return ChatResult(content=content, tool_calls=tool_calls, raw_message=raw_message, call=call)
 
 
 def stats() -> AmdStats:
