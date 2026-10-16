@@ -174,6 +174,8 @@ class Engine:
             if m.sim.just_tripped:
                 self._add_marker(m, "failure", t,
                                  f"{mid} tripped: {FAILURE_LABEL[m.sim.fault.fault]}")
+                if self.auto_pause_on_alert:
+                    self.paused = True
             if m.sim.failed:                               # tripped: freeze the detector
                 prev = m.samples[-1]
                 score, scores, health = prev.score, dict(prev.scores), 0
