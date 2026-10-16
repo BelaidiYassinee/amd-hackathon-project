@@ -43,6 +43,8 @@ _STEP_LINE = re.compile(r"^\s*(?:[-*]|\d+[.)])\s+(.+)$")
 
 def classify(contributions: list[Contribution], ewma_limit: float) -> str:
     """First matching rule wins (contributions sorted by score desc)."""
+    if not contributions:
+        return "other"
     top, top2 = contributions[0], contributions[:2]
     by_signal = {c.signal: c for c in contributions}
     rms = by_signal.get("vibration_rms")
@@ -121,3 +123,23 @@ def rule_based(engine, event: AnomalyEvent) -> Diagnosis:
     seen = {ev.ref for ev in evidence}  # the fallback looked these up itself
     validate.finalize(d, engine, mid, seen)  # overwrites stock, sets verified
     return d
+
+
+def minimal(event: AnomalyEvent, reason: str) -> Diagnosis:
+    """Last resort when even rule_based() fails: no refs, never raises, clearly unverified."""
+    return Diagnosis(
+        fault="other",
+        fault_label="Unclassified anomaly (no diagnosis available)",
+        confidence=0.0,
+        summary=(f"The detector flagged {event.machine_id}, but no diagnosis could be produced. "
+                 "Inspect the machine and check the flagged signals on the dashboard."),
+        evidence=[],
+        severity="medium",
+        action="schedule_repair",
+        category="mechanical",
+        fix_steps=["Lock out and tag out the machine before any hands-on work (P101-SAF-01).",
+                   "Inspect the machine and check the flagged signals on the dashboard."],
+        safety=list(SAFETY),
+        verified=False,
+        validation_errors=[f"rule-based fallback failed: {reason}"],
+    )

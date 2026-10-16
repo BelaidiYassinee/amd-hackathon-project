@@ -262,7 +262,10 @@ def _short_error(e: Exception) -> str:
 
 
 def _fallback(run: _Run, error: str) -> DiagnosisResult:
-    d = fallback.rule_based(run.engine, run.event)
+    try:
+        d = fallback.rule_based(run.engine, run.event)
+    except Exception as e:  # the fallback is the last line: it must not leave the alert in "diagnosing"
+        d = fallback.minimal(run.event, f"{type(e).__name__}: {e}")
     run.step("validation", "fallback", input=error, output=validate.summary(d, d.validation_errors))
     return DiagnosisResult(diagnosis=d, trace=run.trace, calls=run.calls, used_fallback=True, error=error)
 

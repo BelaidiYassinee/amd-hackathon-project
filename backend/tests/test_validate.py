@@ -318,3 +318,29 @@ def test_api_error_text_is_short_for_the_ui(engine, script):
     turns += [llm.LlmError("InternalServerError: Error code: 500 - {'error': {'message': 'provider down'}}")]
     res = dg.diagnose(engine, fake_event())
     assert res.used_fallback and "Error code: 500" in res.error and "{'error'" not in res.error
+
+
+# ---------- robustness: diagnose() never raises ----------
+def test_fallback_with_no_contributions(engine):
+    ev = fake_event().model_copy(update={"contributions": []})
+    assert fallback.classify([], 1.5) == "other"
+    d = fallback.rule_based(engine, ev)
+    assert d.fault == "other" and d.verified is False  # fewer than 3 evidence items, but no crash
+
+
+def test_fallback_with_only_unknown_signals(engine):
+    ev = fake_event().model_copy(update={"contributions": [_c("oil_temp", 3)]})
+    assert fallback.rule_based(engine, ev).fault == "other"
+
+
+def test_diagnose_survives_a_crashing_fallback(engine, monkeypatch):
+    monkeypatch.setenv("LLM_MOCK", "1")
+
+    def boom(*a, **k):
+        raise RuntimeError("bad data")
+
+    monkeypatch.setattr(fallback, "rule_based", boom)
+    res = dg.diagnose(engine, fake_event())
+    assert res.used_fallback and res.diagnosis.fault == "other" and not res.diagnosis.verified
+    assert "bad data" in res.diagnosis.validation_errors[0]
+    assert res.trace[-1].name == "fallback"
