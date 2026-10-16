@@ -42,12 +42,14 @@ P-101 is an AquaFlow CP-80 end-suction centrifugal pump. It circulates coolant t
 ## [P101-TS-01] Troubleshooting: bearing wear
 
 **Symptoms** (in the order they appear)
-1. High-frequency vibration energy (`vibration_hf`) rises first. A high-frequency rise is the clear early sign of a bearing defect: at this stage every other signal, including bearing temperature, is still normal.
-2. Overall vibration (`vibration_rms`) increases in the later stage, as the bearing wear spreads.
+1. High-frequency vibration energy (`vibration_hf`) rises first. A high-frequency rise is the clear early sign of a bearing defect: at this stage every other signal is still normal.
+2. Overall vibration (`vibration_rms`) follows only many hours later, once the damage has spread.
 3. Bearing temperature (`bearing_temp`) climbs near the end.
 4. Motor current (`motor_current`) rises slightly just before the bearing seizes.
 
 Discharge pressure (`discharge_pressure`) and flow (`flow`) stay normal throughout.
+
+**Key rule:** bearing wear always starts with `vibration_hf`. If `vibration_rms` is the signal that moved first while `vibration_hf` is still near normal, it is not bearing wear: check shaft misalignment (P101-TS-03).
 
 **Typical progression**
 Bearing wear takes about 2 days (48 h) at full load from the first high-frequency rise (`vibration_hf`) to bearing seizure. The legacy vibration alarm usually fires only in the last part of that window.
@@ -71,13 +73,13 @@ Bearing wear usually comes from missed or insufficient lubrication, contaminated
 Mechanical.
 
 **Do not confuse with**
-Shaft misalignment (P101-TS-03): overall vibration rises together with bearing temperature and motor current, while `vibration_hf` stays low. Impeller imbalance (P101-TS-05): overall vibration rises, but there is no `vibration_hf` rise.
+Shaft misalignment (P101-TS-03) and impeller imbalance (P101-TS-05): `vibration_rms` moves first and `vibration_hf` stays near normal.
 
 ## [P101-TS-02] Troubleshooting: cavitation
 
 **Symptoms** (in the order they appear)
-1. Discharge pressure (`discharge_pressure`) drops and fluctuates instead of holding steady.
-2. Flow (`flow`) drops, often falling in step with the pressure.
+1. Discharge pressure dropping and fluctuating (`discharge_pressure`) instead of holding steady.
+2. Flow falling (`flow`), in step with the pressure.
 3. Overall vibration (`vibration_rms`) rises with broadband noise. At the pump you hear a crackling sound, like gravel passing through the casing.
 4. `vibration_hf` rises moderately.
 5. Motor current (`motor_current`) drops, because the pump is doing less work.
@@ -109,11 +111,13 @@ Bearing wear (P101-TS-01): discharge pressure and flow stay normal. Mechanical s
 ## [P101-TS-03] Troubleshooting: shaft misalignment
 
 **Symptoms** (in the order they appear)
-1. Overall vibration (`vibration_rms`) rises steadily, strongest at 1× and 2× running speed and in the axial direction.
-2. Bearing temperature (`bearing_temp`) rises moderately on both bearings.
-3. Motor current (`motor_current`) and motor temperature (`motor_temp`) rise slightly, because the coupling is working against a bent load path.
+1. Overall vibration rising (`vibration_rms`), steadily, strongest at 1× and 2× running speed and in the axial direction. At early detection it is often the only signal that has moved.
+2. Bearing temperature rising (`bearing_temp`), moderately, on both bearings.
+3. Motor current rising (`motor_current`) slightly, and `motor_temp` creeping up a little, because the coupling works against a bent load path.
 
-`vibration_hf` rises only a little. Strong axial vibration with warm bearings on both ends is the typical misalignment pattern.
+`vibration_hf` stays near normal or rises only a little.
+
+**Key rule:** overall vibration rising first, then bearing temperature rising, with `vibration_hf` still near normal, points to misalignment, not bearing wear. Overall vibration is the leading signal of misalignment. Recent alignment work or a coupling replacement in the maintenance history supports misalignment.
 
 **Typical progression**
 Misalignment leads to coupling or bearing damage in about 3 days (72 h).
@@ -140,11 +144,13 @@ Bearing wear (P101-TS-01): `vibration_hf` rises first and clearly, long before b
 ## [P101-TS-04] Troubleshooting: motor overheating
 
 **Symptoms** (in the order they appear)
-1. Motor winding temperature (`motor_temp`) rises steadily.
-2. Motor current (`motor_current`) rises together with the motor temperature.
+1. Motor temperature rising (`motor_temp`) steadily, in the winding.
+2. Motor current (`motor_current`) increases together with the motor temperature.
 3. Bearing temperature (`bearing_temp`) rises only slightly, from heat conducted out of the motor.
 
-Vibration stays normal: `vibration_rms` and `vibration_hf` do not change. Rising motor temperature and current with normal vibration point to the motor, not the pump.
+Vibration stays normal: `vibration_rms` and `vibration_hf` do not change.
+
+**Key rule:** motor temperature rising with motor current rising while vibration stays normal points to motor overheating, not to the pump.
 
 **Typical progression**
 An overheating motor reaches a thermal trip or damages the winding insulation in about 1.5 days (36 h). Do not let the motor overheat repeatedly: each overheat ages the insulation.
