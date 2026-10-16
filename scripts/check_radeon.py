@@ -1,6 +1,6 @@
 """Radeon API capability check (P2, Task 1).
 
-Run from the repo root:  python backend/scripts/check_radeon.py
+Run from the repo root:  python scripts/check_radeon.py
 Prints a summary table and the AGENT_MODE decision. Never prints the API key.
 """
 from __future__ import annotations

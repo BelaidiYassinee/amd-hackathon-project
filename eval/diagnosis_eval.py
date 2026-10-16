@@ -14,7 +14,7 @@ from backend.app.agent import llm
 from backend.app.agent.diagnose import agent_mode, diagnose
 
 if TYPE_CHECKING:
-    from backend.eval.scenarios import ScenarioRun  # P1
+    from eval.scenarios import ScenarioRun  # P1
 
 FAULTS = ["bearing_wear", "cavitation", "misalignment", "motor_overheat"]
 PREDICTED = FAULTS + ["other"]

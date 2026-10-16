@@ -10,7 +10,7 @@ import pytest
 
 from backend.app.agent.diagnose import DiagnosisResult
 from backend.app.models import Contribution, Diagnosis, LlmCall, TraceStep
-from backend.eval import diagnosis_eval as de
+from eval import diagnosis_eval as de
 from backend.tests.fake_engine import FakeEngine, fake_event
 
 
