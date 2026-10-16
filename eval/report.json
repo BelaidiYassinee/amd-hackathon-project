@@ -1,0 +1,187 @@
+{
+  "detection": {
+    "overall": {
+      "runs": 40,
+      "detected": 40,
+      "detection_rate_pct": 100.0,
+      "detection_delay_h": {
+        "n": 40,
+        "mean": 4.35,
+        "median": 3.58,
+        "min": 1.42
+      },
+      "legacy_fired": 31,
+      "legacy_missed": 9,
+      "lead_time_h": {
+        "n": 31,
+        "mean": 30.45,
+        "median": 28.58,
+        "min": 8.42
+      },
+      "ai_earlier": 40,
+      "ai_earlier_pct": 100.0,
+      "ai_warning_before_failure_h": {
+        "n": 40,
+        "mean": 39.41,
+        "median": 36.38,
+        "min": 16.0
+      },
+      "legacy_warning_before_failure_h": {
+        "n": 31,
+        "mean": 6.84,
+        "median": 6.17,
+        "min": 0.25
+      },
+      "pre_onset_false_alarm_runs": 0
+    },
+    "per_fault": {
+      "bearing_wear": {
+        "runs": 10,
+        "detected": 10,
+        "detection_rate_pct": 100.0,
+        "detection_delay_h": {
+          "n": 10,
+          "mean": 2.36,
+          "median": 2.42,
+          "min": 2.0
+        },
+        "legacy_fired": 6,
+        "legacy_missed": 4,
+        "lead_time_h": {
+          "n": 6,
+          "mean": 40.32,
+          "median": 39.29,
+          "min": 34.67
+        },
+        "ai_earlier": 10,
+        "ai_earlier_pct": 100.0,
+        "ai_warning_before_failure_h": {
+          "n": 10,
+          "mean": 42.87,
+          "median": 41.71,
+          "min": 37.42
+        },
+        "legacy_warning_before_failure_h": {
+          "n": 6,
+          "mean": 3.57,
+          "median": 4.12,
+          "min": 0.75
+        },
+        "pre_onset_false_alarm_runs": 0
+      },
+      "cavitation": {
+        "runs": 10,
+        "detected": 10,
+        "detection_rate_pct": 100.0,
+        "detection_delay_h": {
+          "n": 10,
+          "mean": 1.88,
+          "median": 1.83,
+          "min": 1.42
+        },
+        "legacy_fired": 10,
+        "legacy_missed": 0,
+        "lead_time_h": {
+          "n": 10,
+          "mean": 11.18,
+          "median": 10.75,
+          "min": 8.42
+        },
+        "ai_earlier": 10,
+        "ai_earlier_pct": 100.0,
+        "ai_warning_before_failure_h": {
+          "n": 10,
+          "mean": 19.15,
+          "median": 19.83,
+          "min": 16.0
+        },
+        "legacy_warning_before_failure_h": {
+          "n": 10,
+          "mean": 7.97,
+          "median": 7.21,
+          "min": 3.83
+        },
+        "pre_onset_false_alarm_runs": 0
+      },
+      "misalignment": {
+        "runs": 10,
+        "detected": 10,
+        "detection_rate_pct": 100.0,
+        "detection_delay_h": {
+          "n": 10,
+          "mean": 6.47,
+          "median": 6.04,
+          "min": 4.5
+        },
+        "legacy_fired": 7,
+        "legacy_missed": 3,
+        "lead_time_h": {
+          "n": 7,
+          "mean": 53.48,
+          "median": 53.58,
+          "min": 39.83
+        },
+        "ai_earlier": 10,
+        "ai_earlier_pct": 100.0,
+        "ai_warning_before_failure_h": {
+          "n": 10,
+          "mean": 64.38,
+          "median": 63.75,
+          "min": 53.92
+        },
+        "legacy_warning_before_failure_h": {
+          "n": 7,
+          "mean": 11.23,
+          "median": 9.58,
+          "min": 4.83
+        },
+        "pre_onset_false_alarm_runs": 0
+      },
+      "motor_overheat": {
+        "runs": 10,
+        "detected": 10,
+        "detection_rate_pct": 100.0,
+        "detection_delay_h": {
+          "n": 10,
+          "mean": 6.71,
+          "median": 6.46,
+          "min": 5.58
+        },
+        "legacy_fired": 8,
+        "legacy_missed": 2,
+        "lead_time_h": {
+          "n": 8,
+          "mean": 27.0,
+          "median": 28.46,
+          "min": 18.25
+        },
+        "ai_earlier": 10,
+        "ai_earlier_pct": 100.0,
+        "ai_warning_before_failure_h": {
+          "n": 10,
+          "mean": 31.23,
+          "median": 30.5,
+          "min": 24.17
+        },
+        "legacy_warning_before_failure_h": {
+          "n": 8,
+          "mean": 4.06,
+          "median": 5.71,
+          "min": 0.25
+        },
+        "pre_onset_false_alarm_runs": 0
+      }
+    },
+    "healthy": {
+      "runs": 10,
+      "runs_with_false_alarm": 0,
+      "total_false_events": 0
+    },
+    "pass_bars": {
+      "ai_earlier_at_least_90pct": true,
+      "false_alarm_runs_at_most_1": true
+    }
+  },
+  "diagnosis": null,
+  "scenarios": 50
+}
