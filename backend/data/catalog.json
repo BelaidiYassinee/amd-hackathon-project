@@ -1,0 +1,30 @@
+{
+  "assumptions": {
+    "energy_eur_per_kwh": 0.18,
+    "downtime_eur_per_h": 1200,
+    "horizon_years": 5,
+    "hours_per_failure": 6,
+    "base_maintenance_eur_year": 1500,
+    "failures_per_year_new": 0.2,
+    "failures_per_corrective_repair": 0.5,
+    "maintenance_factor_per_corrective": 0.25
+  },
+  "repair_estimates": {
+    "bearing_wear":   {"parts_eur": 450, "labor_eur": 950, "downtime_h": 8, "efficiency_after_pct": 60, "lead_time_days": 0},
+    "cavitation":     {"parts_eur": 140, "labor_eur": 300, "downtime_h": 3, "efficiency_after_pct": 60, "lead_time_days": 0},
+    "misalignment":   {"parts_eur": 102, "labor_eur": 600, "downtime_h": 4, "efficiency_after_pct": 60, "lead_time_days": 0},
+    "motor_overheat": {"parts_eur": 95,  "labor_eur": 700, "downtime_h": 6, "efficiency_after_pct": 60, "lead_time_days": 0},
+    "other":          {"parts_eur": 500, "labor_eur": 800, "downtime_h": 6, "efficiency_after_pct": 60, "lead_time_days": 0}
+  },
+  "candidates": [
+    {"id": "AF-CP80-G2", "label": "AquaFlow CP-80 Gen2 (IE4 motor)", "price_eur": 14500, "install_eur": 1800, "install_downtime_h": 12,
+     "efficiency_pct": 74, "rated_flow_m3h": 130, "rated_head_m": 44, "maintenance_eur_year": 900, "lead_time_days": 10,
+     "footprint_compatible": true, "notes": "Same footprint and flanges as the current pump; drop-in replacement."},
+    {"id": "HX-NB100", "label": "Hydrix NB-100", "price_eur": 11200, "install_eur": 4200, "install_downtime_h": 24,
+     "efficiency_pct": 68, "rated_flow_m3h": 180, "rated_head_m": 46, "maintenance_eur_year": 1100, "lead_time_days": 5,
+     "footprint_compatible": false, "notes": "Oversized for this duty, so it runs left of its best-efficiency point; needs a new baseplate and piping adapters (included in install cost)."},
+    {"id": "VT-ECO75", "label": "Vortan Eco-75", "price_eur": 7900, "install_eur": 2000, "install_downtime_h": 12,
+     "efficiency_pct": 61, "rated_flow_m3h": 110, "rated_head_m": 38, "maintenance_eur_year": 1200, "lead_time_days": 7,
+     "footprint_compatible": true, "notes": "Cheapest to buy, but cannot reach 120 m3/h at 42 m."}
+  ]
+}

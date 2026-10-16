@@ -1,0 +1,14 @@
+[
+  {"part_no": "BRG-6309-C3",  "name": "Deep groove ball bearing 6309 C3 (drive end)",     "fits": ["P-101", "P-102"], "in_stock": 2,  "location": "Store B-14", "unit_cost_eur": 85,   "lead_time_days": 3},
+  {"part_no": "BRG-6308-C3",  "name": "Deep groove ball bearing 6308 C3 (non-drive end)", "fits": ["P-101", "P-102"], "in_stock": 1,  "location": "Store B-14", "unit_cost_eur": 72,   "lead_time_days": 3},
+  {"part_no": "GREASE-EP2",   "name": "Lithium bearing grease EP2, 400 g cartridge",      "fits": ["P-101", "P-102", "M-301"], "in_stock": 12, "location": "Store A-02", "unit_cost_eur": 9, "lead_time_days": 2},
+  {"part_no": "SEAL-M80",     "name": "Mechanical seal 45 mm, carbon/SiC",                "fits": ["P-101", "P-102"], "in_stock": 0,  "location": "Store B-15", "unit_cost_eur": 410,  "lead_time_days": 9},
+  {"part_no": "CPL-ELEM-80",  "name": "Flexible coupling elastomer element",              "fits": ["P-101", "P-102"], "in_stock": 3,  "location": "Store B-16", "unit_cost_eur": 64,   "lead_time_days": 4},
+  {"part_no": "IMP-CP80",     "name": "Impeller 260 mm, cast iron",                       "fits": ["P-101"],          "in_stock": 0,  "location": "-",          "unit_cost_eur": 1950, "lead_time_days": 21},
+  {"part_no": "STR-DN125",    "name": "Suction strainer basket DN125",                    "fits": ["P-101", "P-102"], "in_stock": 1,  "location": "Store C-03", "unit_cost_eur": 140,  "lead_time_days": 5},
+  {"part_no": "FAN-MTR-30",   "name": "Motor cooling fan, 30 kW frame",                   "fits": ["P-101"],          "in_stock": 1,  "location": "Store E-01", "unit_cost_eur": 95,   "lead_time_days": 4},
+  {"part_no": "SHIM-KIT-80",  "name": "Stainless alignment shim kit",                     "fits": ["P-101", "P-102", "M-301"], "in_stock": 4, "location": "Store B-16", "unit_cost_eur": 38, "lead_time_days": 2},
+  {"part_no": "FLT-AIR-C201", "name": "Compressor air intake filter",                     "fits": ["C-201"],          "in_stock": 2,  "location": "Store D-07", "unit_cost_eur": 56,   "lead_time_days": 3},
+  {"part_no": "OIL-SEP-C201", "name": "Compressor oil separator element",                 "fits": ["C-201"],          "in_stock": 1,  "location": "Store D-07", "unit_cost_eur": 180,  "lead_time_days": 6},
+  {"part_no": "BELT-M301",    "name": "Conveyor drive V-belt set",                        "fits": ["M-301"],          "in_stock": 2,  "location": "Store F-02", "unit_cost_eur": 74,   "lead_time_days": 3}
+]
