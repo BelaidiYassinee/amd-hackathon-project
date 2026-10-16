@@ -159,3 +159,12 @@ def test_usage_with_none_counts_is_estimated(monkeypatch):
     use(monkeypatch, FakeClient(resp))
     r = llm.chat([{"role": "user", "content": "y" * 100}], purpose="check")
     assert r.call.ok and r.call.prompt_tokens > 0 and r.call.completion_tokens == 10 + len("[]") // 4
+
+
+def test_finish_reason_length_sets_truncated(monkeypatch):
+    cut, done = make_resp('{"fault": "bear'), make_resp("{}")
+    cut.choices[0].finish_reason = "length"
+    done.choices[0].finish_reason = "stop"
+    use(monkeypatch, FakeClient(cut, done))
+    assert llm.chat([{"role": "user", "content": "x"}], purpose="check").truncated is True
+    assert llm.chat([{"role": "user", "content": "x"}], purpose="check").truncated is False

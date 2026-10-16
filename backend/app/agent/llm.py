@@ -46,6 +46,7 @@ class ChatResult:
     tool_calls: list[dict]  # [{"id": str, "name": str, "arguments": dict}] (+ "parse_error" if bad JSON)
     raw_message: dict  # assistant message, ready to append to the conversation
     call: LlmCall  # also recorded in the stats ring buffer + llm_calls.jsonl
+    truncated: bool = False  # finish_reason == "length": the answer was cut at max_tokens
 
 
 # ---------- module state (guarded by _lock) ----------
@@ -245,12 +246,14 @@ def chat(messages: list[dict], *, purpose: LlmPurpose, tools: list[dict] | None 
             completion_tokens = (len(raw_content) + len(json.dumps(tool_calls))) // 4
         content = _strip_think(raw_content) or None
         raw_message = _raw_message(msg, raw_content)
+        truncated = getattr(choice, "finish_reason", None) == "length"
     except Exception as e:
         call = _record(purpose, latency_ms, 0, 0, ok=False, error="bad API response: " + _safe(e))
         raise LlmError(call.error) from None
 
     call = _record(purpose, latency_ms, int(prompt_tokens), int(completion_tokens), ok=True)
-    return ChatResult(content=content, tool_calls=tool_calls, raw_message=raw_message, call=call)
+    return ChatResult(content=content, tool_calls=tool_calls, raw_message=raw_message, call=call,
+                      truncated=truncated)
 
 
 def stats() -> AmdStats:
