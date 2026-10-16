@@ -108,6 +108,7 @@ def rule_based(engine, event: AnomalyEvent) -> Diagnosis:
                                  detail=f"Latest corrective repair ({corrective[0].date}): {corrective[0].title}."))
 
     top_names = " and ".join(specs[c.signal].label.lower() for c in contribs[:2])
+    fitting = {p["part_no"] for p in data.parts(mid)}
     d = Diagnosis(
         fault=fault,
         fault_label=f"{LABELS[fault]} (rule-based fallback)",
@@ -120,7 +121,7 @@ def rule_based(engine, event: AnomalyEvent) -> Diagnosis:
         category=CATEGORY[fault],
         # the overview's bullets are specifications, not steps: "other" gets the generic steps
         fix_steps=_fix_steps(section.text if section and fault != "other" else None, section_id),
-        parts=[PartLine(part_no=p, name=p) for p in PARTS[fault]],
+        parts=[PartLine(part_no=p, name=p) for p in PARTS[fault] if p in fitting],
         safety=list(SAFETY),
     )
     seen = {ev.ref for ev in evidence}  # the fallback looked these up itself

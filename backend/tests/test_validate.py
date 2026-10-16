@@ -352,3 +352,9 @@ def test_other_fallback_cites_the_overview(engine):
     d = fallback.rule_based(engine, ev)
     assert d.fault == "other" and "P101-OV-01" in [e.ref for e in d.evidence]
     assert d.verified, d.validation_errors
+
+
+def test_fallback_parts_only_fit_the_machine(engine, monkeypatch):
+    monkeypatch.setitem(fallback.PARTS, "bearing_wear", ["BRG-6309-C3", "FLT-AIR-C201"])  # filter fits C-201
+    d = fallback.rule_based(engine, fake_event())
+    assert [p.part_no for p in d.parts] == ["BRG-6309-C3"] and d.verified
