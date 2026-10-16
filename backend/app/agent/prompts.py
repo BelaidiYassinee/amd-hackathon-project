@@ -68,6 +68,11 @@ FIX_PROMPT = (
     "Fix these problems and answer again with only the JSON object. "
     "Only call a tool if a fix needs data you have not retrieved yet:\n"
 )
+# AGENT_MODE=prefetch has no tools, so the fix cannot ask the model to retrieve anything.
+PREFETCH_FIX_PROMPT = (
+    "Fix these problems and answer again with only the JSON object. No tools are available: use only the "
+    "tool results above, and remove any evidence item or part you cannot back with them:\n"
+)
 FORCE_FINAL_PROMPT = "Stop calling tools. Give your final JSON answer now."
 
 

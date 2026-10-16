@@ -166,8 +166,8 @@ def parse_diagnosis(text: str | None) -> tuple[Diagnosis | None, list[str]]:
         return None, [f"{'.'.join(str(x) for x in err['loc']) or 'answer'}: {err['msg']}" for err in e.errors()]
 
 
-def _fix_message(errors: list[str]) -> dict:
-    return {"role": "user", "content": prompts.FIX_PROMPT + "\n".join(f"- {e}" for e in errors)}
+def _fix_message(errors: list[str], prompt: str = prompts.FIX_PROMPT) -> dict:
+    return {"role": "user", "content": prompt + "\n".join(f"- {e}" for e in errors)}
 
 
 # ---------- modes ----------
@@ -243,7 +243,7 @@ def _run_prefetch(run: _Run) -> Diagnosis:
         if not errors:
             return d
         if attempt == 1:
-            messages += [r.raw_message, _fix_message(errors)]
+            messages += [r.raw_message, _fix_message(errors, prompts.PREFETCH_FIX_PROMPT)]
             input_desc = f"{len(errors)} validation problem(s) to fix"
     if d is None:
         raise _AgentFailed("no valid JSON answer after a retry: " + "; ".join(errors[:3]))

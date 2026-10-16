@@ -287,3 +287,13 @@ def test_prefetch_retrieves_lockout_section(engine, script, monkeypatch):
     turns += [answer_turn(json.dumps(good_dict(evidence=ev)))]
     res = dg.diagnose(engine, fake_event())
     assert res.diagnosis.verified and len(res.calls) == 1
+
+
+def test_prefetch_fix_prompt_offers_no_tools(engine, script, monkeypatch):
+    turns, requests = script
+    monkeypatch.setenv("AGENT_MODE", "prefetch")
+    turns += [answer_turn(json.dumps(good_dict(parts=[{"part_no": "XXX-1", "qty": 1}]))),
+              answer_turn(json.dumps(good_dict()))]
+    res = dg.diagnose(engine, fake_event())
+    assert res.diagnosis.verified and len(res.calls) == 2
+    assert requests[1]["messages"][-1]["content"].startswith(dg.prompts.PREFETCH_FIX_PROMPT)
