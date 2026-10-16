@@ -91,7 +91,8 @@ def _get_client() -> openai.OpenAI:
             _client = openai.OpenAI(
                 base_url=_base_url(),
                 api_key=_key(),
-                timeout=float(_env("LLM_TIMEOUT_S", "60") or 60),
+                # 90 s, not the brief's 60: real diagnosis calls on the Radeon API take 20-66 s
+                timeout=float(_env("LLM_TIMEOUT_S", "90") or 90),
                 max_retries=0,  # we retry once ourselves
             )
         return _client
