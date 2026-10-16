@@ -344,3 +344,11 @@ def test_diagnose_survives_a_crashing_fallback(engine, monkeypatch):
     assert res.used_fallback and res.diagnosis.fault == "other" and not res.diagnosis.verified
     assert "bad data" in res.diagnosis.validation_errors[0]
     assert res.trace[-1].name == "fallback"
+
+
+def test_other_fallback_cites_the_overview(engine):
+    ev = fake_event().model_copy(update={"contributions": [_c("bearing_temp", 2), _c("motor_current", 1),
+                                                           _c("vibration_rms", 0.2)]})
+    d = fallback.rule_based(engine, ev)
+    assert d.fault == "other" and "P101-OV-01" in [e.ref for e in d.evidence]
+    assert d.verified, d.validation_errors

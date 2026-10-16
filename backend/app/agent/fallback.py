@@ -22,6 +22,7 @@ MANUAL_SECTION = {
     "cavitation": "P101-TS-02",
     "misalignment": "P101-TS-03",
     "motor_overheat": "P101-TS-04",
+    "other": "P101-OV-01",  # no troubleshooting signature: cite the overview so evidence has a manual ref
 }
 PARTS = {
     "bearing_wear": ["BRG-6309-C3", "GREASE-EP2"],
@@ -99,8 +100,9 @@ def rule_based(engine, event: AnomalyEvent) -> Diagnosis:
                          detail=_sensor_detail(c, specs[c.signal].label, specs[c.signal].unit))
                 for c in contribs[:2]]
     if section:
-        evidence.append(Evidence(kind="manual", ref=section.id,
-                                 detail=f"Rule-based match: this signal pattern fits '{section.title}'."))
+        detail = (f"Rule-based match: this signal pattern fits '{section.title}'." if fault != "other" else
+                  f"No fixed rule matches this pattern; see '{section.title}' for the machine's normal ranges.")
+        evidence.append(Evidence(kind="manual", ref=section.id, detail=detail))
     if corrective:
         evidence.append(Evidence(kind="history", ref=corrective[0].id,
                                  detail=f"Latest corrective repair ({corrective[0].date}): {corrective[0].title}."))
@@ -116,7 +118,8 @@ def rule_based(engine, event: AnomalyEvent) -> Diagnosis:
         severity="medium",
         action="consider_replacement" if n_corrective >= 3 else "schedule_repair",
         category=CATEGORY[fault],
-        fix_steps=_fix_steps(section.text if section else None, section_id),
+        # the overview's bullets are specifications, not steps: "other" gets the generic steps
+        fix_steps=_fix_steps(section.text if section and fault != "other" else None, section_id),
         parts=[PartLine(part_no=p, name=p) for p in PARTS[fault]],
         safety=list(SAFETY),
     )
