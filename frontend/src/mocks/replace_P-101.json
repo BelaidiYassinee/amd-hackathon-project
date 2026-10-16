@@ -1,0 +1,18 @@
+{
+  "machine_id": "P-101",
+  "fault": "bearing_wear",
+  "duty": {"flow_m3h": 120, "head_m": 42, "hours_per_year": 6000},
+  "assumptions": {"energy_eur_per_kwh": 0.18, "downtime_eur_per_h": 1200, "horizon_years": 5, "hours_per_failure": 6,
+                  "base_maintenance_eur_year": 1500, "failures_per_year_new": 0.2, "failures_per_corrective_repair": 0.5,
+                  "maintenance_factor_per_corrective": 0.25, "corrective_repairs_last_12m": 3, "age_years": 9.6},
+  "options": [
+    {"option_id": "AF-CP80-G2", "kind": "replace", "label": "AquaFlow CP-80 Gen2 (IE4 motor)", "capex_eur": 16300, "energy_eur_5y": 100159, "maintenance_eur_5y": 4500, "downtime_eur_5y": 21600, "tco_5y_eur": 142559, "efficiency_pct": 74, "lead_time_days": 10, "fits_duty": true, "fit_notes": "Meets 120 m3/h at 42 m (rated 130 m3/h at 44 m); same footprint.", "score": 100.0, "rank": 1},
+    {"option_id": "HX-NB100", "kind": "replace", "label": "Hydrix NB-100", "capex_eur": 15400, "energy_eur_5y": 108997, "maintenance_eur_5y": 5500, "downtime_eur_5y": 36000, "tco_5y_eur": 165897, "efficiency_pct": 68, "lead_time_days": 5, "fits_duty": true, "fit_notes": "Meets duty (rated 180 m3/h at 46 m) but oversized; new baseplate needed.", "score": 85.9, "rank": 2},
+    {"option_id": "repair", "kind": "repair", "label": "Repair current pump (bearing replacement)", "capex_eur": 1400, "energy_eur_5y": 123529, "maintenance_eur_5y": 13125, "downtime_eur_5y": 63600, "tco_5y_eur": 201654, "efficiency_pct": 60, "lead_time_days": 0, "fits_duty": true, "fit_notes": "Keeps the 9-year-old pump; 3 corrective repairs in the last 12 months.", "score": 70.7, "rank": 3},
+    {"option_id": "VT-ECO75", "kind": "replace", "label": "Vortan Eco-75", "capex_eur": 9900, "energy_eur_5y": 121504, "maintenance_eur_5y": 6000, "downtime_eur_5y": 21600, "tco_5y_eur": 159004, "efficiency_pct": 61, "lead_time_days": 7, "fits_duty": false, "fit_notes": "Rated 110 m3/h at 38 m: below the 120 m3/h at 42 m duty.", "score": 0.0, "rank": 4}
+  ],
+  "recommendation": "AF-CP80-G2",
+  "payback_months": 15.0,
+  "justification": "Replacing P-101 with the AquaFlow CP-80 Gen2 has the lowest 5-year cost at €142,559, against €201,654 for repairing the current pump. Most of the gap is energy (74% vs 60% efficiency) and downtime, since the current pump needed 3 corrective repairs in the last 12 months. The extra upfront cost pays back in about 15 months; the Vortan Eco-75 is cheaper to buy but cannot deliver 120 m3/h at 42 m.",
+  "justification_verified": true
+}
