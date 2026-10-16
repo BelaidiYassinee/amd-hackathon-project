@@ -79,6 +79,11 @@ def _fix_steps(section_text: str | None, section_id: str | None) -> list[str]:
     ]
 
 
+def _lower(label: str) -> str:
+    """'Vibration RMS' -> 'vibration RMS', but keep acronyms: 'HF vibration energy' stays."""
+    return label if label[:2].isupper() else label[:1].lower() + label[1:]
+
+
 def _sensor_detail(c: Contribution, label: str, unit: str) -> str:
     side = "above" if c.z >= 0 else "below"
     trend = "rising" if c.slope_per_h > 0 else "falling" if c.slope_per_h < 0 else "flat"
@@ -107,7 +112,7 @@ def rule_based(engine, event: AnomalyEvent) -> Diagnosis:
         evidence.append(Evidence(kind="history", ref=corrective[0].id,
                                  detail=f"Latest corrective repair ({corrective[0].date}): {corrective[0].title}."))
 
-    top_names = " and ".join(specs[c.signal].label.lower() for c in contribs[:2])
+    top_names = " and ".join(_lower(specs[c.signal].label) for c in contribs[:2]) or "its signals"
     fitting = {p["part_no"] for p in data.parts(mid)}
     d = Diagnosis(
         fault=fault,

@@ -358,3 +358,8 @@ def test_fallback_parts_only_fit_the_machine(engine, monkeypatch):
     monkeypatch.setitem(fallback.PARTS, "bearing_wear", ["BRG-6309-C3", "FLT-AIR-C201"])  # filter fits C-201
     d = fallback.rule_based(engine, fake_event())
     assert [p.part_no for p in d.parts] == ["BRG-6309-C3"] and d.verified
+
+
+def test_fallback_summary_keeps_acronyms(engine):
+    summary = fallback.rule_based(engine, fake_event()).summary
+    assert "HF vibration energy and vibration RMS" in summary
