@@ -215,12 +215,21 @@ def _prefetch_query(event: AnomalyEvent) -> str:
     return " ".join(phrases)
 
 
+def _safety_query(event: AnomalyEvent) -> str:
+    """Lockout/tagout plus the procedures that fit the top symptom (P101-SAF-01, P101-PR-xx)."""
+    top = event.contributions[:1]
+    symptom = SEARCH_PHRASES.get((top[0].signal, top[0].direction), "") if top else ""
+    return f"safety lockout tagout procedure {symptom}".strip()
+
+
 def _run_prefetch(run: _Run) -> Diagnosis:
     mid = run.mid
     plan = [("get_sensor_summary", {"machine_id": mid, "signal": c.signal, "hours": 24})
             for c in run.event.contributions[:4]]
     plan += [("get_maintenance_history", {"machine_id": mid}),
              ("search_manual", {"query": _prefetch_query(run.event), "k": 3}),
+             # the prompt asks for lockout/tagout and procedure ids: retrieve them, or citing them fails validation
+             ("search_manual", {"query": _safety_query(run.event), "k": 3}),
              ("check_spare_parts", {"machine_id": mid})]
     payload = "\n".join(f"{name}({_short_args(args)}): {tools.tool_message_content(run.tool(name, args))}"
                         for name, args in plan)

@@ -273,6 +273,17 @@ def test_prefetch_mode(engine, script, monkeypatch):
         {"kind": "sensor", "ref": "vibration_rms", "detail": "x"}])))]
     res = dg.diagnose(engine, fake_event())
     assert res.diagnosis.verified and len(res.calls) == 1
-    assert [s.kind for s in res.trace] == ["tool"] * 7 + ["llm", "validation"]
+    assert [s.kind for s in res.trace] == ["tool"] * 8 + ["llm", "validation"]
+    assert [s.name for s in res.trace].count("search_manual") == 2  # symptoms + safety/procedures
     assert requests[0]["json_mode"] is True and requests[0]["tools"] is None
     assert "Tool results:" in requests[0]["messages"][1]["content"]
+
+
+def test_prefetch_retrieves_lockout_section(engine, script, monkeypatch):
+    """The prompt asks for lockout/tagout: citing P101-SAF-01 must pass on the first answer."""
+    turns, requests = script
+    monkeypatch.setenv("AGENT_MODE", "prefetch")
+    ev = good_dict()["evidence"][:2] + [{"kind": "manual", "ref": "P101-SAF-01", "detail": "Lock out first."}]
+    turns += [answer_turn(json.dumps(good_dict(evidence=ev)))]
+    res = dg.diagnose(engine, fake_event())
+    assert res.diagnosis.verified and len(res.calls) == 1
