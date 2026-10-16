@@ -18,6 +18,8 @@ from rank_bm25 import BM25Okapi
 from backend.app.agent import data_shim as data  # TODO: `from backend.app import data` once P4's data.py is on main
 
 MAX_RESULT_CHARS = 3000
+# get_manual_sections returns whole sections on purpose (the 6 troubleshooting sections are ~8.5k chars)
+RESULT_CHARS = {"get_manual_sections": 12000}
 
 TOOLS = [
     {"type": "function", "function": {
@@ -182,6 +184,24 @@ def search_manual(engine, query: str, k: int = 3) -> list | dict:
              "score": _r(scores[i])} for i in best]
 
 
+def _section_kind(section_id: str) -> str:
+    """P101-TS-03 -> TS"""
+    parts = section_id.split("-")
+    return parts[1] if len(parts) > 2 else ""
+
+
+def get_manual_sections(engine, kinds: list[str]) -> list | dict:
+    """Every manual section of the given kinds (TS troubleshooting, PR procedure, SAF safety), in full and in
+    manual order. Prefetch mode uses this instead of search_manual: a keyword ranking can leave out the right
+    troubleshooting section (it never returned P101-TS-03 for misalignment), so the model gets all of them."""
+    sections = list(data.manual_sections().values())
+    valid = sorted({_section_kind(s.id) for s in sections} - {""})
+    wanted = {str(k).strip().upper() for k in ([kinds] if isinstance(kinds, str) else kinds)}
+    if not wanted or not wanted <= set(valid):
+        return {"error": f"unknown section kind(s): {kinds}", "valid_kinds": valid}
+    return [{"section_id": s.id, "title": s.title, "text": s.text} for s in sections if _section_kind(s.id) in wanted]
+
+
 def check_spare_parts(engine, machine_id: str, keyword: str | None = None) -> list | dict:
     mid, err = _check_machine(engine, machine_id)
     if err:
@@ -203,13 +223,15 @@ _FUNCS = {
     "get_maintenance_history": get_maintenance_history,
     "search_manual": search_manual,
     "check_spare_parts": check_spare_parts,
+    "get_manual_sections": get_manual_sections,  # prefetch mode only: not offered in TOOLS
 }
 
 
-def tool_message_content(result: dict | list) -> str:
-    """The JSON sent back to the model, truncated to MAX_RESULT_CHARS."""
+def tool_message_content(result: dict | list, name: str = "") -> str:
+    """The JSON sent back to the model, truncated to MAX_RESULT_CHARS (or the tool's RESULT_CHARS)."""
+    limit = RESULT_CHARS.get(name, MAX_RESULT_CHARS)
     text = json.dumps(result, ensure_ascii=False, separators=(",", ":"), default=str)
-    return text if len(text) <= MAX_RESULT_CHARS else text[:MAX_RESULT_CHARS] + "...(truncated)"
+    return text if len(text) <= limit else text[:limit] + "...(truncated)"
 
 
 def _remember(name: str, args: dict, result, shown: str, seen: set[str]) -> None:
@@ -220,7 +242,7 @@ def _remember(name: str, args: dict, result, shown: str, seen: set[str]) -> None
         return
     if name == "get_maintenance_history":
         ids = [r["id"] for r in result.get("records", [])]
-    elif name == "search_manual":
+    elif name in ("search_manual", "get_manual_sections"):
         ids = [s["section_id"] for s in result]
     elif name == "check_spare_parts":
         ids = [p["part_no"] for p in (result["parts"] if isinstance(result, dict) else result)]
@@ -244,5 +266,5 @@ def run_tool(engine, name: str, args: dict, seen: set[str]) -> dict | list:
             result = fn(engine, **args)
         except Exception as e:  # a tool must never break the agent loop
             result = {"error": f"{name} failed: {type(e).__name__}: {e}"}
-    _remember(name, args, result, tool_message_content(result), seen)
+    _remember(name, args, result, tool_message_content(result, name), seen)
     return result

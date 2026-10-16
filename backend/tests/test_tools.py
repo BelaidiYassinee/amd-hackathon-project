@@ -21,7 +21,8 @@ def engine():
 
 
 def test_tool_names_match_executor():
-    assert [t["function"]["name"] for t in tools.TOOLS] == list(tools._FUNCS)
+    offered = [t["function"]["name"] for t in tools.TOOLS]
+    assert offered + ["get_manual_sections"] == list(tools._FUNCS)  # get_manual_sections: prefetch mode only
 
 
 # ---------- get_sensor_summary ----------
@@ -111,6 +112,24 @@ def test_tokenizer_splits_signal_names():
 ])
 def test_search_manual_ranking(query, first):
     assert tools.search_manual(None, query)[0]["section_id"] == first
+
+
+# ---------- get_manual_sections ----------
+def test_manual_sections_by_kind():
+    r = tools.get_manual_sections(None, ["TS"])
+    assert [s["section_id"] for s in r] == [f"P101-TS-0{i}" for i in range(1, 7)]
+    assert all(s["text"] == data.manual_sections()[s["section_id"]].text for s in r)  # whole sections, not cut
+    assert [s["section_id"] for s in tools.get_manual_sections(None, ["saf", "PR"])][-1] == "P101-SAF-01"
+    assert "error" in tools.get_manual_sections(None, ["XX"])
+    assert tools.get_manual_sections(None, [])["valid_kinds"] == ["OV", "PR", "SAF", "TS"]
+
+
+def test_manual_sections_are_not_truncated_and_all_count_as_seen(engine):
+    seen: set[str] = set()
+    r = tools.run_tool(engine, "get_manual_sections", {"kinds": ["TS"]}, seen)
+    text = tools.tool_message_content(r, "get_manual_sections")
+    assert len(text) > tools.MAX_RESULT_CHARS and not text.endswith("(truncated)")
+    assert {f"P101-TS-0{i}" for i in range(1, 7)} <= seen
 
 
 # ---------- check_spare_parts ----------

@@ -29,18 +29,6 @@ DEFAULT_AGENT_MODE = "prefetch"
 _FENCE = re.compile(r"```(?:json)?", re.I)
 _THINK = re.compile(r"<think>.*?</think>", re.S)
 
-# prefetch mode: contribution (signal, direction) -> manual search phrase
-SEARCH_PHRASES = {
-    ("vibration_hf", "up"): "high frequency vibration energy rising",
-    ("vibration_rms", "up"): "overall vibration rising",
-    ("bearing_temp", "up"): "bearing temperature rising",
-    ("motor_temp", "up"): "motor temperature rising",
-    ("motor_current", "up"): "motor current rising",
-    ("motor_current", "down"): "motor current dropping",
-    ("discharge_pressure", "down"): "discharge pressure dropping fluctuating",
-    ("flow", "down"): "flow falling",
-}
-
 
 @dataclass
 class DiagnosisResult:
@@ -134,6 +122,8 @@ def _compact(name: str, result):
         return {"corrective_last_12m": result["corrective_last_12m"], "records": [r["id"] for r in result["records"]]}
     if name == "search_manual":
         return [{"section_id": s["section_id"], "score": s["score"]} for s in result]
+    if name == "get_manual_sections":
+        return [s["section_id"] for s in result]
     if name == "check_spare_parts":
         rows = result["parts"] if isinstance(result, dict) else result
         return [{"part_no": p["part_no"], "in_stock": p["in_stock"]} for p in rows]
@@ -189,7 +179,7 @@ def _run_tools(run: _Run) -> Diagnosis:
             for tc in r.tool_calls:
                 result = run.tool(tc["name"], tc["arguments"], tc.get("parse_error"))
                 messages.append({"role": "tool", "tool_call_id": tc["id"],
-                                 "content": tools.tool_message_content(result)})
+                                 "content": tools.tool_message_content(result, tc["name"])})
             input_desc = f"{len(r.tool_calls)} tool result(s)"
             continue
         d, errors = run.check_answer(r.content, r.truncated)
@@ -212,31 +202,18 @@ def _run_tools(run: _Run) -> Diagnosis:
     return d
 
 
-def _prefetch_query(event: AnomalyEvent) -> str:
-    phrases = []
-    for c in event.contributions[:3]:
-        default = f"{c.signal.replace('_', ' ')} {'rising' if c.direction == 'up' else 'falling'}"
-        phrases.append(SEARCH_PHRASES.get((c.signal, c.direction), default))
-    return " ".join(phrases)
-
-
-def _safety_query(event: AnomalyEvent) -> str:
-    """Lockout/tagout plus the procedures that fit the top symptom (P101-SAF-01, P101-PR-xx)."""
-    top = event.contributions[:1]
-    symptom = SEARCH_PHRASES.get((top[0].signal, top[0].direction), "") if top else ""
-    return f"safety lockout tagout procedure {symptom}".strip()
-
-
 def _run_prefetch(run: _Run) -> Diagnosis:
     mid = run.mid
     plan = [("get_sensor_summary", {"machine_id": mid, "signal": c.signal, "hours": 24})
             for c in run.event.contributions[:4]]
     plan += [("get_maintenance_history", {"machine_id": mid}),
-             ("search_manual", {"query": _prefetch_query(run.event), "k": 3}),
+             # No keyword search: every troubleshooting section goes in, and the model compares the pattern
+             # with all of them (a symptom query never returned P101-TS-03 for misalignment).
+             ("get_manual_sections", {"kinds": ["TS"]}),
              # the prompt asks for lockout/tagout and procedure ids: retrieve them, or citing them fails validation
-             ("search_manual", {"query": _safety_query(run.event), "k": 3}),
+             ("get_manual_sections", {"kinds": ["PR", "SAF"]}),
              ("check_spare_parts", {"machine_id": mid})]
-    payload = "\n".join(f"{name}({_short_args(args)}): {tools.tool_message_content(run.tool(name, args))}"
+    payload = "\n".join(f"{name}({_short_args(args)}): {tools.tool_message_content(run.tool(name, args), name)}"
                         for name, args in plan)
     messages = [{"role": "system", "content": prompts.system_prompt(run.engine)},
                 {"role": "user", "content": prompts.user_message(run.engine, run.event) + "\n\n"

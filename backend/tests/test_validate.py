@@ -275,9 +275,14 @@ def test_prefetch_mode(engine, script, monkeypatch):
     res = dg.diagnose(engine, fake_event())
     assert res.diagnosis.verified and len(res.calls) == 1
     assert [s.kind for s in res.trace] == ["tool"] * 8 + ["llm", "validation"]
-    assert [s.name for s in res.trace].count("search_manual") == 2  # symptoms + safety/procedures
+    names = [s.name for s in res.trace]
+    assert names.count("get_manual_sections") == 2 and "search_manual" not in names  # no keyword ranking
     assert requests[0]["json_mode"] is True and requests[0]["tools"] is None
-    assert "Tool results:" in requests[0]["messages"][1]["content"]
+    content = requests[0]["messages"][1]["content"]
+    assert "Tool results:" in content
+    assert all(f"P101-TS-0{i}" in content for i in range(1, 7))  # every troubleshooting section, whatever the event
+    manual = [line for line in content.splitlines() if line.startswith("get_manual_sections")]
+    assert len(manual) == 2 and not any(line.endswith("(truncated)") for line in manual)
 
 
 def test_prefetch_retrieves_lockout_section(engine, script, monkeypatch):

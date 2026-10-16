@@ -135,6 +135,8 @@ the line in the drawer: the narration is a caption, not a replacement.
 | `get_sensor_summary` | Reading the {signal label} trend, last {hours} h |
 | `get_maintenance_history` | Checking the maintenance history |
 | `search_manual` | Searching the manual: "{query}" |
+| `get_manual_sections`, `input.kinds` has `TS` | Reading every troubleshooting section of the manual |
+| `get_manual_sections`, otherwise | Reading the manual's procedures and safety rules |
 | `check_spare_parts` | Checking spare parts in stock |
 | `chat.completions`, output starts with `tool_calls` | Planning the next checks on AMD Radeon · {s} s · {tokens} tokens |
 | `chat.completions`, otherwise | Reasoned to a diagnosis on AMD Radeon · {s} s · {tokens} tokens |
@@ -256,6 +258,10 @@ export function traceLine(s: TraceStep, label: (signal: string) => string = word
       return "Checking the maintenance history";
     case "search_manual":
       return `Searching the manual: "${inp.query}"`;
+    case "get_manual_sections":
+      return inp.kinds?.includes("TS")
+        ? "Reading every troubleshooting section of the manual"
+        : "Reading the manual's procedures and safety rules";
     case "check_spare_parts":
       return "Checking spare parts in stock";
     case "chat.completions": {

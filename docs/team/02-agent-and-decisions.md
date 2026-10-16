@@ -320,7 +320,8 @@ def diagnose(engine, event: AnomalyEvent, *, purpose: LlmPurpose = "diagnosis",
 1. Run the tools yourself:
    - `get_sensor_summary` for the top 4 contributing signals
    - `get_maintenance_history`
-   - `search_manual`, with a query built from the contributions using a signal → phrase map (for example `vibration_hf` up → "high frequency vibration energy rising")
+   - `get_manual_sections(kinds=["TS"])`: every troubleshooting section in full, not a keyword search, so the model compares the pattern with all of them (a symptom query never returned `P101-TS-03` for misalignment)
+   - `get_manual_sections(kinds=["PR", "SAF"])`: the procedures and lockout/tagout, so the ids the fix steps cite are retrieved
    - `check_spare_parts`
 2. Record each as a `tool` step.
 3. Send one user message containing `Tool results:` plus the JSON. Make one `chat(..., json_mode=True)` call, then validate, allowing one retry as above.
