@@ -311,3 +311,10 @@ def test_truncated_answer_gets_a_shorter_retry(engine, script):
     assert dg.prompts.TRUNCATED_HINT in requests[2]["messages"][-1]["content"]
     assert any(s.output == f"answer cut at max_tokens ({dg.MAX_TOKENS})" for s in res.trace)
     assert requests[0]["max_tokens"] == dg.MAX_TOKENS
+
+
+def test_api_error_text_is_short_for_the_ui(engine, script):
+    turns, requests = script
+    turns += [llm.LlmError("InternalServerError: Error code: 500 - {'error': {'message': 'provider down'}}")]
+    res = dg.diagnose(engine, fake_event())
+    assert res.used_fallback and "Error code: 500" in res.error and "{'error'" not in res.error

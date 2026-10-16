@@ -256,6 +256,11 @@ def _run_prefetch(run: _Run) -> Diagnosis:
 
 
 # ---------- entry point ----------
+def _short_error(e: Exception) -> str:
+    """For alert.error (shown in the UI): drop the provider's raw JSON body; llm_calls.jsonl keeps it."""
+    return str(e).split(" - {")[0][:160]
+
+
 def _fallback(run: _Run, error: str) -> DiagnosisResult:
     d = fallback.rule_based(run.engine, run.event)
     run.step("validation", "fallback", input=error, output=validate.summary(d, d.validation_errors))
@@ -271,9 +276,9 @@ def diagnose(engine, event: AnomalyEvent, *, purpose: LlmPurpose = "diagnosis",
     try:
         d = _run_prefetch(run) if mode == "prefetch" else _run_tools(run)
     except llm.LlmError as e:
-        return _fallback(run, f"AMD API unavailable: {e}. Rule-based fallback used.")
+        return _fallback(run, f"AMD API unavailable: {_short_error(e)}. Rule-based fallback used.")
     except Exception as e:  # never leave an alert stuck in "diagnosing"
-        return _fallback(run, f"Agent error: {type(e).__name__}: {e}. Rule-based fallback used.")
+        return _fallback(run, f"Agent error: {type(e).__name__}: {_short_error(e)}. Rule-based fallback used.")
     return DiagnosisResult(diagnosis=d, trace=run.trace, calls=run.calls, used_fallback=False, error=None)
 
 
