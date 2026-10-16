@@ -4,7 +4,7 @@
 >
 > "You are my pair programmer for a 3-day hackathon. Read `00-project-and-contract.md` first. It is the shared spec, and its API contract (§7), engine interface (§8), LLM client interface (§8.1), and seed data (§10) are binding. Then read this brief: it is my part. Work only on the files listed under *You own*. Implement the tasks in order. After each task, run its acceptance check and show me the result before moving on. When you write manual or maintenance content, follow the exact IDs, signal names and fault fingerprints given here, because the software depends on them; write original text and keep all brands and people fictional. If something in the contract looks wrong or missing, tell me instead of changing it; I will coordinate with the team. Keep code simple and readable: this is a demo prototype, not production."
 
-**Owner:** P4 (name: ____________)
+**Owner:** P4 (name: Nassime)
 
 **Your mission:** you own what happens **after** the AI has diagnosed a fault, the knowledge the AI reads, and the live deployment:
 

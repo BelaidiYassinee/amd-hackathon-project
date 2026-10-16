@@ -4,7 +4,7 @@
 >
 > "You are my pair programmer for a 3-day hackathon. Read `00-project-and-contract.md` first. It is the shared spec, and its API contract (§7), engine interface (§8), LLM client interface (§8.1), and seed data (§10) are binding. Then read this brief: it is my part. Work only on the files listed under *You own*. Implement the tasks in order. After each task, run its acceptance check and show me the result before moving on. If something in the contract looks wrong or missing, tell me instead of changing it; I will coordinate with the team. Keep code simple and readable: this is a demo prototype, not production."
 
-**Owner:** P2 (name: ____________)
+**Owner:** P2 (name: Aymane)
 
 **Your mission:** you own **the AI**, the part that runs on AMD and that judges will look at hardest. When the detector raises an anomaly, your agent investigates with tools on the **AMD Radeon API** and returns a diagnosis where every claim is backed by evidence that the backend **verifies**. You also own the second AI feature, repair vs. replace: a 5-year cost comparison with an AI-written justification whose numbers are machine-checked. P4 takes your diagnosis from there (routing, alerts, deployment).
 

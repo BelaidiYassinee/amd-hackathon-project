@@ -4,7 +4,7 @@
 >
 > "You are my pair programmer for a 3-day hackathon. Read `00-project-and-contract.md` first. It is the shared spec, and its API contract (§7, especially `types.ts` in §7.2) and the example payloads (§14) are binding. Then read this brief: it is my part. Work only on the files listed under *You own*. Implement the tasks in order. After each task, run its acceptance check and show me the result before moving on. Use only the libraries listed here. If something in the contract looks wrong or missing, tell me instead of changing it; I will coordinate with the team. Keep code simple and readable: this is a demo prototype, not production."
 
-**Owner:** P3 (name: ____________)
+**Owner:** P3 (name: Yahya)
 
 **Your mission:** build the single-page dashboard the judges will watch in the video and click through on the live URL. It must make three things obvious at a glance:
 
