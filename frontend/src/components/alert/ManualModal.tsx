@@ -36,11 +36,11 @@ export function ManualModal({ sectionId, onClose }: { sectionId: string; onClose
       {error ? (
         <div className="text-sm text-red-400">Could not load the manual section: {error}</div>
       ) : !section ? (
-        <div className="flex items-center gap-2 text-sm text-slate-400">
+        <div className="flex items-center gap-2 text-sm text-zinc-400">
           <Spinner /> Loading manual…
         </div>
       ) : (
-        <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-300">{section.text}</div>
+        <div className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-300">{section.text}</div>
       )}
     </Modal>
   );

@@ -7,8 +7,22 @@ import { Button } from "../ui/Button";
 import { Modal } from "../ui/Modal";
 import { Pill } from "../ui/Pill";
 
-/** Acting-as select + the actions allowed in the alert's current state. */
-export function AlertActions({ alert, people, onChanged }: { alert: Alert; people: Person[] | null; onChanged: () => void }) {
+/**
+ * The actions allowed in the alert's current state.
+ * mode "assign": acting-as + acknowledge/reject (+ the work order once created).
+ * mode "resolve": mark resolved + the outcome.
+ */
+export function AlertActions({
+  alert,
+  people,
+  onChanged,
+  mode,
+}: {
+  alert: Alert;
+  people: Person[] | null;
+  onChanged: () => void;
+  mode: "assign" | "resolve";
+}) {
   const [actingAs, setActingAs] = useState(alert.assignee?.id ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,14 +50,14 @@ export function AlertActions({ alert, people, onChanged }: { alert: Alert; peopl
 
   return (
     <div className="space-y-3">
-      {canAck && (
+      {mode === "assign" && canAck && (
         <>
-          <label className="flex items-center gap-2 text-xs text-slate-400">
+          <label className="flex items-center gap-2 text-xs text-zinc-400">
             Acting as
             <select
               value={personId}
               onChange={(e) => setActingAs(e.target.value)}
-              className="h-8 min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-800 px-2 text-xs text-slate-200"
+              className="h-8 min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-800 px-2 text-xs text-zinc-200"
             >
               {onShift.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -63,15 +77,15 @@ export function AlertActions({ alert, people, onChanged }: { alert: Alert; peopl
         </>
       )}
 
-      {alert.work_order && <WorkOrderCard alert={alert} people={people} />}
+      {mode === "assign" && alert.work_order && <WorkOrderCard alert={alert} people={people} />}
 
-      {alert.state === "acknowledged" && (
-        <Button className="w-full" disabled={busy} onClick={() => setResolveOpen(true)}>
-          Mark resolved…
+      {mode === "resolve" && alert.state === "acknowledged" && (
+        <Button variant="primary" className="w-full" disabled={busy} onClick={() => setResolveOpen(true)}>
+          <CheckCircle2 className="h-4 w-4" /> Mark as fixed…
         </Button>
       )}
 
-      {alert.state === "resolved" && alert.resolution && (
+      {mode === "resolve" && alert.state === "resolved" && alert.resolution && (
         <div
           className={
             alert.resolution.diagnosis_correct
@@ -82,14 +96,14 @@ export function AlertActions({ alert, people, onChanged }: { alert: Alert; peopl
           {alert.resolution.diagnosis_correct
             ? "Resolved · diagnosis confirmed ✓"
             : `Resolved · ✗ actual fault: ${FAULT_LABELS[alert.resolution.actual_fault]}`}
-          {alert.resolution.note && <div className="mt-1 text-xs text-slate-400">{alert.resolution.note}</div>}
+          {alert.resolution.note && <div className="mt-1 text-xs text-zinc-400">{alert.resolution.note}</div>}
         </div>
       )}
 
-      {alert.state === "rejected" && (
-        <div className="rounded-lg bg-slate-800/60 px-3 py-2 text-sm text-slate-400">
+      {mode === "assign" && alert.state === "rejected" && (
+        <div className="rounded-lg bg-zinc-800/60 px-3 py-2 text-sm text-zinc-400">
           Rejected as false alarm
-          {alert.ack?.note && <div className="mt-1 text-xs text-slate-500">“{alert.ack.note}”</div>}
+          {alert.ack?.note && <div className="mt-1 text-xs text-zinc-500">“{alert.ack.note}”</div>}
         </div>
       )}
 
@@ -121,13 +135,13 @@ function WorkOrderCard({ alert, people }: { alert: Alert; people: Person[] | nul
         <ClipboardList className="h-4 w-4 text-sky-400" />
         <span className="font-mono text-sky-300">{wo.id}</span>
         <Pill className={wo.priority === "P1" ? "bg-red-500/20 text-red-300" : "bg-amber-400/15 text-amber-300"}>{wo.priority}</Pill>
-        <Pill className="ml-auto bg-slate-800 text-slate-300">{wo.status}</Pill>
+        <Pill className="ml-auto bg-zinc-800 text-zinc-300">{wo.status}</Pill>
       </div>
-      <div className="mt-1.5 text-slate-200">{wo.title}</div>
-      <div className="mt-1 text-xs text-slate-400">
+      <div className="mt-1.5 text-zinc-200">{wo.title}</div>
+      <div className="mt-1 text-xs text-zinc-400">
         Assignee: {assignee} · {wo.steps.length} steps · {wo.parts.length} part line{wo.parts.length === 1 ? "" : "s"}
       </div>
-      {wo.parts.length > 0 && <div className="mt-1 font-mono text-[11px] text-slate-500">{wo.parts.map((p) => `${p.qty}× ${p.part_no}`).join(" · ")}</div>}
+      {wo.parts.length > 0 && <div className="mt-1 font-mono text-[11px] text-zinc-500">{wo.parts.map((p) => `${p.qty}× ${p.part_no}`).join(" · ")}</div>}
     </div>
   );
 }
@@ -151,11 +165,11 @@ function ResolveDialog({
     <Modal title={`Resolve ${alert.id} · ${alert.machine_name}`} onClose={onClose} className="max-w-md">
       <div className="space-y-3 text-sm">
         <label className="block">
-          <span className="text-xs text-slate-400">Actual fault found</span>
+          <span className="text-xs text-zinc-400">Actual fault found</span>
           <select
             value={fault}
             onChange={(e) => setFault(e.target.value as DiagnosedFault)}
-            className="mt-1 h-9 w-full rounded-lg border border-slate-700 bg-slate-800 px-2 text-slate-200"
+            className="mt-1 h-9 w-full rounded-lg border border-zinc-700 bg-zinc-800 px-2 text-zinc-200"
           >
             {FAULTS.map((f) => (
               <option key={f} value={f}>
@@ -165,12 +179,12 @@ function ResolveDialog({
           </select>
         </label>
         <label className="block">
-          <span className="text-xs text-slate-400">Note (optional)</span>
+          <span className="text-xs text-zinc-400">Note (optional)</span>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}
-            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 p-2 text-slate-200"
+            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-800 p-2 text-zinc-200"
             placeholder="What was found and done"
           />
         </label>

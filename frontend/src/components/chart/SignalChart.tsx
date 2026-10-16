@@ -14,23 +14,25 @@ interface Props {
   isTop: boolean;
   withDayTicks: boolean;
   highlight: { from: number; to: number } | null;
+  /** Grow to share the parent's height instead of a fixed 110 px. */
+  fill?: boolean;
 }
 
 /** One small-multiple line chart for a single signal. All charts share syncId="machine". */
 export const SignalChart = forwardRef<HTMLDivElement, Props>(function SignalChart(
-  { data, signal, markers, isTop, withDayTicks, highlight },
+  { data, signal, markers, isTop, withDayTicks, highlight, fill },
   ref,
 ) {
   const latest = data.length ? data[data.length - 1][signal.name] : undefined;
   return (
-    <div ref={ref} className={clsx("rounded-lg transition-colors", highlight && "bg-red-500/5 ring-1 ring-red-500/40")}>
+    <div ref={ref} className={clsx("rounded-lg transition-colors", fill && "flex min-h-[64px] flex-1 flex-col", highlight && "bg-red-500/5 ring-1 ring-red-500/40")}>
       <div className="flex items-baseline justify-between px-1 text-xs">
-        <span className="font-medium text-slate-300">
-          {signal.label} <span className="text-slate-500">({signal.unit})</span>
+        <span className="font-medium text-zinc-300">
+          {signal.label} <span className="text-zinc-500">({signal.unit})</span>
         </span>
-        <span className="tabular-nums text-slate-400">{fmtValue(latest, signal.unit)}</span>
+        <span className="tabular-nums text-zinc-400">{fmtValue(latest, signal.unit)}</span>
       </div>
-      <div style={{ height: 110 }}>
+      <div className={fill ? "min-h-0 flex-1" : undefined} style={fill ? undefined : { height: 110 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} syncId="machine" margin={{ top: isTop ? 16 : 6, right: 12, bottom: 0, left: 0 }}>
             <CartesianGrid stroke={GRID_COLOR} vertical={false} />
@@ -47,8 +49,8 @@ export const SignalChart = forwardRef<HTMLDivElement, Props>(function SignalChar
             />
             <YAxis width={Y_AXIS_WIDTH} domain={["auto", "auto"]} stroke={AXIS_COLOR} fontSize={11} tickFormatter={(v: number) => fmtValue(v)} />
             <Tooltip
-              contentStyle={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 8, fontSize: 12 }}
-              labelStyle={{ color: "#94a3b8" }}
+              contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12 }}
+              labelStyle={{ color: "#a1a1aa" }}
               labelFormatter={(v) => simTime(new Date(Number(v)).toISOString())}
               formatter={(v) => [fmtValue(Number(v), signal.unit), signal.label]}
             />

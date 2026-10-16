@@ -9,33 +9,33 @@ export function DiagnosisCard({ diagnosis: d, error }: { diagnosis: Diagnosis; e
   const pct = Math.round(d.confidence * 100);
   return (
     <div className="space-y-3">
-      <h2 className="text-lg font-semibold leading-snug text-slate-50">{d.fault_label}</h2>
+      <h2 className="text-lg font-semibold leading-snug text-zinc-50">{d.fault_label}</h2>
 
       <div className="flex flex-wrap gap-1.5">
         <Pill className={severityColor(d.severity)}>Severity: {d.severity}</Pill>
-        <Pill className="bg-slate-800 text-slate-300">{d.category}</Pill>
+        <Pill className="bg-zinc-800 text-zinc-300">{d.category}</Pill>
         <Pill className={clsx(d.action === "stop_now" ? "bg-red-600 text-white" : "bg-sky-500/15 text-sky-300")}>{actionLabel(d.action)}</Pill>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="flex-1">
-          <div className="mb-1 flex justify-between text-xs text-slate-400">
+          <div className="mb-1 flex justify-between text-xs text-zinc-400">
             <span>Confidence</span>
-            <span className="tabular-nums text-slate-200">{pct}%</span>
+            <span className="tabular-nums text-zinc-200">{pct}%</span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
+          <div className="h-1.5 overflow-hidden rounded-full bg-zinc-800">
             <div className="h-full rounded-full bg-sky-500" style={{ width: `${pct}%` }} />
           </div>
         </div>
         {d.est_time_to_failure_h != null && (
           <div className="shrink-0 text-right">
             <div className="text-lg font-semibold tabular-nums text-amber-300">~{Math.round(d.est_time_to_failure_h)} h</div>
-            <div className="text-[11px] text-slate-400">to failure</div>
+            <div className="text-[11px] text-zinc-400">to failure</div>
           </div>
         )}
       </div>
 
-      <p className="text-sm leading-relaxed text-slate-300">{d.summary}</p>
+      <p className="text-sm leading-relaxed text-zinc-300">{d.summary}</p>
 
       {d.verified ? (
         <div className="flex items-center gap-2 rounded-lg border border-emerald-600/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300">

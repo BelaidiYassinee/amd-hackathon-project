@@ -9,9 +9,9 @@ const wallClock = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", hour: "2-d
 
 function BigNumber({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
-      <div className="text-2xl font-bold tabular-nums text-slate-50">{value}</div>
-      <div className="text-xs text-slate-400">{label}</div>
+    <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3">
+      <div className="text-2xl font-bold tabular-nums text-zinc-50">{value}</div>
+      <div className="text-xs text-zinc-400">{label}</div>
     </div>
   );
 }
@@ -32,7 +32,7 @@ export function AmdPanel({ stats, onClose }: { stats: AmdStats | null; onClose: 
       subtitle={stats && `${stats.provider} · ${stats.model} · ${stats.endpoint}`}
     >
       {!stats ? (
-        <div className="flex items-center gap-2 text-sm text-slate-400">
+        <div className="flex items-center gap-2 text-sm text-zinc-400">
           <Spinner /> Loading AMD stats…
         </div>
       ) : (
@@ -51,26 +51,26 @@ export function AmdPanel({ stats, onClose }: { stats: AmdStats | null; onClose: 
           </div>
 
           <dl className="grid grid-cols-[110px_1fr] gap-y-1 text-sm">
-            <dt className="text-slate-500">Provider</dt>
-            <dd className="text-slate-200">{stats.provider}</dd>
-            <dt className="text-slate-500">Model</dt>
-            <dd className="text-slate-200">{stats.model}</dd>
-            <dt className="text-slate-500">Endpoint</dt>
-            <dd className="font-mono text-slate-200">{stats.endpoint}</dd>
-            <dt className="text-slate-500">Tokens</dt>
-            <dd className="tabular-nums text-slate-200">
+            <dt className="text-zinc-500">Provider</dt>
+            <dd className="text-zinc-200">{stats.provider}</dd>
+            <dt className="text-zinc-500">Model</dt>
+            <dd className="text-zinc-200">{stats.model}</dd>
+            <dt className="text-zinc-500">Endpoint</dt>
+            <dd className="font-mono text-zinc-200">{stats.endpoint}</dd>
+            <dt className="text-zinc-500">Tokens</dt>
+            <dd className="tabular-nums text-zinc-200">
               {stats.total_prompt_tokens.toLocaleString("en")} prompt · {stats.total_completion_tokens.toLocaleString("en")} completion
             </dd>
           </dl>
 
           <div>
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Recent calls (newest first)</div>
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">Recent calls (newest first)</div>
             {stats.recent.length === 0 ? (
-              <div className="text-sm text-slate-500">No calls yet. Inject a fault to start a diagnosis.</div>
+              <div className="text-sm text-zinc-500">No calls yet. Inject a fault to start a diagnosis.</div>
             ) : (
-              <div className="overflow-x-auto rounded-lg border border-slate-800">
+              <div className="overflow-x-auto rounded-lg border border-zinc-800">
                 <table className="w-full text-xs">
-                  <thead className="bg-slate-950/60 text-left text-slate-500">
+                  <thead className="bg-zinc-950/60 text-left text-zinc-500">
                     <tr>
                       <th className="px-2 py-1.5 font-medium">Time (UTC)</th>
                       <th className="px-2 py-1.5 font-medium">Purpose</th>
@@ -80,9 +80,9 @@ export function AmdPanel({ stats, onClose }: { stats: AmdStats | null; onClose: 
                       <th className="px-2 py-1.5 font-medium">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800 tabular-nums">
+                  <tbody className="divide-y divide-zinc-800 tabular-nums">
                     {stats.recent.map((c) => (
-                      <tr key={c.id} className="text-slate-300">
+                      <tr key={c.id} className="text-zinc-300">
                         <td className="px-2 py-1.5">{wallClock.format(new Date(c.at))}</td>
                         <td className="px-2 py-1.5">{c.purpose.replace("_", " ")}</td>
                         <td className="px-2 py-1.5 text-right">{(c.latency_ms / 1000).toFixed(2)} s</td>
@@ -101,7 +101,7 @@ export function AmdPanel({ stats, onClose }: { stats: AmdStats | null; onClose: 
             )}
           </div>
 
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-zinc-500">
             Every diagnosis, alert message and repair-vs-replace justification is generated on the AMD Radeon API.
           </p>
         </div>

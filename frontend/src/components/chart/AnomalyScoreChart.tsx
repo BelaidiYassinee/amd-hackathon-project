@@ -13,11 +13,13 @@ export function AnomalyScoreChart({
   limit,
   markers,
   withDayTicks,
+  fill,
 }: {
   data: ChartRow[];
   limit: number;
   markers: Marker[];
   withDayTicks: boolean;
+  fill?: boolean;
 }) {
   const scores = data.map((d) => d.score);
   const max = Math.max(...scores, 0);
@@ -29,16 +31,16 @@ export function AnomalyScoreChart({
   const lineSplit = max > limit ? (max - limit) / (max - min || 1) : 0;
 
   return (
-    <div>
+    <div className={fill ? "flex min-h-[90px] flex-[1.3] flex-col" : undefined}>
       <div className="flex items-baseline justify-between px-1 text-xs">
-        <span className="font-medium text-slate-300">
-          AI anomaly score <span className="text-slate-500">(max |EWMA z| over all signals)</span>
+        <span className="font-medium text-zinc-300">
+          AI anomaly score <span className="text-zinc-500">(max |EWMA z| over all signals)</span>
         </span>
-        <span className="tabular-nums" style={{ color: max > limit ? RED : "#94a3b8" }}>
+        <span className="tabular-nums" style={{ color: max > limit ? RED : "#a1a1aa" }}>
           {data.length ? data[data.length - 1].score.toFixed(2) : "–"}
         </span>
       </div>
-      <div style={{ height: 150 }}>
+      <div className={fill ? "min-h-0 flex-1" : undefined} style={fill ? undefined : { height: 150 }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} syncId="machine" margin={{ top: 6, right: 12, bottom: 0, left: 0 }}>
             <defs>
@@ -69,8 +71,8 @@ export function AnomalyScoreChart({
             <YAxis width={Y_AXIS_WIDTH} domain={[0, yMax]}
               ticks={Array.from({ length: Math.round(yMax / 0.5) + 1 }, (_, i) => i * 0.5)} stroke={AXIS_COLOR} fontSize={11} tickFormatter={(v: number) => v.toFixed(1)} />
             <Tooltip
-              contentStyle={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 8, fontSize: 12 }}
-              labelStyle={{ color: "#94a3b8" }}
+              contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12 }}
+              labelStyle={{ color: "#a1a1aa" }}
               labelFormatter={(v) => simTime(new Date(Number(v)).toISOString())}
               formatter={(v) => [Number(v).toFixed(2), "Anomaly score"]}
             />

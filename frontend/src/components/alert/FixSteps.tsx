@@ -21,8 +21,8 @@ export function FixSteps({ alertId, steps, onOpenManual }: { alertId: string; st
       {steps.map((s, i) => (
         <li key={i} className="flex items-start gap-2.5 text-sm">
           <input type="checkbox" className="mt-1 shrink-0 accent-emerald-500" checked={done.has(i)} onChange={() => toggle(i)} aria-label={`Step ${i + 1} done`} />
-          <span className="mt-0.5 w-4 shrink-0 text-right text-xs tabular-nums text-slate-500">{i + 1}.</span>
-          <span className={clsx("leading-snug", done.has(i) ? "text-slate-500 line-through" : "text-slate-300")}>
+          <span className="mt-0.5 w-4 shrink-0 text-right text-xs tabular-nums text-zinc-500">{i + 1}.</span>
+          <span className={clsx("leading-snug", done.has(i) ? "text-zinc-500 line-through" : "text-zinc-300")}>
             <RefText text={s} onOpenManual={onOpenManual} />
           </span>
         </li>
