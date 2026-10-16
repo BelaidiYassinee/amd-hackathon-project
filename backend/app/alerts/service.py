@@ -99,7 +99,18 @@ def on_tick(now: datetime) -> None:
             supervisor = next(p for p in routing.people_now(now)
                               if p.on_shift and p.role == routing.SUPERVISOR)
             message = notify.template(supervisor, a, "escalation", now)
-            a.notifications += notify.send(supervisor, message, "escalation", now)
+            a.notifications.append(notify.in_app(supervisor, message, "escalation", now))
+            # Telegram can take seconds: send it from a thread so the plant clock never waits
+            threading.Thread(target=_telegram_later, args=(a.id, _generation, supervisor, message, now),
+                             daemon=True).start()
+
+
+def _telegram_later(alert_id: str, gen: int, person, message: str, now: datetime) -> None:
+    sent = notify.telegram(person, message, "escalation", now)
+    if sent:
+        with _lock:
+            if gen == _generation and alert_id in _alerts:
+                _alerts[alert_id].notifications += sent
 
 
 # ---------- the diagnosis pipeline (worker thread) ----------

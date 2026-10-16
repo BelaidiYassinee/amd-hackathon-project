@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime
+
+import httpx
 
 from backend.app.agent import llm
 from backend.app.models import Alert, Notification, Person
@@ -53,7 +56,37 @@ def compose(person: Person, alert: Alert, reason: str, now: datetime | None = No
     return text[:MAX_CHARS] if text else template(person, alert, reason, now)
 
 
+def in_app(person: Person, message: str, reason: str, now: datetime) -> Notification:
+    return Notification(person_id=person.id, person_name=person.name, role=person.role, channel="in_app",
+                        reason=reason, sent_at=now, delivered=True, message=message)
+
+
+def _telegram_chat_id(person_id: str) -> str | None:
+    """TELEGRAM_CHAT_IDS is 'tech-a1:123456789,sup-a1:987654321'."""
+    for pair in os.getenv("TELEGRAM_CHAT_IDS", "").split(","):
+        pid, _, cid = pair.strip().partition(":")
+        if pid == person_id and cid.strip():
+            return cid.strip()
+    return None
+
+
+def telegram(person: Person, message: str, reason: str, now: datetime) -> list[Notification]:
+    """Send on Telegram when a bot token and a chat id for this person are set. Never raises.
+    Blocks up to 5 s: call it from a worker thread, never from an engine hook."""
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+    chat_id = _telegram_chat_id(person.id)
+    if not token or not chat_id:
+        return []
+    try:
+        r = httpx.post(f"https://api.telegram.org/bot{token}/sendMessage",
+                       json={"chat_id": chat_id, "text": message}, timeout=5)
+        delivered = r.status_code == 200
+    except Exception:             # no details: httpx errors include the URL, which holds the token
+        delivered = False
+    return [Notification(person_id=person.id, person_name=person.name, role=person.role, channel="telegram",
+                         reason=reason, sent_at=now, delivered=delivered, message=message)]
+
+
 def send(person: Person, message: str, reason: str, now: datetime) -> list[Notification]:
-    """Deliver a message. In-app always works; Telegram comes later (Task 5)."""
-    return [Notification(person_id=person.id, person_name=person.name, role=person.role, channel="in_app",
-                         reason=reason, sent_at=now, delivered=True, message=message)]
+    """Deliver a message: always in-app, plus Telegram when configured (may block up to 5 s)."""
+    return [in_app(person, message, reason, now)] + telegram(person, message, reason, now)
