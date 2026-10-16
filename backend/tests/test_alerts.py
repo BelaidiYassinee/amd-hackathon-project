@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -19,8 +20,9 @@ UTC = timezone.utc
 
 @pytest.fixture(autouse=True)
 def no_network(monkeypatch, tmp_path):
-    """No AMD calls in tests (a local .env may hold a real key), and logs go to a temp dir."""
+    """No AMD or Telegram calls in tests (a local .env may hold real keys), and logs go to a temp dir."""
     monkeypatch.setattr(llm, "is_mock", lambda: True)
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
     monkeypatch.setenv("LOG_DIR", str(tmp_path))
 
 
@@ -207,6 +209,71 @@ def test_compose_falls_back_to_the_template_on_llm_error(eng, monkeypatch):
     monkeypatch.setattr(llm, "is_mock", lambda: False)
     monkeypatch.setattr(llm, "chat", boom)
     assert notify.compose(a.assignee, a, "primary", NOW) == a.notifications[0].message
+
+
+# ---------- Telegram (stretch, Task 5) ----------
+class FakeResponse:
+    def __init__(self, status_code):
+        self.status_code = status_code
+
+
+@pytest.fixture
+def telegram(monkeypatch):
+    """Telegram configured for tech-a1 and sup-a1; records the posts instead of sending them."""
+    posts = []
+
+    def fake_post(url, json=None, timeout=None):
+        posts.append({"url": url, "json": json, "timeout": timeout})
+        return FakeResponse(200)
+
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "TEST-TOKEN")
+    monkeypatch.setenv("TELEGRAM_CHAT_IDS", "tech-a1:111, sup-a1:222")
+    monkeypatch.setattr(notify.httpx, "post", fake_post)
+    return posts
+
+
+def test_no_telegram_without_configuration(eng, monkeypatch):
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
+    a = open_alert(eng)
+    assert {n.channel for n in a.notifications} == {"in_app"}
+
+
+def test_telegram_goes_to_mapped_people(eng, telegram):
+    a = open_alert(eng)
+    tg = [n for n in a.notifications if n.channel == "telegram"]
+    assert [(n.person_id, n.reason, n.delivered) for n in tg] == [("tech-a1", "primary", True), ("sup-a1", "cc", True)]
+    assert telegram[0]["url"] == "https://api.telegram.org/botTEST-TOKEN/sendMessage"
+    assert telegram[0]["json"] == {"chat_id": "111", "text": a.notifications[0].message}
+    assert telegram[0]["timeout"] == 5
+
+
+def test_telegram_failure_is_recorded_not_raised(eng, monkeypatch, telegram):
+    def broken(*args, **kw):
+        raise notify.httpx.ConnectError("boom https://api.telegram.org/botTEST-TOKEN/sendMessage")
+
+    monkeypatch.setattr(notify.httpx, "post", broken)
+    a = open_alert(eng)
+    assert a.state == "open"
+    tg = [n for n in a.notifications if n.channel == "telegram"]
+    assert tg and not any(n.delivered for n in tg)
+    assert "TEST-TOKEN" not in a.model_dump_json()           # the token never leaks into the alert
+    monkeypatch.setattr(notify.httpx, "post", lambda *a, **k: FakeResponse(403))
+    assert notify.telegram(a.assignee, "hi", "primary", NOW)[0].delivered is False
+
+
+def test_escalation_telegram_is_sent_off_the_engine_thread(eng, telegram):
+    open_alert(eng)
+    telegram.clear()
+    service.on_tick(NOW + timedelta(minutes=120))
+    a = service.get_alert("ALT-0001")
+    assert a.state == "escalated" and a.notifications[-1].channel == "in_app"   # added at once
+    for _ in range(50):                                     # the Telegram copy arrives from a thread
+        if any(n.channel == "telegram" and n.reason == "escalation" for n in service.get_alert("ALT-0001").notifications):
+            break
+        time.sleep(0.02)
+    else:
+        raise AssertionError("escalation telegram not recorded")
+    assert telegram[0]["json"]["chat_id"] == "222"
 
 
 # ---------- end to end: P1's real engine, P2's rule-based diagnosis, the HTTP API ----------
