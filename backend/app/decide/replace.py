@@ -69,7 +69,7 @@ def compute(engine, machine_id: str, fault: DiagnosedFault | None = None) -> Rep
     est = cat["repair_estimates"][fault]
     H, D = a["horizon_years"], a["downtime_eur_per_h"]
     C = data.corrective_last_12m(machine_id, engine.sim_time)
-    age = (engine.sim_time.date() - date.fromisoformat(cfg["installed"])).days / 365.25
+    age = (engine.sim_time.date() - date.fromisoformat(str(cfg["installed"])[:10])).days / 365.25
     flow, head = duty["flow_m3h"], duty["head_m"]
     p_hyd_kw = flow * head / 367.2
 

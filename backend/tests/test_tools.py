@@ -164,3 +164,16 @@ def test_seen_only_counts_what_survives_truncation(engine, monkeypatch):
     seen: set[str] = set()
     tools.run_tool(engine, "get_maintenance_history", {"machine_id": "P-101"}, seen)
     assert "WO-2026-0901" in seen and "WO-2025-0871" not in seen  # oldest record was cut off
+
+
+class _YamlDateEngine(FakeEngine):
+    """machines.yaml with an unquoted `installed: 2017-03-14` loads as a datetime.date."""
+
+    def machine_cfg(self, machine_id):
+        from datetime import date
+        return dict(super().machine_cfg(machine_id), installed=date(2017, 3, 14))
+
+
+def test_maintenance_history_accepts_a_yaml_date():
+    r = tools.get_maintenance_history(_YamlDateEngine(), "P-101")
+    assert r["machine"]["installed"] == "2017-03-14" and r["machine"]["age_years"] == 9.6

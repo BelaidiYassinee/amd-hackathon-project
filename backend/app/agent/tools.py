@@ -135,7 +135,7 @@ def get_maintenance_history(engine, machine_id: str, limit: int = 10) -> dict:
         return err
     cfg = engine.machine_cfg(mid)
     limit = _clamp(limit, 1, 50, 10, int)
-    installed = cfg.get("installed")
+    installed = str(cfg["installed"])[:10] if cfg.get("installed") else None  # an unquoted YAML date is a date
     age = (engine.sim_time.date() - date.fromisoformat(installed)).days / 365.25 if installed else None
     return {
         "machine": {"id": mid, "name": cfg.get("name"), "model": cfg.get("model"), "area": cfg.get("area"),

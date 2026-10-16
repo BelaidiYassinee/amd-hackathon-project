@@ -195,3 +195,14 @@ def test_endpoint_errors(client, engine):
     no_duty._cfg = {k: v for k, v in no_duty._cfg.items() if k != "duty"}
     client.app.dependency_overrides[api.get_engine] = lambda: no_duty
     assert client.post("/api/machines/P-101/replace-analysis", json={}).status_code == 400
+
+
+def test_installed_as_yaml_date():
+    from datetime import date
+
+    class YamlDateEngine(FakeEngine):
+        def machine_cfg(self, machine_id):
+            return dict(super().machine_cfg(machine_id), installed=date(2017, 3, 14))
+
+    an = replace.compute(YamlDateEngine(), "P-101")
+    assert an.recommendation == "AF-CP80-G2" and an.assumptions["age_years"] == 9.6
