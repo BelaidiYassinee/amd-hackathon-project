@@ -127,6 +127,7 @@ def _c(signal, score, direction="up"):
     ([_c("vibration_rms", 2), _c("flow", 1.5, "down")], "cavitation"),
     ([_c("motor_temp", 2), _c("motor_current", 1), _c("vibration_rms", 0.2)], "motor_overheat"),
     ([_c("motor_temp", 2), _c("vibration_rms", 1.0)], "misalignment"),   # rms too high for overheat
+    ([_c("motor_temp", 2), _c("vibration_rms", 1.0, "down")], "motor_overheat"),  # falling rms is noise
     ([_c("bearing_temp", 2), _c("vibration_rms", 1.8)], "misalignment"),
     ([_c("bearing_temp", 2), _c("motor_current", 1)], "other"),
 ])

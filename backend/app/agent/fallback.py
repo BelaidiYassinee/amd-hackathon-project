@@ -53,7 +53,8 @@ def classify(contributions: list[Contribution], ewma_limit: float) -> str:
         return "bearing_wear"
     if any(c.signal in ("discharge_pressure", "flow") and c.direction == "down" for c in top2):
         return "cavitation"
-    if top.signal == "motor_temp" and (rms is None or rms.score < 0.5 * ewma_limit):
+    # vibration "not elevated": low score, or moving down (noise); only rising RMS points to misalignment
+    if top.signal == "motor_temp" and (rms is None or rms.direction == "down" or rms.score < 0.5 * ewma_limit):
         return "motor_overheat"
     if any(c.signal == "vibration_rms" and c.direction == "up" for c in top2):
         return "misalignment"
