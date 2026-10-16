@@ -1,5 +1,5 @@
 from datetime import timedelta
-
+from dataclasses import dataclass
 from backend.app.config import load_config, sim_start
 from backend.app.detect.detector import Detector
 from backend.app.sim.faults import DEFAULT_DURATION_H, Fault
@@ -80,3 +80,58 @@ def test_every_fault_is_detected_well_before_failure():
         hours, _, _ = run(seed=7, fault=fault)
         assert hours is not None, fault
         assert hours < duration * 0.5, (fault, hours)
+@dataclass
+class S:
+    """Tiny stand-in for the engine's Sample."""
+    t: object
+    values: dict
+    scores: dict
+
+
+def test_contributions_point_at_the_faulty_signal():
+    cfg = load_config()
+    mcfg = cfg["machines"][0]                      # P-101
+    load_model = LoadModel(cfg, 7)
+    sim = MachineSim(mcfg, 0, 7)
+    det = Detector(mcfg["signals"], cfg["detector"])
+
+    t = sim_start(cfg) - timedelta(hours=cfg["sim"]["history_hours"])
+    loads, hist = [], []
+    for _ in range(cfg["sim"]["history_hours"] * 12):
+        t += timedelta(minutes=5)
+        ld = load_model.next(t)
+        loads.append(ld)
+        hist.append(sim.step(t, ld))
+    det.fit(loads, hist)
+    samples = []
+    for ld, v in zip(loads, hist):                 # warm-up, keeping the samples
+        _, scores = det.update(v, ld)
+        samples.append(S(t, {**v, "load_pct": ld}, scores))
+    det.above = 0
+
+    onset = event_t = None
+    for i in range(24 * 12):
+        t += timedelta(minutes=5)
+        if i == 24:                                # fault starts 2 h into live time
+            sim.fault = Fault.create("bearing_wear", 1.0, t)
+            onset = t
+        ld = load_model.next(t)
+        v = sim.step(t, ld)
+        _, scores = det.update(v, ld)
+        samples.append(S(t, {**v, "load_pct": ld}, scores))
+        if det.above == det.k:
+            event_t = t
+            break
+    assert event_t is not None
+
+    contribs = det.contributions(samples, 5)
+    for c in contribs:
+        print(c.signal, c.score, c.z, c.slope_per_h, c.direction, c.deviating_since)
+    assert len(contribs) == 7
+    assert [c.score for c in contribs] == sorted((c.score for c in contribs), reverse=True)
+    top = contribs[0]
+    assert top.signal == "vibration_hf"
+    assert top.direction == "up"
+    assert 0.02 < top.slope_per_h < 0.09           # true slope is 2.4 / 48 = 0.05 g per hour
+    assert top.deviating_since is not None
+    assert onset - timedelta(hours=1) <= top.deviating_since < event_t
