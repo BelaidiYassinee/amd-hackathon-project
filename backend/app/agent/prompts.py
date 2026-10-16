@@ -74,6 +74,8 @@ PREFETCH_FIX_PROMPT = (
     "tool results above, and remove any evidence item or part you cannot back with them:\n"
 )
 FORCE_FINAL_PROMPT = "Stop calling tools. Give your final JSON answer now."
+TRUNCATED_HINT = ("your answer was cut off at the token limit: keep the summary and evidence details short "
+                  "and use at most 6 fix_steps")
 
 
 def system_prompt(engine) -> str:

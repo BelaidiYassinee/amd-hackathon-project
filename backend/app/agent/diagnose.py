@@ -22,6 +22,7 @@ from backend.app.agent import fallback, llm, prompts, tools, validate
 from backend.app.models import AnomalyEvent, Diagnosis, LlmCall, LlmPurpose, TraceStep
 
 MAX_TURNS = 8
+MAX_TOKENS = 2500  # 1500 cut two real tools-mode answers mid-JSON (reasoning tokens count too)
 # Team decision 2026-10-16: prefetch for the demo (1 AMD call, ~35 s) over tools (~3 calls, ~2 min).
 # AGENT_MODE=tools keeps the native tool-calling loop.
 DEFAULT_AGENT_MODE = "prefetch"
@@ -77,9 +78,11 @@ class _Run:
 
     def chat(self, messages, input_desc: str, *, tools_=None, json_mode=False) -> llm.ChatResult:
         r = llm.chat(messages, purpose=self.purpose, tools=tools_, json_mode=json_mode,
-                     temperature=0.2, max_tokens=1500)
+                     temperature=0.2, max_tokens=MAX_TOKENS)
         self.calls.append(r.call)
-        if r.tool_calls:
+        if r.truncated:
+            output = f"answer cut at max_tokens ({MAX_TOKENS})"
+        elif r.tool_calls:
             output = "tool_calls: " + ", ".join(f"{tc['name']}({_short_args(tc['arguments'])})" for tc in r.tool_calls)
         else:
             output = "final JSON" if r.content and "{" in r.content else f"text: {(r.content or '')[:80]}"
@@ -97,8 +100,10 @@ class _Run:
                   latency_ms=int((time.perf_counter() - t0) * 1000))
         return result
 
-    def check_answer(self, content: str | None) -> tuple[Diagnosis | None, list[str]]:
+    def check_answer(self, content: str | None, truncated: bool = False) -> tuple[Diagnosis | None, list[str]]:
         d, errors = parse_diagnosis(content)
+        if d is None and truncated:
+            errors = [prompts.TRUNCATED_HINT] + errors
         if d is not None:
             errors = validate.finalize(d, self.engine, self.mid, self.seen)
         n_ev = len(d.evidence) if d else 0
@@ -187,7 +192,7 @@ def _run_tools(run: _Run) -> Diagnosis:
                                  "content": tools.tool_message_content(result)})
             input_desc = f"{len(r.tool_calls)} tool result(s)"
             continue
-        d, errors = run.check_answer(r.content)
+        d, errors = run.check_answer(r.content, r.truncated)
         if not errors:
             return d
         failed_answers += 1
@@ -201,7 +206,7 @@ def _run_tools(run: _Run) -> Diagnosis:
 
     messages.append({"role": "user", "content": prompts.FORCE_FINAL_PROMPT})
     r = run.chat(messages, f"turn limit ({MAX_TURNS}) reached: forced final answer")
-    d, errors = run.check_answer(r.content)
+    d, errors = run.check_answer(r.content, r.truncated)
     if d is None:
         raise _AgentFailed("no final answer after the turn limit: " + "; ".join(errors[:3]))
     return d
@@ -239,7 +244,7 @@ def _run_prefetch(run: _Run) -> Diagnosis:
     input_desc = f"system + anomaly event {run.event.id} + {len(plan)} tool results"
     for attempt in (1, 2):
         r = run.chat(messages, input_desc, json_mode=True)
-        d, errors = run.check_answer(r.content)
+        d, errors = run.check_answer(r.content, r.truncated)
         if not errors:
             return d
         if attempt == 1:

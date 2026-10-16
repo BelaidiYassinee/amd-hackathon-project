@@ -297,3 +297,17 @@ def test_prefetch_fix_prompt_offers_no_tools(engine, script, monkeypatch):
     res = dg.diagnose(engine, fake_event())
     assert res.diagnosis.verified and len(res.calls) == 2
     assert requests[1]["messages"][-1]["content"].startswith(dg.prompts.PREFETCH_FIX_PROMPT)
+
+
+def test_truncated_answer_gets_a_shorter_retry(engine, script):
+    turns, requests = script
+    cut = json.dumps(good_dict())[:200]
+    turns += [INVESTIGATE,
+              lambda i: llm.ChatResult(content=cut, tool_calls=[], raw_message={"role": "assistant", "content": cut},
+                                       call=_call(i), truncated=True),
+              answer_turn(json.dumps(good_dict()))]
+    res = dg.diagnose(engine, fake_event())
+    assert res.diagnosis.verified and not res.used_fallback
+    assert dg.prompts.TRUNCATED_HINT in requests[2]["messages"][-1]["content"]
+    assert any(s.output == f"answer cut at max_tokens ({dg.MAX_TOKENS})" for s in res.trace)
+    assert requests[0]["max_tokens"] == dg.MAX_TOKENS
