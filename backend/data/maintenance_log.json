@@ -1,0 +1,8 @@
+[
+  {"id": "WO-2025-0871", "machine_id": "P-101", "date": "2025-08-19", "type": "corrective", "title": "Drive-end bearing replaced after noise complaint", "description": "Drive-end bearing replaced.", "parts": [], "cost_eur": 0, "downtime_h": 0, "technician_id": null},
+  {"id": "WO-2025-1104", "machine_id": "P-101", "date": "2025-11-06", "type": "corrective", "title": "Coupling element replaced", "description": "Coupling element replaced.", "parts": [], "cost_eur": 0, "downtime_h": 0, "technician_id": null},
+  {"id": "WO-2026-0153", "machine_id": "P-101", "date": "2026-02-12", "type": "corrective", "title": "Mechanical seal replaced (leak)", "description": "Mechanical seal replaced.", "parts": [], "cost_eur": 0, "downtime_h": 0, "technician_id": null},
+  {"id": "WO-2026-0418", "machine_id": "P-101", "date": "2026-05-21", "type": "corrective", "title": "Shaft alignment corrected after vibration complaint", "description": "Shaft alignment corrected.", "parts": [], "cost_eur": 0, "downtime_h": 0, "technician_id": null},
+  {"id": "PM-2026-0702", "machine_id": "P-101", "date": "2026-07-08", "type": "missed_pm", "title": "Scheduled bearing re-greasing skipped (production priority)", "description": "Re-greasing skipped.", "parts": [], "cost_eur": 0, "downtime_h": 0, "technician_id": null},
+  {"id": "WO-2026-0901", "machine_id": "P-101", "date": "2026-09-03", "type": "inspection", "title": "Quarterly vibration route: overall 2.1 mm/s, OK", "description": "Quarterly vibration route OK.", "parts": [], "cost_eur": 0, "downtime_h": 0, "technician_id": null}
+]
