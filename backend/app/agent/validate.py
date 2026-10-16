@@ -88,6 +88,9 @@ def finalize(d: Diagnosis, engine, machine_id: str, seen: set[str]) -> list[str]
         if info:
             p.name = info["name"]
 
+    if d.est_time_to_failure_h is not None and d.est_time_to_failure_h < 0:
+        d.est_time_to_failure_h = 0.0  # past the manual's typical progression time: failure can come any time
+
     d.verified = not errors
     d.validation_errors = errors
     return errors

@@ -363,3 +363,9 @@ def test_fallback_parts_only_fit_the_machine(engine, monkeypatch):
 def test_fallback_summary_keeps_acronyms(engine):
     summary = fallback.rule_based(engine, fake_event()).summary
     assert "HF vibration energy and vibration RMS" in summary
+
+
+def test_negative_time_to_failure_is_clamped(engine):
+    d = Diagnosis.model_validate(good_dict(est_time_to_failure_h=-12))
+    validate.finalize(d, engine, "P-101", SEEN)
+    assert d.est_time_to_failure_h == 0.0
