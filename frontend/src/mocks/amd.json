@@ -1,0 +1,16 @@
+{
+  "provider": "AMD Radeon API",
+  "model": "DeepSeek-V4-Flash",
+  "endpoint": "developer.amd.com.cn",
+  "mock": false,
+  "calls": 6,
+  "errors": 0,
+  "total_prompt_tokens": 12840,
+  "total_completion_tokens": 1214,
+  "avg_latency_ms": 2290,
+  "avg_tokens_per_s": 58.4,
+  "recent": [
+    {"id": "llm-0006", "at": "2026-10-15T14:02:31Z", "purpose": "alert_message", "model": "DeepSeek-V4-Flash", "endpoint": "developer.amd.com.cn", "latency_ms": 1100, "prompt_tokens": 1640, "completion_tokens": 72, "tokens_per_s": 65.5, "ok": true, "error": null},
+    {"id": "llm-0005", "at": "2026-10-15T14:02:29Z", "purpose": "diagnosis", "model": "DeepSeek-V4-Flash", "endpoint": "developer.amd.com.cn", "latency_ms": 4980, "prompt_tokens": 3820, "completion_tokens": 742, "tokens_per_s": 149.0, "ok": true, "error": null}
+  ]
+}

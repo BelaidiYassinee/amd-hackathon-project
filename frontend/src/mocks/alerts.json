@@ -1,0 +1,93 @@
+[
+  {
+    "id": "ALT-0001",
+    "machine_id": "P-101",
+    "machine_name": "Coolant pump P-101",
+    "state": "open",
+    "created_at": "2026-10-15T09:40:00Z",
+    "event": {
+      "id": "EVT-0001",
+      "machine_id": "P-101",
+      "detected_at": "2026-10-15T09:40:00Z",
+      "first_deviation_at": "2026-10-15T08:55:00Z",
+      "score": 1.62,
+      "contributions": [
+        {"signal": "vibration_hf", "score": 1.62, "z": 3.9, "slope_per_h": 0.048, "direction": "up", "deviating_since": "2026-10-15T08:55:00Z"},
+        {"signal": "vibration_rms", "score": 0.41, "z": 1.1, "slope_per_h": 0.021, "direction": "up", "deviating_since": null},
+        {"signal": "bearing_temp", "score": 0.22, "z": 0.6, "slope_per_h": 0.05, "direction": "up", "deviating_since": null},
+        {"signal": "motor_current", "score": 0.12, "z": 0.3, "slope_per_h": 0.01, "direction": "up", "deviating_since": null},
+        {"signal": "motor_temp", "score": 0.1, "z": -0.2, "slope_per_h": 0.0, "direction": "down", "deviating_since": null},
+        {"signal": "flow", "score": 0.08, "z": 0.1, "slope_per_h": 0.1, "direction": "up", "deviating_since": null},
+        {"signal": "discharge_pressure", "score": 0.05, "z": -0.1, "slope_per_h": 0.0, "direction": "down", "deviating_since": null}
+      ]
+    },
+    "diagnosis": {
+      "fault": "bearing_wear",
+      "fault_label": "Drive-end bearing wear (early stage)",
+      "confidence": 0.82,
+      "summary": "High-frequency vibration energy on P-101 has been rising steadily since 08:55 while overall vibration and temperatures are still near normal. This is the early signature of a bearing defect described in the manual, and it fits the history: the drive-end bearing is 14 months old and the last re-greasing was skipped.",
+      "alternatives": [
+        {"fault": "misalignment", "why_less_likely": "Misalignment raises overall vibration together with bearing temperature and motor current (P101-TS-03); here only high-frequency energy has moved."},
+        {"fault": "other", "why_less_likely": "Impeller imbalance (P101-TS-05) raises overall vibration at running speed but not high-frequency bearing energy."}
+      ],
+      "evidence": [
+        {"kind": "sensor", "ref": "vibration_hf", "detail": "HF vibration energy is 3.9 sigma above its learned baseline and rising about 0.05 g per hour since 08:55."},
+        {"kind": "sensor", "ref": "vibration_rms", "detail": "Overall vibration is still in the normal range (1.9 mm/s), which matches an early-stage bearing defect rather than imbalance or misalignment."},
+        {"kind": "manual", "ref": "P101-TS-01", "detail": "Manual: high-frequency energy rising first, before overall vibration and bearing temperature, is the early sign of bearing wear; typical progression to seizure is about 2 days at full load."},
+        {"kind": "history", "ref": "PM-2026-0702", "detail": "The scheduled bearing re-greasing in July was skipped."},
+        {"kind": "history", "ref": "WO-2025-0871", "detail": "Drive-end bearing last replaced 14 months ago."},
+        {"kind": "parts", "ref": "BRG-6309-C3", "detail": "Replacement drive-end bearing is in stock (2 units, Store B-14)."}
+      ],
+      "severity": "medium",
+      "est_time_to_failure_h": 46,
+      "action": "consider_replacement",
+      "category": "mechanical",
+      "fix_steps": [
+        "Confirm the reading with the handheld vibration analyser on the drive-end bearing housing (P101-TS-01).",
+        "Re-grease both bearings now per P101-PR-03 to slow the damage.",
+        "Plan a stop within the next 24 hours and switch the cooling duty to the standby arrangement.",
+        "Isolate the pump: lockout/tagout of the motor and close suction and discharge valves (P101-SAF-01).",
+        "Replace the drive-end bearing 6309 C3 following P101-PR-01; replace the non-drive-end bearing if worn.",
+        "Check shaft alignment after reassembly (P101-PR-02) and record readings.",
+        "Restart, run 30 minutes and confirm HF vibration energy is back near baseline."
+      ],
+      "parts": [
+        {"part_no": "BRG-6309-C3", "name": "Deep groove ball bearing 6309 C3 (drive end)", "qty": 1, "in_stock": 2, "lead_time_days": 3},
+        {"part_no": "GREASE-EP2", "name": "Lithium bearing grease EP2, 400 g cartridge", "qty": 1, "in_stock": 12, "lead_time_days": 2}
+      ],
+      "safety": [
+        "Lock out and tag out the motor before opening the bearing housing (P101-SAF-01).",
+        "Bearing housing can be above 60 °C: wear gloves."
+      ],
+      "verified": true,
+      "validation_errors": []
+    },
+    "trace": [
+      {"i": 1, "kind": "llm", "name": "chat.completions", "input": "system + anomaly event EVT-0001", "output": "tool_calls: get_sensor_summary(vibration_hf), get_sensor_summary(vibration_rms), get_sensor_summary(bearing_temp)", "latency_ms": 1850, "prompt_tokens": 1420, "completion_tokens": 96},
+      {"i": 2, "kind": "tool", "name": "get_sensor_summary", "input": {"machine_id": "P-101", "signal": "vibration_hf", "hours": 24}, "output": {"latest": 0.37, "baseline_typical": 0.3, "z_latest": 3.9, "slope_per_h": 0.048, "projected_hours_to_alarm": null}, "latency_ms": 2, "prompt_tokens": null, "completion_tokens": null},
+      {"i": 3, "kind": "tool", "name": "get_sensor_summary", "input": {"machine_id": "P-101", "signal": "vibration_rms", "hours": 24}, "output": {"latest": 1.93, "z_latest": 1.1, "projected_hours_to_alarm": 246.0}, "latency_ms": 2, "prompt_tokens": null, "completion_tokens": null},
+      {"i": 4, "kind": "tool", "name": "get_sensor_summary", "input": {"machine_id": "P-101", "signal": "bearing_temp", "hours": 24}, "output": {"latest": 56.8, "z_latest": 0.6, "projected_hours_to_alarm": 564.0}, "latency_ms": 2, "prompt_tokens": null, "completion_tokens": null},
+      {"i": 5, "kind": "llm", "name": "chat.completions", "input": "3 tool results", "output": "tool_calls: get_maintenance_history(P-101), search_manual('high frequency vibration rising bearing')", "latency_ms": 1620, "prompt_tokens": 2310, "completion_tokens": 71},
+      {"i": 6, "kind": "tool", "name": "get_maintenance_history", "input": {"machine_id": "P-101", "limit": 10}, "output": {"corrective_last_12m": 3, "records": ["WO-2026-0901", "PM-2026-0702", "WO-2026-0418", "..."]}, "latency_ms": 1, "prompt_tokens": null, "completion_tokens": null},
+      {"i": 7, "kind": "tool", "name": "search_manual", "input": {"query": "high frequency vibration rising bearing", "k": 3}, "output": [{"section_id": "P101-TS-01", "score": 7.2}, {"section_id": "P101-PR-03", "score": 4.1}, {"section_id": "P101-TS-03", "score": 2.9}], "latency_ms": 3, "prompt_tokens": null, "completion_tokens": null},
+      {"i": 8, "kind": "llm", "name": "chat.completions", "input": "2 tool results", "output": "tool_calls: check_spare_parts(P-101, bearing)", "latency_ms": 1210, "prompt_tokens": 3650, "completion_tokens": 40},
+      {"i": 9, "kind": "tool", "name": "check_spare_parts", "input": {"machine_id": "P-101", "keyword": "bearing"}, "output": [{"part_no": "BRG-6309-C3", "in_stock": 2}, {"part_no": "BRG-6308-C3", "in_stock": 1}], "latency_ms": 1, "prompt_tokens": null, "completion_tokens": null},
+      {"i": 10, "kind": "llm", "name": "chat.completions", "input": "1 tool result", "output": "final JSON diagnosis (bearing_wear, 0.82)", "latency_ms": 4980, "prompt_tokens": 3820, "completion_tokens": 742},
+      {"i": 11, "kind": "validation", "name": "validate", "input": "6 evidence refs, 2 parts", "output": "ok: all refs resolved; stock overwritten from inventory", "latency_ms": 1, "prompt_tokens": null, "completion_tokens": null}
+    ],
+    "error": null,
+    "assignee": {"id": "tech-a1", "name": "Sara Benali", "role": "mechanical_technician", "shift": "A", "areas": ["Cooling loop", "Utilities"], "on_shift": true},
+    "notifications": [
+      {"person_id": "tech-a1", "person_name": "Sara Benali", "role": "mechanical_technician", "channel": "in_app", "reason": "primary", "sent_at": "2026-10-15T09:40:00Z", "delivered": true,
+       "message": "P-101 coolant pump: early drive-end bearing wear (medium, ~46 h to failure). First step: confirm with handheld analyser and re-grease now. Open the dashboard to acknowledge."},
+      {"person_id": "sup-a1", "person_name": "Karim Ouali", "role": "maintenance_supervisor", "channel": "in_app", "reason": "cc", "sent_at": "2026-10-15T09:40:00Z", "delivered": true,
+       "message": "FYI P-101: bearing wear detected; 3 corrective repairs in 12 months, repair-vs-replace review suggested."}
+    ],
+    "ack": null,
+    "work_order": null,
+    "resolution": null,
+    "threshold_alarm_at": null,
+    "threshold_signal": null,
+    "lead_time_h": null
+  }
+]

@@ -1,0 +1,7 @@
+[
+  {"id": "P101-TS-01", "title": "Troubleshooting: bearing wear", "text": "Placeholder text (mock).\n\nSymptoms:\n- High-frequency vibration energy rises first.\n- Overall vibration RMS and bearing temperature follow later.\n\nTypical progression to seizure is about 2 days at full load."},
+  {"id": "P101-SAF-01", "title": "Safety: lockout/tagout before any work", "text": "Placeholder text (mock).\n\n1. Stop the pump from the local panel.\n2. Open and lock the motor isolator; attach your personal tag.\n3. Close suction and discharge valves.\n4. Verify zero energy before opening any housing."},
+  {"id": "P101-PR-01", "title": "Procedure: bearing replacement", "text": "Placeholder text (mock).\n\nRemove the coupling guard, pull the drive-end bearing with the puller, heat-fit the new 6309 C3 bearing, re-grease and reassemble."},
+  {"id": "P101-PR-02", "title": "Procedure: laser shaft alignment", "text": "Placeholder text (mock).\n\nMount the laser heads, take readings at 9-12-3 o'clock, shim the motor feet, and record final offsets."},
+  {"id": "P101-PR-03", "title": "Procedure: lubrication (re-greasing)", "text": "Placeholder text (mock).\n\nUse EP2 lithium grease. Apply 15 g per bearing through the grease nipple while running at low speed."}
+]
