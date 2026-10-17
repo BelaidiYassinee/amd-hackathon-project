@@ -1,0 +1,64 @@
+{
+  "sim_time": "2026-10-15T09:40:00Z",
+  "speed": 6,
+  "paused": true,
+  "auto_pause_on_alert": true,
+  "open_alerts": 1,
+  "machines": [
+    {
+      "id": "P-101", "name": "Coolant pump P-101", "type": "centrifugal_pump", "area": "Cooling loop", "model": "AquaFlow CP-80",
+      "status": "alert", "health": 46, "active_alert_id": "ALT-0001", "injected_fault": "bearing_wear",
+      "signals": [
+        {"name": "vibration_rms", "label": "Vibration RMS", "unit": "mm/s", "alarm_high": 7.1, "alarm_low": null},
+        {"name": "vibration_hf", "label": "HF vibration energy", "unit": "g", "alarm_high": null, "alarm_low": null},
+        {"name": "bearing_temp", "label": "Bearing temperature", "unit": "°C", "alarm_high": 85, "alarm_low": null},
+        {"name": "motor_temp", "label": "Motor winding temperature", "unit": "°C", "alarm_high": 120, "alarm_low": null},
+        {"name": "motor_current", "label": "Motor current", "unit": "A", "alarm_high": 62, "alarm_low": null},
+        {"name": "discharge_pressure", "label": "Discharge pressure", "unit": "bar", "alarm_high": null, "alarm_low": 3.3},
+        {"name": "flow", "label": "Flow", "unit": "m³/h", "alarm_high": null, "alarm_low": 100}
+      ],
+      "latest": {"vibration_rms": 1.93, "vibration_hf": 0.37, "bearing_temp": 56.8, "motor_temp": 73.9, "motor_current": 52.9, "discharge_pressure": 4.17, "flow": 121.6},
+      "sparkline": [100, 100, 100, 99, 100, 100, 99, 100, 100, 100, 99, 100, 100, 100, 100, 99, 100, 100, 100, 100, 99, 100, 100, 100, 99, 100, 100, 100, 100, 99, 100, 100, 100, 99, 100, 100, 100, 99, 100, 100, 100, 100, 99, 100, 100, 98, 98, 97, 96, 94, 91, 88, 84, 80, 77, 72, 68, 62, 57, 46]
+    },
+    {
+      "id": "P-102", "name": "Process water pump P-102", "type": "centrifugal_pump", "area": "Utilities", "model": "AquaFlow CP-65",
+      "status": "ok", "health": 98, "active_alert_id": null, "injected_fault": null,
+      "signals": [
+        {"name": "vibration_rms", "label": "Vibration RMS", "unit": "mm/s", "alarm_high": 7.1, "alarm_low": null},
+        {"name": "vibration_hf", "label": "HF vibration energy", "unit": "g", "alarm_high": null, "alarm_low": null},
+        {"name": "bearing_temp", "label": "Bearing temperature", "unit": "°C", "alarm_high": 85, "alarm_low": null},
+        {"name": "motor_temp", "label": "Motor winding temperature", "unit": "°C", "alarm_high": 120, "alarm_low": null},
+        {"name": "motor_current", "label": "Motor current", "unit": "A", "alarm_high": 45, "alarm_low": null},
+        {"name": "discharge_pressure", "label": "Discharge pressure", "unit": "bar", "alarm_high": null, "alarm_low": 2.8},
+        {"name": "flow", "label": "Flow", "unit": "m³/h", "alarm_high": null, "alarm_low": 60}
+      ],
+      "latest": {"vibration_rms": 1.64, "vibration_hf": 0.27, "bearing_temp": 51.2, "motor_temp": 68.4, "motor_current": 36.1, "discharge_pressure": 3.62, "flow": 78.3},
+      "sparkline": [98, 99, 98, 98, 99, 98, 97, 98, 99, 98, 98, 99, 98, 98, 97, 98, 99, 98, 98, 99, 98, 98, 99, 97, 98, 98, 99, 98, 98, 99, 98, 98, 97, 98, 99, 98, 98, 99, 98, 98, 99, 98, 97, 98, 98, 99, 98, 98, 99, 98, 98, 97, 98, 99, 98, 98, 99, 98, 98, 98]
+    },
+    {
+      "id": "C-201", "name": "Air compressor C-201", "type": "screw_compressor", "area": "Utilities", "model": "Kompra SK-45",
+      "status": "ok", "health": 97, "active_alert_id": null, "injected_fault": null,
+      "signals": [
+        {"name": "vibration_rms", "label": "Vibration RMS", "unit": "mm/s", "alarm_high": 7.1, "alarm_low": null},
+        {"name": "discharge_pressure", "label": "Discharge pressure", "unit": "bar", "alarm_high": null, "alarm_low": 6.5},
+        {"name": "motor_current", "label": "Motor current", "unit": "A", "alarm_high": 92, "alarm_low": null},
+        {"name": "oil_temp", "label": "Oil temperature", "unit": "°C", "alarm_high": 100, "alarm_low": null},
+        {"name": "motor_temp", "label": "Motor winding temperature", "unit": "°C", "alarm_high": 125, "alarm_low": null}
+      ],
+      "latest": {"vibration_rms": 2.18, "discharge_pressure": 7.52, "motor_current": 77.4, "oil_temp": 78.9, "motor_temp": 80.6},
+      "sparkline": [98, 97, 99, 98, 97, 98, 99, 97, 98, 97, 98, 97, 98, 97, 99, 98, 97, 98, 99, 97, 98, 97, 98, 97, 98, 97, 99, 98, 97, 98, 99, 97, 98, 97, 98, 97, 98, 97, 99, 98, 97, 98, 99, 97, 98, 97, 98, 97, 98, 97, 99, 98, 97, 98, 99, 97, 98, 97, 98, 97]
+    },
+    {
+      "id": "M-301", "name": "Conveyor drive M-301", "type": "conveyor_drive", "area": "Packaging line", "model": "Drivex GM-15",
+      "status": "ok", "health": 99, "active_alert_id": null, "injected_fault": null,
+      "signals": [
+        {"name": "vibration_rms", "label": "Vibration RMS", "unit": "mm/s", "alarm_high": 4.5, "alarm_low": null},
+        {"name": "motor_current", "label": "Motor current", "unit": "A", "alarm_high": 32, "alarm_low": null},
+        {"name": "motor_temp", "label": "Motor winding temperature", "unit": "°C", "alarm_high": 110, "alarm_low": null},
+        {"name": "bearing_temp", "label": "Gearbox bearing temperature", "unit": "°C", "alarm_high": 80, "alarm_low": null}
+      ],
+      "latest": {"vibration_rms": 1.21, "motor_current": 22.6, "motor_temp": 61.3, "bearing_temp": 47.9},
+      "sparkline": [99, 99, 100, 99, 99, 98, 99, 100, 99, 99, 99, 100, 99, 98, 99, 99, 100, 99, 99, 99, 100, 99, 99, 98, 99, 99, 100, 99, 99, 99, 100, 99, 99, 98, 99, 99, 100, 99, 99, 99, 100, 99, 99, 98, 99, 99, 100, 99, 99, 99, 100, 99, 99, 98, 99, 99, 100, 99, 99, 99]
+    }
+  ]
+}
