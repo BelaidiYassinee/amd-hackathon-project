@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import clsx from "clsx";
-import { AlertTriangle, ArrowRight, CheckCircle2, ClipboardList, Clock, Factory, ShieldCheck, Timer, UserRound } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, ClipboardList, Clock, ShieldCheck, Timer, UserRound } from "lucide-react";
 import { api } from "../../api";
 import type { Alert, Person, PlantState } from "../../types";
 import { usePoll } from "../../hooks/usePoll";
@@ -29,8 +29,8 @@ const initials = (name: string) =>
     .toUpperCase();
 
 /**
- * Follow-up after the incident flow: every alert with its owner, its progress through the work order,
- * and a plain verdict on whether the job was done (and on time).
+ * The Team page "By incident" view: every alert with its owner, its progress through the work order,
+ * and a plain verdict on whether the job was done (and on time). The page header lives in TeamView.
  */
 export function WorkOrdersView({
   plant,
@@ -38,14 +38,12 @@ export function WorkOrdersView({
   selectedId,
   onSelect,
   onOpenIncident,
-  onGoToPlant,
 }: {
   plant: PlantState | null;
   alerts: Alert[] | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
   onOpenIncident: (id: string) => void;
-  onGoToPlant: () => void;
 }) {
   const people = usePoll(api.people, 10000);
   const [filter, setFilter] = useState<Filter>("all");
@@ -62,7 +60,7 @@ export function WorkOrdersView({
   const now = plant.sim_time;
   if (alerts.length === 0) {
     return (
-      <main className="flex flex-1 items-center justify-center px-8 pb-10">
+      <div className="flex flex-1 items-center justify-center pb-10">
         <div className="glass max-w-md rounded-2xl p-8 text-center">
           <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/15 text-sky-300">
             <ClipboardList className="h-6 w-6" />
@@ -71,11 +69,8 @@ export function WorkOrdersView({
           <p className="mt-1.5 text-sm text-zinc-400">
             When the AI raises an alert, it shows up here: who was notified, who took it, which steps are done, and whether it was fixed on time.
           </p>
-          <Button variant="primary" className="mt-5" onClick={onGoToPlant}>
-            <Factory className="h-4 w-4" /> Back to the plant
-          </Button>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -90,17 +85,7 @@ export function WorkOrdersView({
   const confirmed = closed.filter((a) => a.resolution?.diagnosis_correct).length;
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col px-8 pb-8">
-      <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col gap-6">
-        <div className="flex items-end justify-between gap-6 pt-2">
-          <div>
-            <h1 className="text-2xl font-semibold text-zinc-50">Work orders</h1>
-            <p className="mt-1 text-sm text-zinc-400">Follow every incident after the alert: who owns it, what is done, and whether it was fixed on time.</p>
-          </div>
-          <span className="flex items-center gap-1.5 text-xs text-zinc-500">
-            <Clock className="h-3.5 w-3.5" /> Plant time {simTime(now)}
-          </span>
-        </div>
+    <>
 
         <div className="grid grid-cols-4 gap-4">
           <Kpi icon={AlertTriangle} label="Need action" value={needAction} hint="Not acknowledged, escalated or overdue" tone={needAction > 0 ? "red" : "zinc"} />
@@ -159,8 +144,7 @@ export function WorkOrdersView({
             onOpenIncident={() => onOpenIncident(selected.id)}
           />
         </div>
-      </div>
-    </main>
+    </>
   );
 }
 

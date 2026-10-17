@@ -132,7 +132,7 @@ export function FactoryView({
         ))}
         {(alerts?.length ?? 0) > 0 && (
           <button type="button" onClick={onShowWorkOrders} className="ml-auto flex items-center gap-1 text-zinc-400 hover:text-zinc-200">
-            Follow up in Work orders <ArrowRight className="h-3.5 w-3.5" />
+            Follow up in Team <ArrowRight className="h-3.5 w-3.5" />
           </button>
         )}
       </div>

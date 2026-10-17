@@ -3,7 +3,8 @@ import clsx from "clsx";
 import { ArrowLeft, ArrowRight, ClipboardList, FileSearch, X } from "lucide-react";
 import { api } from "../../api";
 import type { Alert, AlertState, MachineSummary, PlantState, ReplaceAnalysis } from "../../types";
-import { STEPS, isStepEnabled, type Highlight } from "../../lib/uiTypes";
+import { DECIDE_STEP, LAST_STEP, isStepEnabled, stepsFor, type Highlight } from "../../lib/uiTypes";
+import { decisionOf, recommended, useDecisionLog } from "../../lib/decisionLog";
 import { usePoll } from "../../hooks/usePoll";
 import { Button } from "../ui/Button";
 import { HistoryModal } from "../alert/HistoryModal";
@@ -14,6 +15,7 @@ import { DiagnoseStep } from "./DiagnoseStep";
 import { AssignStep } from "./AssignStep";
 import { FixStep } from "./FixStep";
 import { DecideStep } from "./DecideStep";
+import { OrderStep } from "./OrderStep";
 
 const STATE_LABEL: Record<AlertState, { text: string; cls: string }> = {
   diagnosing: { text: "AI investigating", cls: "bg-violet-500/15 text-violet-300" },
@@ -26,7 +28,7 @@ const STATE_LABEL: Record<AlertState, { text: string; cls: string }> = {
 
 type RefModal = { kind: "manual" | "history"; id: string } | null;
 
-/** One incident as a guided flow over the factory: Detect → Diagnose → Assign → Fix → Decide. */
+/** One incident as a guided flow over the factory: Detect → Diagnose → Assign → Decide → Fix (repair) or Order (replace). */
 export function IncidentView({
   alert,
   machine,
@@ -41,6 +43,7 @@ export function IncidentView({
   onOpenTrace,
   replaceResult,
   onReplaceResult,
+  onViewInTeam,
 }: {
   alert: Alert;
   machine: MachineSummary;
@@ -56,14 +59,21 @@ export function IncidentView({
   onOpenTrace: () => void;
   replaceResult: ReplaceAnalysis | undefined;
   onReplaceResult: (r: ReplaceAnalysis) => void;
+  onViewInTeam: (personId: string) => void;
 }) {
   const people = usePoll(api.people, 10000);
   const [modal, setModal] = useState<RefModal>(null);
   const openManual = (id: string) => setModal({ kind: "manual", id });
   const openHistory = (id: string) => setModal({ kind: "history", id });
 
-  const s = STEPS[step];
-  const last = step === STEPS.length - 1;
+  // The last step follows the decision: the user's choice, else the AI's recommendation, else repair.
+  const decision = decisionOf(useDecisionLog(), alert);
+  const choice = decision?.choice ?? recommended(replaceResult)?.kind ?? "repair";
+  const steps = stepsFor(choice);
+  const now = plant?.sim_time ?? null;
+
+  const s = steps[step];
+  const last = step === steps.length - 1;
   const nextEnabled = !last && isStepEnabled(alert, step + 1);
   const state = STATE_LABEL[alert.state];
 
@@ -100,7 +110,7 @@ export function IncidentView({
         </div>
 
         <div className="px-8 pt-5">
-          <Stepper step={step} isEnabled={(i) => isStepEnabled(alert, i)} onStep={onStep} />
+          <Stepper steps={steps} step={step} isEnabled={(i) => isStepEnabled(alert, i)} onStep={onStep} />
         </div>
 
         {/* Current step */}
@@ -124,8 +134,31 @@ export function IncidentView({
               />
             )}
             {step === 2 && <AssignStep alert={alert} people={people.data} onChanged={onChanged} />}
-            {step === 3 && <FixStep alert={alert} people={people.data} now={plant?.sim_time ?? null} onChanged={onChanged} onOpenManual={openManual} />}
-            {step === 4 && <DecideStep alert={alert} machine={machine} result={replaceResult} onResult={onReplaceResult} />}
+            {step === DECIDE_STEP && (
+              <DecideStep
+                alert={alert}
+                machine={machine}
+                result={replaceResult}
+                onResult={onReplaceResult}
+                decision={decision}
+                now={now}
+                onDecided={() => onStep(LAST_STEP)}
+              />
+            )}
+            {step === LAST_STEP &&
+              (choice === "replace" ? (
+                <OrderStep
+                  alert={alert}
+                  result={replaceResult}
+                  decision={decision}
+                  people={people.data}
+                  now={now}
+                  onChanged={onChanged}
+                  onViewInTeam={onViewInTeam}
+                />
+              ) : (
+                <FixStep alert={alert} people={people.data} now={now} onChanged={onChanged} onOpenManual={openManual} />
+              ))}
           </div>
         </div>
 
@@ -141,7 +174,7 @@ export function IncidentView({
             </Button>
           ) : (
             <Button variant="primary" disabled={!nextEnabled} onClick={() => onStep(step + 1)} title="Next step (→)">
-              Next: {STEPS[step + 1].title} <ArrowRight className="h-4 w-4" />
+              Next: {steps[step + 1].title} <ArrowRight className="h-4 w-4" />
             </Button>
           )}
         </div>

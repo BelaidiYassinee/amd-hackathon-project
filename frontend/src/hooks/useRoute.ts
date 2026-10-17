@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 
-export type Page = "plant" | "prevent" | "work-orders" | "team";
+export type Page = "plant" | "prevent" | "team";
 
-const HASH: Record<Page, string> = { plant: "#/", prevent: "#/prevent", "work-orders": "#/work-orders", team: "#/team" };
+const HASH: Record<Page, string> = { plant: "#/", prevent: "#/prevent", team: "#/team" };
+// Work orders became the Team page's "By incident" view: old links still land there.
+export const LEGACY_WORK_ORDERS = "#/work-orders";
 
 function read(): Page {
   const hash = window.location.hash;
+  if (hash === LEGACY_WORK_ORDERS) return "team";
   return (Object.keys(HASH) as Page[]).find((p) => p !== "plant" && HASH[p] === hash) ?? "plant";
 }
 

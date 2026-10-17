@@ -1,6 +1,6 @@
 import "@google/model-viewer"; // registers <model-viewer> (also loaded by the Plant page)
 import { useState } from "react";
-import { AlertTriangle, CalendarClock, CheckCircle2, UserCheck } from "lucide-react";
+import { AlertTriangle, CalendarClock, CheckCircle2, ShieldCheck, UserCheck } from "lucide-react";
 import { api } from "../../api";
 import type { Alert, PlantState } from "../../types";
 import type { MachinePrevention } from "../../hooks/usePrevention";
@@ -12,6 +12,8 @@ import { Kpi } from "../ui/Kpi";
 import { Spinner } from "../ui/Spinner";
 import { ManualModal } from "../alert/ManualModal";
 import { MachineRiskCard } from "./MachineRiskCard";
+import { SuggestedActions } from "./SuggestedActions";
+import { EARLY_WARNING } from "../../hooks/usePrevention";
 
 /**
  * Act before a machine fails: every machine's early-warning level (from the AI detector's anomaly score and its
@@ -49,12 +51,17 @@ export function PreventView({
     .map((x) => ({ m: x.machine, s: x.series, p: x.prevention }))
     .sort((a, b) => RISK[b.p.risk.level].rank - RISK[a.p.risk.level].rank);
 
-  const atRisk = cards.filter((c) => ["rising", "watch", "act_now"].includes(c.p.risk.level));
-  const overdue = cards.reduce((n, c) => n + c.p.pm.filter((x) => x.status === "overdue" || x.missedOn).length, 0);
+  // Only drifting machines get a card. Machines in an incident are handled in the incident flow; healthy ones only
+  // show up below if planned maintenance is due.
+  const atRisk = cards.filter((c) => EARLY_WARNING.has(c.p.risk.level));
+  const others = cards.filter((c) => !EARLY_WARNING.has(c.p.risk.level) && c.p.risk.level !== "incident");
+  const planned = others.map((c) => ({ ...c, items: c.p.suggestions.filter((x) => x.kind === "plan") })).filter((c) => c.items.length > 0);
+  const watched = [...atRisk, ...others];
+  const overdue = watched.reduce((n, c) => n + c.p.pm.filter((x) => x.status === "overdue" || x.missedOn).length, 0);
   const records = allRecords(log);
   const assigned = records.filter((r) => !r.done_at).length;
   const done = records.filter((r) => r.done_at).length;
-  const unassigned = cards.reduce((n, c) => n + c.p.suggestions.filter((s) => !recordOf(log, c.m.id, s.id)).length, 0);
+  const unassigned = watched.reduce((n, c) => n + c.p.suggestions.filter((x) => !recordOf(log, c.m.id, x.id)).length, 0);
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-y-auto px-8 pb-8">
@@ -81,8 +88,15 @@ export function PreventView({
           <Kpi icon={CheckCircle2} label="Actions done" value={done} hint="Since the start of this run" tone="emerald" />
         </div>
 
+        {atRisk.length === 0 && (
+          <div className="glass flex items-center gap-3 rounded-2xl px-6 py-5 text-sm text-zinc-300">
+            <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-400" />
+            No machine is drifting right now. The AI keeps watching every signal and will flag a machine here before it fails.
+          </div>
+        )}
+
         <div className="grid grid-cols-2 items-start gap-6">
-          {cards.map(({ m, s, p }) => (
+          {atRisk.map(({ m, s, p }) => (
             <MachineRiskCard
               key={m.id}
               machine={m}
@@ -96,6 +110,32 @@ export function PreventView({
             />
           ))}
         </div>
+
+        {planned.length > 0 && (
+          <section className="glass rounded-2xl p-5">
+            <div className="mb-1 flex items-center gap-2 text-sm font-medium text-zinc-200">
+              <CalendarClock className="h-4 w-4 text-amber-300" /> Planned maintenance due
+            </div>
+            <p className="mb-4 text-xs text-zinc-500">These machines run normally, but a planned task is late or due within 14 days.</p>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              {planned.map(({ m, items }) => (
+                <div key={m.id}>
+                  <div className="eyebrow mb-2">
+                    {m.name} · {m.id}
+                  </div>
+                  <SuggestedActions
+                    machine={m}
+                    suggestions={items}
+                    people={people.data}
+                    now={now}
+                    onOpenManual={setManual}
+                    onViewInTeam={onViewInTeam}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       {manual && <ManualModal sectionId={manual} onClose={() => setManual(null)} />}

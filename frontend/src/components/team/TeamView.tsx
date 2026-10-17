@@ -6,12 +6,20 @@ import type { Alert, Person, PlantState } from "../../types";
 import { usePoll } from "../../hooks/usePoll";
 import { roleLabel, simTime } from "../../lib/format";
 import { setActionDone, usePreventiveLog } from "../../lib/preventiveLog";
+import { setOrderPlaced, useDecisionLog } from "../../lib/decisionLog";
 import { useStepLog } from "../../lib/stepLog";
 import { STATUS_ORDER, isOpen, teamTasks, type TaskSource, type TaskStatus, type TeamTask } from "../../lib/team";
 import { TONE, type Tone } from "../../lib/progress";
 import { Button } from "../ui/Button";
 import { Kpi } from "../ui/Kpi";
 import { Spinner } from "../ui/Spinner";
+import { WorkOrdersView } from "../workorders/WorkOrdersView";
+
+export type TeamMode = "person" | "incident";
+const MODES: { id: TeamMode; label: string }[] = [
+  { id: "person", label: "By person" },
+  { id: "incident", label: "By incident" },
+];
 
 type Filter = "all" | "on_shift" | "with_tasks";
 const FILTERS: { id: Filter; label: string }[] = [
@@ -24,6 +32,7 @@ const SOURCE: Record<TaskSource, { label: string; tone: Tone }> = {
   work_order: { label: "Incident", tone: "sky" },
   acknowledge: { label: "Acknowledge", tone: "violet" },
   preventive: { label: "Preventive", tone: "amber" },
+  order: { label: "Purchase", tone: "emerald" },
 };
 
 const GROUP: Record<TaskStatus, { label: string; tone: Tone }> = {
@@ -41,23 +50,35 @@ const initials = (name: string) =>
     .slice(0, 2)
     .toUpperCase();
 
-/** Every task of every team member: incident work orders, alerts to acknowledge, and preventive actions. */
+/**
+ * Who does what. "By person": every task of every team member (work orders, alerts to acknowledge, purchases,
+ * preventive actions). "By incident": every alert with its owner, progress and verdict (the former Work orders page).
+ */
 export function TeamView({
   plant,
   alerts,
+  mode,
+  onMode,
   selectedId,
   onSelect,
+  incidentId,
+  onSelectIncident,
   onOpenIncident,
 }: {
   plant: PlantState | null;
   alerts: Alert[] | null;
+  mode: TeamMode;
+  onMode: (m: TeamMode) => void;
   selectedId: string | null;
   onSelect: (personId: string) => void;
+  incidentId: string | null;
+  onSelectIncident: (alertId: string) => void;
   onOpenIncident: (alertId: string) => void;
 }) {
   const people = usePoll(api.people, 10000);
   const stepLog = useStepLog();
   const preventiveLog = usePreventiveLog();
+  const decisionLog = useDecisionLog();
   const [filter, setFilter] = useState<Filter>("all");
 
   if (!plant || !alerts || !people.data) {
@@ -69,7 +90,7 @@ export function TeamView({
   }
 
   const now = plant.sim_time;
-  const tasks = teamTasks(alerts, stepLog, preventiveLog, now);
+  const tasks = teamTasks(alerts, stepLog, preventiveLog, decisionLog, now);
   const tasksOf = (id: string) => tasks.filter((t) => t.person_id === id);
   const openCount = (id: string) => tasksOf(id).filter(isOpen).length;
 
@@ -92,18 +113,34 @@ export function TeamView({
         <div className="flex items-end justify-between gap-6 pt-2">
           <div>
             <h1 className="text-2xl font-semibold text-zinc-50">Team</h1>
-            <p className="mt-1 text-sm text-zinc-400">Every task of every team member: incidents and preventive actions.</p>
+            <p className="mt-1 text-sm text-zinc-400">
+              {mode === "person"
+                ? "Every task of every team member: incidents, purchases and preventive actions."
+                : "Every incident after the alert: who owns it, what is done, and whether it was fixed on time."}
+            </p>
           </div>
-          <span className="flex items-center gap-1.5 text-xs text-zinc-500">
-            <Clock className="h-3.5 w-3.5" /> Plant time {simTime(now)}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-4 gap-4">
-          <Kpi icon={ListTodo} label="Open tasks" value={open} hint="Not done yet, across the team" tone="sky" />
-          <Kpi icon={AlertTriangle} label="Overdue" value={overdue} hint="Past the target, or escalated" tone={overdue ? "red" : "zinc"} />
-          <Kpi icon={CheckCircle2} label="Done" value={done} hint="Since the start of this run" tone="emerald" />
-          <Kpi icon={Users} label="On shift" value={`${onShift} / ${people.data.length}`} hint="Team members working now" tone="violet" />
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5 text-xs text-zinc-500">
+              <Clock className="h-3.5 w-3.5" /> Plant time {simTime(now)}
+            </span>
+            <div role="tablist" aria-label="Team view" className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1">
+              {MODES.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === m.id}
+                  onClick={() => onMode(m.id)}
+                  className={clsx(
+                    "rounded-full px-3.5 py-1 text-sm font-medium transition-colors",
+                    mode === m.id ? "bg-white/10 text-zinc-50" : "text-zinc-400 hover:text-zinc-200",
+                  )}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {diagnosing.map((a) => (
@@ -117,39 +154,52 @@ export function TeamView({
           </div>
         ))}
 
-        <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-6">
-          {/* Members */}
-          <section className="flex min-h-0 flex-col">
-            <div className="mb-3 flex items-center gap-1 self-start rounded-full border border-white/10 bg-white/[0.03] p-1">
-              {FILTERS.map((f) => (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setFilter(f.id)}
-                  className={clsx(
-                    "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                    filter === f.id ? "bg-white/10 text-zinc-50" : "text-zinc-400 hover:text-zinc-200",
-                  )}
-                >
-                  {f.label}
-                </button>
-              ))}
+        {mode === "incident" ? (
+          <WorkOrdersView plant={plant} alerts={alerts} selectedId={incidentId} onSelect={onSelectIncident} onOpenIncident={onOpenIncident} />
+        ) : (
+          <>
+            <div className="grid grid-cols-4 gap-4">
+              <Kpi icon={ListTodo} label="Open tasks" value={open} hint="Not done yet, across the team" tone="sky" />
+              <Kpi icon={AlertTriangle} label="Overdue" value={overdue} hint="Past the target, or escalated" tone={overdue ? "red" : "zinc"} />
+              <Kpi icon={CheckCircle2} label="Done" value={done} hint="Since the start of this run" tone="emerald" />
+              <Kpi icon={Users} label="On shift" value={`${onShift} / ${people.data.length}`} hint="Team members working now" tone="violet" />
             </div>
-            <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
-              {shown.length === 0 && <li className="px-1 py-6 text-sm text-zinc-500">Nobody here.</li>}
-              {shown.map((p) => (
-                <li key={p.id}>
-                  <MemberRow person={p} tasks={tasksOf(p.id)} selected={p.id === selected?.id} onClick={() => onSelect(p.id)} />
-                </li>
-              ))}
-            </ul>
-          </section>
 
-          {/* Selected member */}
-          {selected && (
-            <MemberDetail key={selected.id} person={selected} tasks={tasksOf(selected.id)} anyTasks={tasks.length > 0} now={now} onOpenIncident={onOpenIncident} />
-          )}
-        </div>
+            <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-6">
+              {/* Members */}
+              <section className="flex min-h-0 flex-col">
+                <div className="mb-3 flex items-center gap-1 self-start rounded-full border border-white/10 bg-white/[0.03] p-1">
+                  {FILTERS.map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setFilter(f.id)}
+                      className={clsx(
+                        "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                        filter === f.id ? "bg-white/10 text-zinc-50" : "text-zinc-400 hover:text-zinc-200",
+                      )}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+                <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+                  {shown.length === 0 && <li className="px-1 py-6 text-sm text-zinc-500">Nobody here.</li>}
+                  {shown.map((p) => (
+                    <li key={p.id}>
+                      <MemberRow person={p} tasks={tasksOf(p.id)} selected={p.id === selected?.id} onClick={() => onSelect(p.id)} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              {/* Selected member */}
+              {selected && (
+                <MemberDetail key={selected.id} person={selected} tasks={tasksOf(selected.id)} anyTasks={tasks.length > 0} now={now} onOpenIncident={onOpenIncident} />
+              )}
+            </div>
+          </>
+        )}
       </div>
     </main>
   );
@@ -276,7 +326,17 @@ function TaskRow({ task: t, now, onOpenIncident }: { task: TeamTask; now: string
         </div>
 
         <div className="shrink-0">
-          {t.action_id ? (
+          {t.order_key ? (
+            done ? (
+              <Button variant="ghost" size="sm" onClick={() => setOrderPlaced(t.order_key!, null)} title="Mark as not ordered">
+                <RotateCcw className="h-3.5 w-3.5" /> Undo
+              </Button>
+            ) : (
+              <Button variant="primary" size="sm" onClick={() => setOrderPlaced(t.order_key!, now)}>
+                <CheckCircle2 className="h-3.5 w-3.5" /> Order placed
+              </Button>
+            )
+          ) : t.action_id ? (
             done ? (
               <Button variant="ghost" size="sm" onClick={() => setActionDone(t.machine_id, t.action_id!, null)} title="Mark as not done">
                 <RotateCcw className="h-3.5 w-3.5" /> Undo

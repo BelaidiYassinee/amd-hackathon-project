@@ -1,15 +1,25 @@
 import clsx from "clsx";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
-import { STEPS } from "../../lib/uiTypes";
+import type { StepInfo } from "../../lib/uiTypes";
 
 /**
  * The incident steps as big tabs, over one bright progress line.
  * The line glides to the middle of the current tab (it grows from 0 when the incident opens),
  * and a soft highlight keeps running along it. Done steps get a check, locked steps are dimmed.
  */
-export function Stepper({ step, isEnabled, onStep }: { step: number; isEnabled: (i: number) => boolean; onStep: (i: number) => void }) {
-  const target = ((step + 0.5) / STEPS.length) * 100;
+export function Stepper({
+  steps,
+  step,
+  isEnabled,
+  onStep,
+}: {
+  steps: StepInfo[];
+  step: number;
+  isEnabled: (i: number) => boolean;
+  onStep: (i: number) => void;
+}) {
+  const target = ((step + 0.5) / steps.length) * 100;
   // Start at 0 and move on the next frame, so the CSS transition also plays on open.
   const [fill, setFill] = useState(0);
   useEffect(() => {
@@ -20,7 +30,7 @@ export function Stepper({ step, isEnabled, onStep }: { step: number; isEnabled: 
   return (
     <div>
       <ol className="grid grid-cols-5">
-        {STEPS.map((s, i) => {
+        {steps.map((s, i) => {
           const enabled = isEnabled(i);
           const done = i < step;
           const current = i === step;

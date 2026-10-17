@@ -25,7 +25,7 @@ export function AssignStep({ alert, people, onChanged }: { alert: Alert; people:
           <div className="mb-3 text-sm font-medium text-zinc-200">Take ownership</div>
           <AlertActions mode="assign" alert={alert} people={people} onChanged={onChanged} />
           {alert.state === "acknowledged" || alert.state === "resolved" ? (
-            <p className="mt-3 text-xs text-zinc-500">Work order created. Next: the fix steps.</p>
+            <p className="mt-3 text-xs text-zinc-500">Work order created. Next: repair or replace.</p>
           ) : null}
         </div>
       </div>

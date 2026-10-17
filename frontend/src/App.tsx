@@ -2,24 +2,24 @@ import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { WifiOff } from "lucide-react";
 import { MOCK, api } from "./api";
 import type { Alert, ReplaceAnalysis } from "./types";
-import { STEPS, isStepEnabled, type Drawer, type Highlight } from "./lib/uiTypes";
+import { DECIDE_STEP, LAST_STEP, STEPS, isStepEnabled, type Drawer, type Highlight } from "./lib/uiTypes";
 import { isActive, stage } from "./lib/progress";
 import { syncRun } from "./lib/persistedStore";
 import { usePreventiveLog } from "./lib/preventiveLog";
 import { useStepLog } from "./lib/stepLog";
+import { decisionOf, useDecisionLog } from "./lib/decisionLog";
 import { isOpen, teamTasks } from "./lib/team";
 import { usePoll } from "./hooks/usePoll";
 import { useAutoSelect } from "./hooks/useAutoSelect";
 import { useHotkeys } from "./hooks/useHotkeys";
-import { useRoute } from "./hooks/useRoute";
+import { LEGACY_WORK_ORDERS, useRoute } from "./hooks/useRoute";
 import { EARLY_WARNING, usePrevention } from "./hooks/usePrevention";
 import { Header } from "./components/layout/Header";
 import { Spinner } from "./components/ui/Spinner";
 import { Toast } from "./components/ui/Toast";
 import { TraceDrawer } from "./components/trace/TraceDrawer";
 import { AmdPanel } from "./components/amd/AmdPanel";
-import { WorkOrdersView } from "./components/workorders/WorkOrdersView";
-import { TeamView } from "./components/team/TeamView";
+import { TeamView, type TeamMode } from "./components/team/TeamView";
 
 // Recharts and three.js are most of the bundle: load the heavy views as separate chunks.
 const IncidentView = lazy(() => import("./components/incident/IncidentView").then((m) => ({ default: m.IncidentView })));
@@ -44,9 +44,9 @@ function Loading() {
   );
 }
 
-/** The incident step that fits where the alert stands: the fix once someone owns it, else who to assign. */
-function stepFor(a: Alert): number {
-  if (a.state === "acknowledged") return 3;
+/** The incident step that fits where the alert stands: who to assign, then repair-or-replace, then the job itself. */
+function stepFor(a: Alert, decided: boolean): number {
+  if (a.state === "acknowledged") return decided ? LAST_STEP : DECIDE_STEP;
   if (a.state === "open" || a.state === "escalated") return 2;
   return 0;
 }
@@ -64,8 +64,10 @@ export default function App() {
   const [incidentId, setIncidentId] = useState<string | null>(mockParam("incident"));
   const [trackedId, setTrackedId] = useState<string | null>(null);
   const [teamPersonId, setTeamPersonId] = useState<string | null>(null);
+  const [teamMode, setTeamMode] = useState<TeamMode>(window.location.hash === LEGACY_WORK_ORDERS ? "incident" : "person");
   const stepLog = useStepLog();
   const preventiveLog = usePreventiveLog();
+  const decisionLog = useDecisionLog();
   const [step, setStep] = useState(Number(mockParam("step") ?? 0));
   const [highlight, setHighlight] = useState<Highlight | null>(null);
   const [drawer, setDrawer] = useState<Drawer>(initialDrawer);
@@ -85,21 +87,24 @@ export default function App() {
     setIncidentId(null);
     setHighlight(null);
   }
-  /** Leave the incident flow and follow it on the Work orders page. */
+  /** Leave the incident flow and follow it on the Team page, by incident. */
   function trackIncident(id: string) {
     closeIncident();
     setTrackedId(id);
-    navigate("work-orders");
+    setTeamMode("incident");
+    navigate("team");
   }
   /** Show one team member's tasks on the Team page. */
   function showPerson(personId: string) {
+    closeIncident();
     setTeamPersonId(personId);
+    setTeamMode("person");
     navigate("team");
   }
   /** Open an incident on the step that fits where it stands. */
   function openIncidentHere(id: string) {
     const a = alerts.data?.find((x) => x.id === id);
-    openIncident(id, a ? stepFor(a) : 0);
+    openIncident(id, a ? stepFor(a, !!decisionOf(decisionLog, a)) : 0);
   }
   function goToStep(i: number) {
     if (incident && i >= 0 && i < STEPS.length && isStepEnabled(incident, i)) setStep(i);
@@ -113,6 +118,13 @@ export default function App() {
       setStep(0);
     }, []),
   );
+
+  // Old Work orders links open the Team page by incident (on load, the initial state already handles it).
+  useEffect(() => {
+    const onHash = () => window.location.hash === LEGACY_WORK_ORDERS && setTeamMode("incident");
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
   // A demo reset starts a new run: forget the ticked steps of the old one.
   useEffect(() => syncRun(alerts.data, plant.data?.sim_time), [alerts.data, plant.data?.sim_time]);
@@ -146,17 +158,22 @@ export default function App() {
     },
     ArrowRight: () => goToStep(step + 1),
     ArrowLeft: () => goToStep(step - 1),
-    r: () => goToStep(STEPS.length - 1),
+    r: () => goToStep(DECIDE_STEP),
     t: () => incident && setDrawer((d) => (d === "trace" ? null : "trace")),
     a: () => setDrawer("amd"),
-    w: () => (incident ? trackIncident(incident.id) : navigate(page === "work-orders" ? "plant" : "work-orders")),
+    w: () => {
+      if (incident) return trackIncident(incident.id);
+      setTeamMode("incident");
+      navigate(page === "team" && teamMode === "incident" ? "plant" : "team");
+    },
     p: () => {
       closeIncident();
       navigate(page === "prevent" ? "plant" : "prevent");
     },
     m: () => {
       closeIncident();
-      navigate(page === "team" ? "plant" : "team");
+      setTeamMode("person");
+      navigate(page === "team" && teamMode === "person" ? "plant" : "team");
     },
     Escape: () => {
       setDrawer(null);
@@ -167,7 +184,9 @@ export default function App() {
   const now = plant.data?.sim_time;
   const active = alerts.data?.filter(isActive) ?? [];
   const needAction = now ? active.filter((a) => ["waiting", "escalated", "overdue"].includes(stage(a, now))).length : 0;
-  const openTasks = now && alerts.data ? teamTasks(alerts.data, stepLog, preventiveLog, now).filter(isOpen).length : 0;
+  const tasks = now && alerts.data ? teamTasks(alerts.data, stepLog, preventiveLog, decisionLog, now) : [];
+  const openTasks = tasks.filter(isOpen).length;
+  const overdueTasks = tasks.filter((t) => t.status === "overdue").length;
 
   return (
     <div className="flex h-full flex-col">
@@ -178,8 +197,7 @@ export default function App() {
           navigate(p);
         }}
         plant={plant.data}
-        activeWork={active.length}
-        needAction={needAction}
+        needAction={needAction + overdueTasks}
         earlyWarnings={earlyWarnings.size}
         openTasks={openTasks}
         amd={amd.data}
@@ -195,7 +213,10 @@ export default function App() {
             alerts={alerts.data}
             onOpenIncident={openIncident}
             onPlantChanged={plant.refresh}
-            onShowWorkOrders={() => navigate("work-orders")}
+            onShowWorkOrders={() => {
+              setTeamMode("incident");
+              navigate("team");
+            }}
             onShowPrevent={() => navigate("prevent")}
             earlyWarningIds={earlyWarnings}
             initialMachineId={mockParam("machine")}
@@ -212,17 +233,18 @@ export default function App() {
           />
         </Suspense>
       ) : page === "team" ? (
-        <TeamView plant={plant.data} alerts={alerts.data} selectedId={teamPersonId} onSelect={setTeamPersonId} onOpenIncident={openIncidentHere} />
-      ) : (
-        <WorkOrdersView
+        <TeamView
           plant={plant.data}
           alerts={alerts.data}
-          selectedId={trackedId}
-          onSelect={setTrackedId}
+          mode={teamMode}
+          onMode={setTeamMode}
+          selectedId={teamPersonId}
+          onSelect={setTeamPersonId}
+          incidentId={trackedId}
+          onSelectIncident={setTrackedId}
           onOpenIncident={openIncidentHere}
-          onGoToPlant={() => navigate("plant")}
         />
-      )}
+      ) : null}
 
       {/* The incident opens over the blurred page. */}
       {incident && incidentMachine && (
@@ -244,6 +266,7 @@ export default function App() {
             onOpenTrace={() => setDrawer("trace")}
             replaceResult={replaceResults[incidentMachine.id]}
             onReplaceResult={(r) => setReplaceResults((prev) => ({ ...prev, [r.machine_id]: r }))}
+            onViewInTeam={showPerson}
           />
         </Suspense>
       )}

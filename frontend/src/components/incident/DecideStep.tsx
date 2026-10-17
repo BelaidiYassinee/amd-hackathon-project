@@ -1,25 +1,37 @@
 import { useEffect, useRef, useState } from "react";
-import { BadgeCheck, Cpu, RefreshCw, Table2, Trophy } from "lucide-react";
+import clsx from "clsx";
+import { ArrowRight, BadgeCheck, Check, Cpu, RefreshCw, Table2, Trophy, Truck, Wrench } from "lucide-react";
 import { api } from "../../api";
-import type { Alert, MachineSummary, ReplaceAnalysis } from "../../types";
-import { eur } from "../../lib/format";
+import type { Alert, MachineSummary, ReplaceAnalysis, ReplaceOption } from "../../types";
+import { eur, simTime } from "../../lib/format";
+import { decide, type Decision } from "../../lib/decisionLog";
 import { Button } from "../ui/Button";
 import { Pill } from "../ui/Pill";
 import { Spinner } from "../ui/Spinner";
 import { CostChart } from "../replace/CostChart";
 import { CostDetails } from "../replace/CostDetails";
 
-/** Step 5: repair vs. replace on 5-year cost. Runs automatically the first time the step opens. */
+/**
+ * Step 4: repair vs. replace on 5-year cost. Runs automatically the first time the step opens.
+ * The choice (the AI's recommendation unless overridden) decides the last step: Fix, or Order the replacement.
+ */
 export function DecideStep({
   alert,
   machine,
   result,
   onResult,
+  decision,
+  now,
+  onDecided,
 }: {
   alert: Alert;
   machine: MachineSummary;
   result: ReplaceAnalysis | undefined;
   onResult: (r: ReplaceAnalysis) => void;
+  decision: Decision | null;
+  now: string | null;
+  /** After a choice: go on to the last step. */
+  onDecided: () => void;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +61,16 @@ export function DecideStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [machine.id]);
 
-  if (!isPump) return <div className="flex h-full items-center justify-center text-sm text-zinc-400">Repair vs. replace is available for pumps.</div>;
+  if (!isPump) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-sm text-zinc-400">
+        Repair vs. replace is available for pumps. This machine gets repaired.
+        <Button variant="primary" onClick={onDecided}>
+          Continue to Fix <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  }
 
   if (!result) {
     return (
@@ -71,6 +92,14 @@ export function DecideStep({
 
   const rec = result.options.find((o) => o.option_id === result.recommendation);
   const repair = result.options.find((o) => o.kind === "repair");
+  // The two choices offered: repair, and the best replacement (the recommended one when the AI says replace).
+  const replacement = rec?.kind === "replace" ? rec : [...result.options].filter((o) => o.kind === "replace").sort((a, b) => a.rank - b.rank)[0];
+  const chosenId = decision?.option_id ?? rec?.option_id;
+
+  function choose(o: ReplaceOption) {
+    if (now) decide(alert, o, now);
+    onDecided();
+  }
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
@@ -109,6 +138,46 @@ export function DecideStep({
           </div>
         </div>
       </div>
+
+      {/* The decision: picks the last step of the flow. */}
+      <div className="grid grid-cols-2 gap-3">
+        {[repair, replacement].map((o) =>
+          o ? (
+            <button
+              key={o.option_id}
+              type="button"
+              disabled={!now}
+              onClick={() => choose(o)}
+              className={clsx(
+                "flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors",
+                chosenId === o.option_id ? "border-sky-400/60 bg-sky-500/10" : "border-white/10 bg-white/[0.03] hover:border-white/25",
+              )}
+            >
+              {o.kind === "repair" ? <Wrench className="h-5 w-5 shrink-0 text-zinc-300" /> : <Truck className="h-5 w-5 shrink-0 text-zinc-300" />}
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-zinc-100">{o.kind === "repair" ? "Repair the current pump" : `Replace with ${o.label}`}</span>
+                <span className="block text-xs text-zinc-500">
+                  {eur(o.tco_5y_eur)} over 5 years
+                  {o.kind === "replace" && ` · ${o.lead_time_days} d delivery`}
+                  {o.option_id === rec?.option_id && " · AI recommendation"}
+                </span>
+              </span>
+              {chosenId === o.option_id ? (
+                <span className="flex items-center gap-1 text-xs font-medium text-sky-300">
+                  <Check className="h-4 w-4" /> {decision ? "Chosen" : "Recommended"}
+                </span>
+              ) : (
+                <span className="text-xs text-zinc-500">Choose</span>
+              )}
+            </button>
+          ) : null,
+        )}
+      </div>
+      {decision && (
+        <p className="-mt-1 text-xs text-zinc-500">
+          Decided {simTime(decision.decided_at)}: {decision.choice === "repair" ? "repair" : `replace with ${decision.label}`}. Click the other option to change it.
+        </p>
+      )}
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mb-1 text-sm font-medium text-zinc-200">Where the 5-year cost comes from</div>

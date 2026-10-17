@@ -1,15 +1,17 @@
 // Every task of every team member in one list: incident work orders, alerts waiting to be acknowledged,
-// and preventive actions assigned on the Prevent page.
+// purchase tasks for replacements, and preventive actions assigned on the Prevent page.
 import type { Alert } from "../types";
+import { decisionKey, type Decision } from "./decisionLog";
+import { eur } from "./format";
 import { dueAt } from "./progress";
 import { allRecords, type ActionRecord } from "./preventiveLog";
 import { ticksOf } from "./stepLog";
 
-export type TaskSource = "work_order" | "preventive" | "acknowledge";
+export type TaskSource = "work_order" | "preventive" | "acknowledge" | "order";
 export type TaskStatus = "overdue" | "todo" | "in_progress" | "done";
 
 export interface TeamTask {
-  id: string; // "wo:<alertId>" | "prev:<machineId>:<actionId>" | "ack:<alertId>"
+  id: string; // "wo:<alertId>" | "prev:<machineId>:<actionId>" | "ack:<alertId>" | "order:<alertId>"
   source: TaskSource;
   person_id: string;
   machine_id: string;
@@ -26,6 +28,8 @@ export interface TeamTask {
   alert_id?: string;
   /** To mark a preventive action done. */
   action_id?: string;
+  /** To mark a purchase task done (the decision log key). */
+  order_key?: string;
 }
 
 /** Display order of the groups on a member's card. */
@@ -35,6 +39,7 @@ export function teamTasks(
   alerts: Alert[],
   stepLog: Record<string, (string | null)[]>,
   preventiveLog: Record<string, ActionRecord>,
+  decisionLog: Record<string, Decision>,
   now: string,
 ): TeamTask[] {
   const tasks: TeamTask[] = [];
@@ -61,6 +66,9 @@ export function teamTasks(
       });
     }
 
+    const decision = decisionLog[decisionKey(a)];
+    const replacing = decision?.choice === "replace";
+
     if (wo) {
       const ticks = ticksOf(stepLog, a);
       const done = ticks.filter(Boolean).length;
@@ -73,13 +81,32 @@ export function teamTasks(
         machine_id: a.machine_id,
         machine_name: a.machine_name,
         title: wo.title,
-        detail: `${wo.id} · ${wo.priority} · ${done} of ${wo.steps.length} steps done`,
+        // Being replaced: the repair steps no longer apply, the job is to install the new machine.
+        detail: replacing ? `${wo.id} · ${wo.priority} · replacing with ${decision.label}` : `${wo.id} · ${wo.priority} · ${done} of ${wo.steps.length} steps done`,
         assigned_at: wo.created_at,
         due_at: due,
         done_at: a.resolution?.at ?? null,
         status: resolved ? "done" : due && Date.parse(now) > Date.parse(due) ? "overdue" : done > 0 ? "in_progress" : "todo",
-        progress: { done, total: wo.steps.length },
+        progress: replacing ? undefined : { done, total: wo.steps.length },
         alert_id: a.id,
+      });
+    }
+
+    if (replacing && decision.order) {
+      tasks.push({
+        id: `order:${a.id}`,
+        source: "order",
+        person_id: decision.order.assignee_id,
+        machine_id: a.machine_id,
+        machine_name: a.machine_name,
+        title: `Place the order: ${decision.label}`,
+        detail: `Replacement recommended by the AI · ${eur(decision.capex_eur)} · delivery ${decision.lead_time_days} d`,
+        assigned_at: decision.order.created_at,
+        due_at: null,
+        done_at: decision.order.done_at,
+        status: decision.order.done_at ? "done" : "todo",
+        alert_id: a.id,
+        order_key: decisionKey(a),
       });
     }
   }

@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ClipboardList, Factory, Gauge, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import { Factory, Gauge, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 import type { AmdStats, PlantState } from "../../types";
 import type { Page } from "../../hooks/useRoute";
 import { simClock, simTime } from "../../lib/format";
@@ -54,7 +54,6 @@ export function Header({
   page,
   onNavigate,
   plant,
-  activeWork,
   needAction,
   earlyWarnings,
   openTasks,
@@ -66,9 +65,7 @@ export function Header({
   page: Page;
   onNavigate: (p: Page) => void;
   plant: PlantState | null;
-  /** Incidents still open (badge on Work orders). */
-  activeWork: number;
-  /** Of those, how many wait on someone (turns the badge red). */
+  /** Tasks or incidents waiting on someone: overdue, escalated, not acknowledged (turns the Team badge red). */
   needAction: number;
   /** Machines drifting towards an alert (badge on Prevent). */
   earlyWarnings: number;
@@ -102,15 +99,14 @@ export function Header({
           title="Act before a machine fails (p)"
         />
         <Tab
-          icon={ClipboardList}
-          label="Work orders"
-          active={page === "work-orders"}
-          badge={activeWork}
+          icon={Users}
+          label="Team"
+          active={page === "team"}
+          badge={openTasks}
           badgeTone={needAction > 0 ? "red" : "sky"}
-          onClick={() => onNavigate("work-orders")}
-          title="Follow up every incident (w)"
+          onClick={() => onNavigate("team")}
+          title="Who does what: by person (m) or by incident (w)"
         />
-        <Tab icon={Users} label="Team" active={page === "team"} badge={openTasks} onClick={() => onNavigate("team")} title="Every task of every team member (m)" />
       </nav>
 
       <div className="flex items-center gap-3 justify-self-end">
