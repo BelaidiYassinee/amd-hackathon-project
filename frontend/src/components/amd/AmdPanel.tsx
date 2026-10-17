@@ -9,7 +9,7 @@ const wallClock = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", hour: "2-d
 
 function BigNumber({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3">
+    <div className="rounded-lg border border-white/10 bg-black/20 p-3">
       <div className="text-2xl font-bold tabular-nums text-zinc-50">{value}</div>
       <div className="text-xs text-zinc-400">{label}</div>
     </div>
@@ -68,9 +68,9 @@ export function AmdPanel({ stats, onClose }: { stats: AmdStats | null; onClose: 
             {stats.recent.length === 0 ? (
               <div className="text-sm text-zinc-500">No calls yet. Inject a fault to start a diagnosis.</div>
             ) : (
-              <div className="overflow-x-auto rounded-lg border border-zinc-800">
+              <div className="overflow-x-auto rounded-lg border border-white/10">
                 <table className="w-full text-xs">
-                  <thead className="bg-zinc-950/60 text-left text-zinc-500">
+                  <thead className="bg-black/20 text-left text-zinc-500">
                     <tr>
                       <th className="px-2 py-1.5 font-medium">Time (UTC)</th>
                       <th className="px-2 py-1.5 font-medium">Purpose</th>
@@ -80,7 +80,7 @@ export function AmdPanel({ stats, onClose }: { stats: AmdStats | null; onClose: 
                       <th className="px-2 py-1.5 font-medium">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-800 tabular-nums">
+                  <tbody className="divide-y divide-white/5 tabular-nums">
                     {stats.recent.map((c) => (
                       <tr key={c.id} className="text-zinc-300">
                         <td className="px-2 py-1.5">{wallClock.format(new Date(c.at))}</td>

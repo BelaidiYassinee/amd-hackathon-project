@@ -27,7 +27,7 @@ export function TraceList({ trace }: { trace: TraceStep[] }) {
       {trace.map((s) => {
         const { icon: Icon, color } = TRACE_ICONS[s.kind];
         return (
-          <li key={s.i} className="flex items-center gap-2 rounded-md bg-zinc-800/50 px-2 py-1.5 text-sm">
+          <li key={s.i} className="flex items-center gap-2 rounded-md bg-white/[0.04] px-2 py-1.5 text-sm">
             <Icon className={`h-4 w-4 shrink-0 ${color}`} />
             <span className="shrink-0 font-mono text-xs text-zinc-200">{s.name}</span>
             <span className="min-w-0 flex-1 truncate text-xs text-zinc-500">{stepHint(s)}</span>

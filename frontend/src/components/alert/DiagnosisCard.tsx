@@ -13,7 +13,7 @@ export function DiagnosisCard({ diagnosis: d, error }: { diagnosis: Diagnosis; e
 
       <div className="flex flex-wrap gap-1.5">
         <Pill className={severityColor(d.severity)}>Severity: {d.severity}</Pill>
-        <Pill className="bg-zinc-800 text-zinc-300">{d.category}</Pill>
+        <Pill className="bg-white/[0.07] text-zinc-300">{d.category}</Pill>
         <Pill className={clsx(d.action === "stop_now" ? "bg-red-600 text-white" : "bg-sky-500/15 text-sky-300")}>{actionLabel(d.action)}</Pill>
       </div>
 
@@ -23,7 +23,7 @@ export function DiagnosisCard({ diagnosis: d, error }: { diagnosis: Diagnosis; e
             <span>Confidence</span>
             <span className="tabular-nums text-zinc-200">{pct}%</span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-zinc-800">
+          <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
             <div className="h-full rounded-full bg-sky-500" style={{ width: `${pct}%` }} />
           </div>
         </div>

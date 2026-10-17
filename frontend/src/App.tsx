@@ -3,14 +3,18 @@ import { WifiOff } from "lucide-react";
 import { MOCK, api } from "./api";
 import type { Alert, ReplaceAnalysis } from "./types";
 import { STEPS, isStepEnabled, type Drawer, type Highlight } from "./lib/uiTypes";
+import { isActive, stage } from "./lib/progress";
+import { syncRun } from "./lib/stepLog";
 import { usePoll } from "./hooks/usePoll";
 import { useAutoSelect } from "./hooks/useAutoSelect";
 import { useHotkeys } from "./hooks/useHotkeys";
+import { useRoute } from "./hooks/useRoute";
 import { Header } from "./components/layout/Header";
 import { Spinner } from "./components/ui/Spinner";
 import { Toast } from "./components/ui/Toast";
 import { TraceDrawer } from "./components/trace/TraceDrawer";
 import { AmdPanel } from "./components/amd/AmdPanel";
+import { WorkOrdersView } from "./components/workorders/WorkOrdersView";
 
 // Recharts and three.js are most of the bundle: load the heavy views as separate chunks.
 const IncidentView = lazy(() => import("./components/incident/IncidentView").then((m) => ({ default: m.IncidentView })));
@@ -34,6 +38,13 @@ function Loading() {
   );
 }
 
+/** The incident step that fits where the alert stands: the fix once someone owns it, else who to assign. */
+function stepFor(a: Alert): number {
+  if (a.state === "acknowledged") return 3;
+  if (a.state === "open" || a.state === "escalated") return 2;
+  return 0;
+}
+
 export default function App() {
   // Server data: always derived from the latest poll, never copied into local state.
   const plant = usePoll(api.plant, 1000);
@@ -41,7 +52,9 @@ export default function App() {
   const amd = usePoll(api.amdStats, 3000);
 
   // UI state only.
+  const [page, navigate] = useRoute();
   const [incidentId, setIncidentId] = useState<string | null>(mockParam("incident"));
+  const [trackedId, setTrackedId] = useState<string | null>(null);
   const [step, setStep] = useState(Number(mockParam("step") ?? 0));
   const [highlight, setHighlight] = useState<Highlight | null>(null);
   const [drawer, setDrawer] = useState<Drawer>(initialDrawer);
@@ -52,14 +65,20 @@ export default function App() {
   const incident = alerts.data?.find((a) => a.id === incidentId) ?? null;
   const incidentMachine = plant.data?.machines.find((m) => m.id === incident?.machine_id);
 
-  function openIncident(id: string) {
+  function openIncident(id: string, atStep = 0) {
     setIncidentId(id);
-    setStep(0);
+    setStep(atStep);
     setHighlight(null);
   }
   function closeIncident() {
     setIncidentId(null);
     setHighlight(null);
+  }
+  /** Leave the incident flow and follow it on the Work orders page. */
+  function trackIncident(id: string) {
+    closeIncident();
+    setTrackedId(id);
+    navigate("work-orders");
   }
   function goToStep(i: number) {
     if (incident && i >= 0 && i < STEPS.length && isStepEnabled(incident, i)) setStep(i);
@@ -73,6 +92,9 @@ export default function App() {
       setStep(0);
     }, []),
   );
+
+  // A demo reset starts a new run: forget the ticked steps of the old one.
+  useEffect(() => syncRun(alerts.data, plant.data?.sim_time), [alerts.data, plant.data?.sim_time]);
 
   // After a demo reset the incident is gone: go back home.
   useEffect(() => {
@@ -106,34 +128,60 @@ export default function App() {
     r: () => goToStep(STEPS.length - 1),
     t: () => incident && setDrawer((d) => (d === "trace" ? null : "trace")),
     a: () => setDrawer("amd"),
+    w: () => (incident ? trackIncident(incident.id) : navigate(page === "work-orders" ? "plant" : "work-orders")),
     Escape: () => {
       setDrawer(null);
       setHighlight(null);
     },
   });
 
+  const now = plant.data?.sim_time;
+  const active = alerts.data?.filter(isActive) ?? [];
+  const needAction = now ? active.filter((a) => ["waiting", "escalated", "overdue"].includes(stage(a, now))).length : 0;
+
   return (
     <div className="flex h-full flex-col">
       <Header
+        page={page}
+        onNavigate={(p) => {
+          closeIncident();
+          navigate(p);
+        }}
         plant={plant.data}
+        activeWork={active.length}
+        needAction={needAction}
         amd={amd.data}
         amdFailed={!!amd.error}
-        onHome={closeIncident}
         onOpenAmd={() => setDrawer("amd")}
         onPlantChanged={plant.refresh}
       />
 
-      <Suspense fallback={<Loading />}>
-        <FactoryView
+      {page === "plant" ? (
+        <Suspense fallback={<Loading />}>
+          <FactoryView
+            plant={plant.data}
+            alerts={alerts.data}
+            onOpenIncident={openIncident}
+            onPlantChanged={plant.refresh}
+            onShowWorkOrders={() => navigate("work-orders")}
+            initialMachineId={mockParam("machine")}
+          />
+        </Suspense>
+      ) : (
+        <WorkOrdersView
           plant={plant.data}
           alerts={alerts.data}
-          onOpenIncident={openIncident}
-          onPlantChanged={plant.refresh}
-          initialMachineId={mockParam("machine")}
+          selectedId={trackedId}
+          onSelect={setTrackedId}
+          onOpenIncident={(id) => {
+            const a = alerts.data?.find((x) => x.id === id);
+            openIncident(id, a ? stepFor(a) : 0);
+          }}
+          onGoToPlant={() => navigate("plant")}
         />
-      </Suspense>
+      )}
 
-      {/* The incident opens over the blurred factory. */}
+      {/* The incident opens over the blurred page. */}
       {incident && incidentMachine && (
         <Suspense fallback={null}>
           <IncidentView
@@ -143,6 +191,7 @@ export default function App() {
             step={step}
             onStep={goToStep}
             onClose={closeIncident}
+            onFinish={() => trackIncident(incident.id)}
             onChanged={() => {
               alerts.refresh();
               plant.refresh();

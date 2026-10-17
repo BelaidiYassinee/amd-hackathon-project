@@ -1,10 +1,12 @@
 import clsx from "clsx";
 import { AlertTriangle, ArrowRight, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { api } from "../../api";
 import type { Alert, MachineSummary } from "../../types";
 import { usePoll } from "../../hooks/usePoll";
 import { STATUS_LABEL, statusColor } from "../../lib/format";
+import { useFaultTint } from "../../hooks/useFaultTint";
+import { faultZone } from "./faultZone";
 import { cameraOrbit, modelSrc } from "./machineModel";
 import { SignalList } from "./SignalList";
 
@@ -24,6 +26,9 @@ export function MachinePopup({
   // Only polls while the pop-up is open.
   const series = usePoll(() => api.series(machine.id, 6), 2000, [machine.id]);
   const c = statusColor(machine.status);
+  const fault = faultZone(machine, alert);
+  const viewer = useRef<HTMLElement>(null);
+  useFaultTint(viewer, fault?.zone ?? null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -32,16 +37,17 @@ export function MachinePopup({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-zinc-950/40 backdrop-blur-md" onClick={onClose}>
+    <div className="glass-backdrop fixed inset-0 z-50 flex animate-fade-in items-center justify-center" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-label={machine.name}
         onClick={(e) => e.stopPropagation()}
-        className="grid h-[min(640px,88vh)] w-[min(960px,92vw)] animate-pop-in grid-cols-2 overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/75 shadow-2xl backdrop-blur-xl"
+        className="glass-panel grid h-[min(640px,88vh)] w-[min(960px,92vw)] animate-pop-in grid-cols-2 overflow-hidden rounded-2xl"
       >
         <div className="relative bg-gradient-to-b from-white/[0.04] to-transparent">
           <model-viewer
+            ref={viewer}
             src={modelSrc(machine.id)}
             alt={`3D model of ${machine.name}`}
             camera-controls=""
@@ -56,6 +62,19 @@ export function MachinePopup({
             style={{ width: "100%", height: "100%", cursor: "grab" }}
           >
             <div slot="progress-bar" />
+            {/* Pinned to the failing part in 3D: it follows the model as it turns. */}
+            {fault && (
+              <div slot="hotspot-fault" data-position={fault.position} data-normal="0m 1m 0m" className="pointer-events-none">
+                {/* The hotspot is centred on its point, so only the dot takes up space; the label hangs to its right. */}
+                <span className="relative block h-3 w-3">
+                  <span className="absolute inset-0 animate-ping-slow rounded-full bg-red-500 motion-reduce:hidden" />
+                  <span className="absolute inset-0 rounded-full border-2 border-white/80 bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.9)]" />
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md border border-red-400/40 bg-zinc-950/80 px-2 py-0.5 text-xs font-medium text-red-200 backdrop-blur">
+                    {fault.label}
+                  </span>
+                </span>
+              </div>
+            )}
           </model-viewer>
           <p className="pointer-events-none absolute bottom-4 left-0 right-0 text-center text-xs text-zinc-500">Drag to turn · scroll to zoom</p>
         </div>

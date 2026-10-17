@@ -4,27 +4,47 @@ import { AlertActions } from "../alert/AlertActions";
 import { FixSteps } from "../alert/FixSteps";
 import { PartsList } from "../alert/PartsList";
 import { RefText } from "../alert/RefText";
+import { stepsDone } from "../../lib/progress";
+import { ticksOf, useStepLog } from "../../lib/stepLog";
 
 /** Step 4: the procedure on the left; parts, safety and "mark as fixed" on the right. */
 export function FixStep({
   alert,
   people,
+  now,
   onChanged,
   onOpenManual,
 }: {
   alert: Alert;
   people: Person[] | null;
+  /** Plant time, stamped on each ticked step. */
+  now: string | null;
   onChanged: () => void;
   onOpenManual: (id: string) => void;
 }) {
   const d = alert.diagnosis!;
   const notYetOwned = alert.state === "open" || alert.state === "escalated";
+  const ticks = ticksOf(useStepLog(), alert);
+  const { done, total } = stepsDone(alert, ticks);
 
   return (
     <div className="grid h-full min-h-0 grid-cols-[3fr_2fr] gap-8">
       <div className="min-h-0 overflow-y-auto pr-1">
-        <div className="mb-3 text-sm font-medium text-zinc-200">Procedure</div>
-        <FixSteps alertId={alert.id} steps={d.fix_steps} onOpenManual={onOpenManual} />
+        <div className="mb-3 flex items-center gap-3">
+          <span className="text-sm font-medium text-zinc-200">Procedure</span>
+          {alert.work_order && (
+            <>
+              <span className="h-1.5 w-28 overflow-hidden rounded-full bg-white/10">
+                <span className="block h-full rounded-full bg-emerald-400 transition-[width] duration-500" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
+              </span>
+              <span className="text-xs tabular-nums text-zinc-400">
+                {done} / {total} done
+              </span>
+            </>
+          )}
+          {notYetOwned && <span className="text-xs text-zinc-500">Acknowledge first to tick the steps</span>}
+        </div>
+        <FixSteps alert={alert} ticks={ticks} now={now} onOpenManual={onOpenManual} />
       </div>
 
       <div className="flex min-h-0 flex-col gap-5 overflow-y-auto">

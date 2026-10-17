@@ -45,7 +45,7 @@ export function TraceDrawer({ alert, amd, onClose }: { alert: Alert | null; amd:
           <Spinner /> Waiting for the first agent step…
         </div>
       ) : (
-        <ol className="relative space-y-2 border-l border-zinc-800 pl-4">
+        <ol className="relative space-y-2 border-l border-white/10 pl-4">
           {trace.map((s) => (
             <TraceRow key={s.i} step={s} />
           ))}
@@ -60,13 +60,13 @@ function TraceRow({ step: s }: { step: TraceStep }) {
   const { icon: Icon, color } = TRACE_ICONS[s.kind];
   return (
     <li className="relative">
-      <span className="absolute -left-[25px] top-2 flex h-4 w-4 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-[9px] text-zinc-400">
+      <span className="absolute -left-[25px] top-2 flex h-4 w-4 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-[9px] text-zinc-400">
         {s.i}
       </span>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-800/40 px-3 py-2 text-left hover:border-zinc-600"
+        className="flex w-full items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-left hover:border-white/20"
       >
         <Icon className={clsx("h-4 w-4 shrink-0", color)} />
         <span className="shrink-0 font-mono text-sm text-zinc-100">{s.name}</span>
@@ -86,7 +86,7 @@ function TraceRow({ step: s }: { step: TraceStep }) {
           {(["input", "output"] as const).map((k) => (
             <div key={k}>
               <div className="mb-0.5 font-semibold uppercase tracking-wide text-zinc-500">{k}</div>
-              <pre className="max-h-60 overflow-auto whitespace-pre-wrap break-words rounded-md border border-zinc-800 bg-zinc-950 p-2 font-mono text-[11px] text-zinc-300">
+              <pre className="max-h-60 overflow-auto whitespace-pre-wrap break-words rounded-md border border-white/10 bg-black/30 p-2 font-mono text-[11px] text-zinc-300">
                 {pretty(s[k])}
               </pre>
             </div>

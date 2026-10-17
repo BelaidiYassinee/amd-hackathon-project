@@ -1,15 +1,31 @@
 import clsx from "clsx";
-import type { CSSProperties } from "react";
+import { AlertTriangle } from "lucide-react";
+import { useRef, type CSSProperties } from "react";
 import type { MachineSummary } from "../../types";
 import { STATUS_LABEL, statusColor } from "../../lib/format";
+import { useFaultTint } from "../../hooks/useFaultTint";
+import type { FaultZone } from "./faultZone";
 import { cameraOrbit, modelSrc } from "./machineModel";
 
 /**
  * One glass card with a turning machine. Each motion lives on its own nested layer, so the transforms never fight:
  * parallax (follows the mouse via --mx/--my) > idle float (CSS keyframe) > hover grow (button) > glass card.
  */
-export function MachineCard3D({ machine, index, onOpen }: { machine: MachineSummary; index: number; onOpen: () => void }) {
+export function MachineCard3D({
+  machine,
+  index,
+  fault,
+  onOpen,
+}: {
+  machine: MachineSummary;
+  index: number;
+  /** The part that is not working: painted red on the model. */
+  fault: FaultZone | null;
+  onOpen: () => void;
+}) {
   const c = statusColor(machine.status);
+  const viewer = useRef<HTMLElement>(null);
+  useFaultTint(viewer, fault?.zone ?? null);
   // Cards further out move a little more, which gives the row some depth.
   const depth = [1, 0.7, 0.8, 1.1][index % 4];
   const parallax = {
@@ -31,10 +47,11 @@ export function MachineCard3D({ machine, index, onOpen }: { machine: MachineSumm
             className={clsx(
               "rounded-2xl border bg-white/[0.04] p-5 shadow-lg shadow-black/20 backdrop-blur-md transition-[border-color,box-shadow] duration-300",
               "group-hover:border-white/25 group-hover:shadow-2xl group-hover:shadow-sky-500/10 group-focus-visible:border-sky-400/60",
-              machine.status === "alert" ? "border-red-500/50 shadow-red-500/10" : "border-white/10",
+              fault ? "border-red-500/50 shadow-red-500/20" : "border-white/10",
             )}
           >
             <model-viewer
+              ref={viewer}
               src={modelSrc(machine.id)}
               alt={`3D model of ${machine.name}`}
               loading="eager"
@@ -59,9 +76,17 @@ export function MachineCard3D({ machine, index, onOpen }: { machine: MachineSumm
                 {STATUS_LABEL[machine.status]}
               </span>
             </div>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className={clsx("text-2xl font-semibold tabular-nums", c.text)}>{machine.health}</span>
-              <span className="text-xs text-zinc-500">health</span>
+            <div className="mt-2 flex items-end justify-between gap-2">
+              <div className="flex items-baseline gap-1">
+                <span className={clsx("text-2xl font-semibold tabular-nums", c.text)}>{machine.health}</span>
+                <span className="text-xs text-zinc-500">health</span>
+              </div>
+              {fault && (
+                <span className="mb-0.5 flex min-w-0 items-center gap-1.5 rounded-full bg-red-500/15 px-2.5 py-1 text-xs font-medium text-red-300">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{fault.label}</span>
+                </span>
+              )}
             </div>
           </div>
         </button>

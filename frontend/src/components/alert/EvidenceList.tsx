@@ -60,11 +60,11 @@ export function EvidenceList({
               type="button"
               onClick={() => onClick(e)}
               title={e.kind === "sensor" ? "Show on the chart" : `Open ${k.label.toLowerCase()} reference`}
-              className="group flex w-full items-start gap-2.5 rounded-lg border border-zinc-800 bg-zinc-800/40 px-2.5 py-2 text-left hover:border-zinc-600 hover:bg-zinc-800"
+              className="group flex w-full items-start gap-2.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2 text-left hover:border-white/20 hover:bg-white/[0.07]"
             >
               <Icon className={clsx("mt-0.5 h-4 w-4 shrink-0", k.color)} aria-label={k.label} />
               <div className="min-w-0 flex-1">
-                <span className="mb-0.5 inline-block rounded bg-zinc-950/70 px-1.5 py-0.5 font-mono text-[11px] text-zinc-200">{e.ref}</span>
+                <span className="mb-0.5 inline-block rounded bg-black/30 px-1.5 py-0.5 font-mono text-[11px] text-zinc-200">{e.ref}</span>
                 <p className="text-sm leading-snug text-zinc-300">{e.detail}</p>
               </div>
               <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-zinc-600 group-hover:text-zinc-300" />
@@ -82,7 +82,7 @@ function PartPopover({ alert, evidence }: { alert: Alert; evidence: Evidence }) 
   // The contract has no stock location field; the evidence text usually names it ("Store B-14").
   const location = evidence.detail.match(/Store [A-Z]-\d+/)?.[0];
   return (
-    <div className="ml-7 mt-1 grid grid-cols-3 gap-2 rounded-lg border border-zinc-700 bg-zinc-950 p-2.5 text-xs">
+    <div className="ml-7 mt-1 grid grid-cols-3 gap-2 rounded-lg border border-white/10 bg-black/30 p-2.5 text-xs">
       <div>
         <div className="text-zinc-500">In stock</div>
         <div className={clsx("font-semibold tabular-nums", line?.in_stock ? "text-emerald-400" : "text-red-400")}>{line?.in_stock ?? "–"}</div>

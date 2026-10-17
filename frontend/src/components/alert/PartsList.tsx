@@ -9,7 +9,7 @@ export function PartsList({ parts }: { parts: PartLine[] }) {
         const inStock = p.in_stock != null && p.in_stock >= p.qty;
         return (
           <li key={p.part_no} className="flex items-center gap-2 text-sm">
-            <span className="shrink-0 rounded bg-zinc-800 px-1.5 py-0.5 font-mono text-[11px] text-zinc-200">{p.part_no}</span>
+            <span className="shrink-0 rounded bg-white/[0.07] px-1.5 py-0.5 font-mono text-[11px] text-zinc-200">{p.part_no}</span>
             <span className="min-w-0 flex-1 truncate text-zinc-300" title={p.name}>
               {p.qty} × {p.name}
             </span>

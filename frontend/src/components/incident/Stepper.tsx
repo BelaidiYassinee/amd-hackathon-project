@@ -42,7 +42,7 @@ export function Stepper({ step, isEnabled, onStep }: { step: number; isEnabled: 
                     "flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold transition-colors duration-500",
                     current && "border-sky-400 bg-sky-500 text-white shadow-[0_0_14px_rgba(56,189,248,0.55)]",
                     done && "border-sky-400/60 bg-sky-500/15 text-sky-300",
-                    !current && !done && "border-zinc-700 text-zinc-500",
+                    !current && !done && "border-white/10 text-zinc-500",
                   )}
                 >
                   {done ? <Check className="h-4 w-4" /> : i + 1}

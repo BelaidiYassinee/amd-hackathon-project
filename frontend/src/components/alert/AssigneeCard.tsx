@@ -7,7 +7,7 @@ import { Pill } from "../ui/Pill";
 
 const REASON_STYLE: Record<Notification["reason"], string> = {
   primary: "bg-sky-500/15 text-sky-300",
-  cc: "bg-zinc-800 text-zinc-300",
+  cc: "bg-white/[0.07] text-zinc-300",
   escalation: "bg-red-500/15 text-red-300",
 };
 
@@ -49,7 +49,7 @@ function NotificationRow({ n }: { n: Notification }) {
   const [expanded, setExpanded] = useState(false);
   const Icon = n.channel === "telegram" ? Send : Bell;
   return (
-    <li className="rounded-lg border border-zinc-800 bg-zinc-800/40 px-2.5 py-2 text-xs">
+    <li className="rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2 text-xs">
       <div className="flex items-center gap-2">
         <Icon className="h-3.5 w-3.5 shrink-0 text-zinc-400" aria-label={n.channel === "telegram" ? "Telegram" : "In-app"} />
         <span className="font-medium text-zinc-200">{n.person_name}</span>

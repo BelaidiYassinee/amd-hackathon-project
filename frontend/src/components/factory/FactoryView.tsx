@@ -1,12 +1,13 @@
 import "@google/model-viewer"; // registers <model-viewer>; three.js only downloads with this lazy chunk
 import { useCallback, useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, FlaskConical } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, FlaskConical } from "lucide-react";
 import { api } from "../../api";
 import type { Alert, PlantState } from "../../types";
 import { FAULT_LABELS } from "../../lib/format";
 import { useMouseParallax } from "../../hooks/useMouseParallax";
 import { Button } from "../ui/Button";
 import { Spinner } from "../ui/Spinner";
+import { faultZone } from "./faultZone";
 import { MachineCard3D } from "./MachineCard3D";
 import { MachinePopup } from "./MachinePopup";
 
@@ -16,12 +17,14 @@ export function FactoryView({
   alerts,
   onOpenIncident,
   onPlantChanged,
+  onShowWorkOrders,
   initialMachineId = null,
 }: {
   plant: PlantState | null;
   alerts: Alert[] | null;
   onOpenIncident: (alertId: string) => void;
   onPlantChanged: () => void;
+  onShowWorkOrders: () => void;
   initialMachineId?: string | null;
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
@@ -44,6 +47,7 @@ export function FactoryView({
   const needAttention = plant.machines.filter((m) => m.active_alert_id);
   const injected = plant.machines.find((m) => m.injected_fault);
   const past = (alerts ?? []).filter((a) => !plant.machines.some((m) => m.active_alert_id === a.id));
+  const activeAlert = (id: string | null) => alerts?.find((a) => a.id === id) ?? null;
 
   async function simulate() {
     setBusy(true);
@@ -57,8 +61,11 @@ export function FactoryView({
 
   return (
     <main className="relative flex flex-1 flex-col items-center justify-center gap-12 overflow-hidden px-8 pb-10">
-      {/* Soft light behind the glass, so the blur has something to show. */}
+      {/* Soft light behind the glass, so the blur has something to show; it turns warm while a machine is failing. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,rgba(56,189,248,0.10),transparent_60%)]" />
+      {needAttention.length > 0 && (
+        <div aria-hidden className="pointer-events-none absolute inset-0 animate-fade-in bg-[radial-gradient(ellipse_at_50%_60%,rgba(239,68,68,0.07),transparent_55%)]" />
+      )}
 
       <div className="relative flex w-full max-w-7xl items-center gap-4">
         {needAttention.length === 0 ? (
@@ -88,7 +95,7 @@ export function FactoryView({
 
       <div ref={rowRef} className="relative grid w-full max-w-7xl grid-cols-4 gap-6 [perspective:1200px]">
         {plant.machines.map((m, i) => (
-          <MachineCard3D key={m.id} machine={m} index={i} onOpen={() => setOpenId(m.id)} />
+          <MachineCard3D key={m.id} machine={m} index={i} fault={faultZone(m, activeAlert(m.active_alert_id))} onOpen={() => setOpenId(m.id)} />
         ))}
       </div>
 
@@ -105,6 +112,11 @@ export function FactoryView({
             {a.machine_id} · {a.diagnosis?.fault_label ?? a.state} · {a.state}
           </button>
         ))}
+        {(alerts?.length ?? 0) > 0 && (
+          <button type="button" onClick={onShowWorkOrders} className="ml-auto flex items-center gap-1 text-zinc-400 hover:text-zinc-200">
+            Follow up in Work orders <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
 
       {open && (

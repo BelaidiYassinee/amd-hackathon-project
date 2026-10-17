@@ -1,4 +1,5 @@
 import type { Alert } from "../types";
+import { seedSteps } from "../lib/stepLog";
 
 /**
  * Mock-only: derive the other alert states from the §14.3 "open" fixture, so every panel state
@@ -35,6 +36,8 @@ export function applyMockState(alerts: Alert[]): Alert[] {
         title: "Drive-end bearing wear (early stage) - Coolant pump P-101", priority: "P2", assignee_id: "tech-a1",
         steps: a.diagnosis?.fix_steps ?? [], parts: a.diagnosis?.parts.slice(0, 1) ?? [], status: state === "resolved" ? "done" : "open",
       };
+      // Ticked steps live in the frontend step log: 2 done while in progress, all done once resolved.
+      seedSteps(a, a.work_order.steps.map((_, i) => (state === "resolved" || i < 2 ? `2026-10-15T1${i}:05:00Z` : null)));
       if (state === "resolved") {
         a.resolution = { at: "2026-10-15T14:10:00Z", actual_fault: "bearing_wear", diagnosis_correct: true, note: null };
       }

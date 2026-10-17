@@ -46,7 +46,7 @@ export function DetectStep({
           Flagged <span className="font-semibold text-zinc-100">{hours(caughtAfterH)}</span> after the drift began, driven by
         </span>
         {e.contributions.slice(0, 2).map((c) => (
-          <span key={c.signal} className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs text-zinc-200">
+          <span key={c.signal} className="inline-flex items-center gap-1 rounded-full bg-white/[0.07] px-2.5 py-0.5 text-xs text-zinc-200">
             {signalLabel(machine.signals, c.signal)}
             {c.direction === "up" ? <ArrowUp className="h-3 w-3 text-red-400" /> : <ArrowDown className="h-3 w-3 text-sky-400" />}
           </span>
@@ -66,7 +66,7 @@ export function DetectStep({
           </div>
         </div>
       ) : (
-        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-800/40 px-5 py-3">
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3">
           <BellOff className="h-6 w-6 shrink-0 text-zinc-500" />
           <div className="min-w-0 flex-1 text-sm">
             <div className="font-medium text-zinc-200">The old fixed-threshold alarm is still silent</div>

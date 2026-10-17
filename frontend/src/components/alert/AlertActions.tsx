@@ -57,7 +57,7 @@ export function AlertActions({
             <select
               value={personId}
               onChange={(e) => setActingAs(e.target.value)}
-              className="h-8 min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-800 px-2 text-xs text-zinc-200"
+              className="h-8 min-w-0 flex-1 rounded-lg border border-white/10 bg-white/[0.07] px-2 text-xs text-zinc-200"
             >
               {onShift.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -101,7 +101,7 @@ export function AlertActions({
       )}
 
       {mode === "assign" && alert.state === "rejected" && (
-        <div className="rounded-lg bg-zinc-800/60 px-3 py-2 text-sm text-zinc-400">
+        <div className="rounded-lg bg-white/[0.05] px-3 py-2 text-sm text-zinc-400">
           Rejected as false alarm
           {alert.ack?.note && <div className="mt-1 text-xs text-zinc-500">“{alert.ack.note}”</div>}
         </div>
@@ -135,7 +135,7 @@ function WorkOrderCard({ alert, people }: { alert: Alert; people: Person[] | nul
         <ClipboardList className="h-4 w-4 text-sky-400" />
         <span className="font-mono text-sky-300">{wo.id}</span>
         <Pill className={wo.priority === "P1" ? "bg-red-500/20 text-red-300" : "bg-amber-400/15 text-amber-300"}>{wo.priority}</Pill>
-        <Pill className="ml-auto bg-zinc-800 text-zinc-300">{wo.status}</Pill>
+        <Pill className="ml-auto bg-white/[0.07] text-zinc-300">{wo.status}</Pill>
       </div>
       <div className="mt-1.5 text-zinc-200">{wo.title}</div>
       <div className="mt-1 text-xs text-zinc-400">
@@ -169,7 +169,7 @@ function ResolveDialog({
           <select
             value={fault}
             onChange={(e) => setFault(e.target.value as DiagnosedFault)}
-            className="mt-1 h-9 w-full rounded-lg border border-zinc-700 bg-zinc-800 px-2 text-zinc-200"
+            className="mt-1 h-9 w-full rounded-lg border border-white/10 bg-white/[0.07] px-2 text-zinc-200"
           >
             {FAULTS.map((f) => (
               <option key={f} value={f}>
@@ -184,7 +184,7 @@ function ResolveDialog({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-800 p-2 text-zinc-200"
+            className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.07] p-2 text-zinc-200"
             placeholder="What was found and done"
           />
         </label>

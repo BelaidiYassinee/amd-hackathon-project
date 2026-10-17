@@ -24,9 +24,9 @@ export function CostDetails({ result, onClose }: { result: ReplaceAnalysis; onCl
   const rows = { ...result.duty, ...result.assumptions };
   return (
     <Modal title="Cost breakdown and assumptions" onClose={onClose} className="max-w-4xl">
-      <div className="overflow-x-auto rounded-lg border border-zinc-800">
+      <div className="overflow-x-auto rounded-lg border border-white/10">
         <table className="w-full text-sm">
-          <thead className="bg-zinc-950/60 text-left text-xs text-zinc-400">
+          <thead className="bg-black/20 text-left text-xs text-zinc-400">
             <tr>
               <th className="px-3 py-2 font-medium">Option</th>
               <th className="px-3 py-2 font-medium">Meets duty</th>
@@ -38,7 +38,7 @@ export function CostDetails({ result, onClose }: { result: ReplaceAnalysis; onCl
               <th className="px-3 py-2 text-right font-medium">Score</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-800 tabular-nums">
+          <tbody className="divide-y divide-white/5 tabular-nums">
             {result.options.map((o) => (
               <tr
                 key={o.option_id}

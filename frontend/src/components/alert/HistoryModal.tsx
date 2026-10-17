@@ -72,7 +72,7 @@ export function HistoryModal({ machineId, recordId, onClose }: { machineId: stri
 
           <div>
             <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">All records, newest first</div>
-            <ul className="divide-y divide-zinc-800 text-sm">
+            <ul className="divide-y divide-white/5 text-sm">
               {records.map((r) => (
                 <li key={r.id} className={clsx("flex gap-3 py-1.5", r.id === recordId ? "text-zinc-100" : "text-zinc-400")}>
                   <span className="w-24 shrink-0 tabular-nums">{r.date}</span>
