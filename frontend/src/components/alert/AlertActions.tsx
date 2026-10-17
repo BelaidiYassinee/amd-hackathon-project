@@ -57,7 +57,7 @@ export function AlertActions({
             <select
               value={personId}
               onChange={(e) => setActingAs(e.target.value)}
-              className="h-8 min-w-0 flex-1 rounded-lg border border-white/10 bg-white/[0.07] px-2 text-xs text-zinc-200"
+              className="field h-8 min-w-0 flex-1 px-2 text-xs"
             >
               {onShift.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -169,7 +169,7 @@ function ResolveDialog({
           <select
             value={fault}
             onChange={(e) => setFault(e.target.value as DiagnosedFault)}
-            className="mt-1 h-9 w-full rounded-lg border border-white/10 bg-white/[0.07] px-2 text-zinc-200"
+            className="field mt-1 h-9 w-full px-2"
           >
             {FAULTS.map((f) => (
               <option key={f} value={f}>
@@ -184,7 +184,7 @@ function ResolveDialog({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}
-            className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.07] p-2 text-zinc-200"
+            className="field mt-1 w-full p-2"
             placeholder="What was found and done"
           />
         </label>
