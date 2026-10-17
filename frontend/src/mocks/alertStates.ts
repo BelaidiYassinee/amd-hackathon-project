@@ -1,5 +1,6 @@
 import type { Alert } from "../types";
 import { seedSteps } from "../lib/stepLog";
+import { seedAction } from "../lib/preventiveLog";
 
 /**
  * Mock-only: derive the other alert states from the §14.3 "open" fixture, so every panel state
@@ -9,6 +10,7 @@ import { seedSteps } from "../lib/stepLog";
 export function applyMockState(alerts: Alert[]): Alert[] {
   const params = new URLSearchParams(window.location.search);
   const state = params.get("mockState");
+  seedTeamTasks();
   if (state === "none") return [];
   const a = alerts[0];
   if (!a) return alerts;
@@ -56,4 +58,18 @@ export function applyMockState(alerts: Alert[]): Alert[] {
       break;
   }
   return alerts;
+}
+
+/** Mock-only: two preventive actions already assigned, so the Team and Prevent pages have content. */
+function seedTeamTasks() {
+  seedAction({
+    machine_id: "P-102", machine_name: "Process water pump P-102", action_id: "cond:bearing-grease",
+    text: "Re-grease both bearings with EP2 grease", ref: null, reason: "Bearing housing drifting", kind: "condition",
+    assignee_id: "tech-a1", assigned_at: "2026-10-15T09:20:00Z", done_at: null,
+  });
+  seedAction({
+    machine_id: "M-301", machine_name: "Conveyor drive M-301", action_id: "pm-grease",
+    text: "Bearing re-greasing and belt tension check", ref: null, reason: "29 days overdue", kind: "plan",
+    assignee_id: "tech-a3", assigned_at: "2026-10-15T08:10:00Z", done_at: "2026-10-15T09:30:00Z",
+  });
 }

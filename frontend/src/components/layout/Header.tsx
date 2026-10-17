@@ -1,8 +1,8 @@
 import clsx from "clsx";
-import { ClipboardList, Factory, Gauge, ShieldCheck, type LucideIcon } from "lucide-react";
+import { ClipboardList, Factory, Gauge, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 import type { AmdStats, PlantState } from "../../types";
 import type { Page } from "../../hooks/useRoute";
-import { simTime } from "../../lib/format";
+import { simClock, simTime } from "../../lib/format";
 import { AmdChip } from "./AmdChip";
 import { DemoMenu } from "./DemoMenu";
 
@@ -57,6 +57,7 @@ export function Header({
   activeWork,
   needAction,
   earlyWarnings,
+  openTasks,
   amd,
   amdFailed,
   onOpenAmd,
@@ -71,22 +72,25 @@ export function Header({
   needAction: number;
   /** Machines drifting towards an alert (badge on Prevent). */
   earlyWarnings: number;
+  /** Team tasks not done yet (badge on Team). */
+  openTasks: number;
   amd: AmdStats | null;
   amdFailed: boolean;
   onOpenAmd: () => void;
   onPlantChanged: () => void;
 }) {
   const attention = plant?.machines.filter((m) => m.active_alert_id).length ?? 0;
+  // Three columns, so the centred page tabs can never run into the controls on the right.
   return (
-    <header className="relative z-20 flex items-center gap-4 px-6 py-3">
-      <button type="button" onClick={() => onNavigate("plant")} className="flex items-center gap-2.5 rounded-lg hover:opacity-90">
+    <header className="relative z-20 grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 py-3">
+      <button type="button" onClick={() => onNavigate("plant")} className="flex items-center gap-2.5 justify-self-start rounded-lg hover:opacity-90">
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/15 text-sky-400">
           <Gauge className="h-4 w-4" />
         </span>
         <span className="font-semibold text-zinc-100">Maintenance Copilot</span>
       </button>
 
-      <nav aria-label="Pages" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1 backdrop-blur-md">
+      <nav aria-label="Pages" className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1 backdrop-blur-md">
         <Tab icon={Factory} label="Plant" active={page === "plant"} badge={attention} badgeTone="red" onClick={() => onNavigate("plant")} title="The four machines, live" />
         <Tab
           icon={ShieldCheck}
@@ -106,13 +110,16 @@ export function Header({
           onClick={() => onNavigate("work-orders")}
           title="Follow up every incident (w)"
         />
+        <Tab icon={Users} label="Team" active={page === "team"} badge={openTasks} onClick={() => onNavigate("team")} title="Every task of every team member (m)" />
       </nav>
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="flex items-center gap-3 justify-self-end">
         {plant && (
           <span className="flex items-center gap-2 text-xs text-zinc-400" title={plant.paused ? "Simulation paused" : "Simulation running"}>
             <span className={clsx("h-2 w-2 rounded-full", plant.paused ? "bg-amber-400" : "animate-pulse bg-emerald-500")} />
-            <span className="tabular-nums">{simTime(plant.sim_time)}</span>
+            <span className="tabular-nums" title={`Plant time ${simTime(plant.sim_time)}`}>
+              {simClock(plant.sim_time)}
+            </span>
             <span className="text-zinc-600">{plant.paused ? "Paused" : "Live"}</span>
           </span>
         )}

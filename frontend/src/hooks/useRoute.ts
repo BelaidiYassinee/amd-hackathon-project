@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
-export type Page = "plant" | "prevent" | "work-orders";
+export type Page = "plant" | "prevent" | "work-orders" | "team";
 
-const HASH: Record<Page, string> = { plant: "#/", prevent: "#/prevent", "work-orders": "#/work-orders" };
+const HASH: Record<Page, string> = { plant: "#/", prevent: "#/prevent", "work-orders": "#/work-orders", team: "#/team" };
 
 function read(): Page {
   const hash = window.location.hash;

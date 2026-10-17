@@ -8,6 +8,7 @@ import { roleLabel, simTime } from "../../lib/format";
 import { STAGE, TONE, dueAt, duration, hoursBetween, isActive, ownerName, stage, stepsDone, verdict, type Stage } from "../../lib/progress";
 import { ticksOf, useStepLog } from "../../lib/stepLog";
 import { Button } from "../ui/Button";
+import { Kpi } from "../ui/Kpi";
 import { Spinner } from "../ui/Spinner";
 import { Timeline } from "./Timeline";
 
@@ -160,34 +161,6 @@ export function WorkOrdersView({
         </div>
       </div>
     </main>
-  );
-}
-
-function Kpi({
-  icon: Icon,
-  label,
-  value,
-  hint,
-  tone,
-}: {
-  icon: typeof Clock;
-  label: string;
-  value: number | string;
-  hint: string;
-  tone: keyof typeof TONE;
-}) {
-  const t = TONE[tone];
-  return (
-    <div className="glass rounded-2xl px-5 py-4">
-      <div className="flex items-center gap-2 text-xs text-zinc-400">
-        <span className={clsx("flex h-6 w-6 items-center justify-center rounded-lg", t.bg, t.text)}>
-          <Icon className="h-3.5 w-3.5" />
-        </span>
-        {label}
-      </div>
-      <div className={clsx("mt-2 text-3xl font-semibold tabular-nums", tone === "zinc" ? "text-zinc-100" : t.text)}>{value}</div>
-      <div className="mt-0.5 text-xs text-zinc-500">{hint}</div>
-    </div>
   );
 }
 

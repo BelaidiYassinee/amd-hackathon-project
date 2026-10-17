@@ -5,6 +5,9 @@ import type { Alert, ReplaceAnalysis } from "./types";
 import { STEPS, isStepEnabled, type Drawer, type Highlight } from "./lib/uiTypes";
 import { isActive, stage } from "./lib/progress";
 import { syncRun } from "./lib/persistedStore";
+import { usePreventiveLog } from "./lib/preventiveLog";
+import { useStepLog } from "./lib/stepLog";
+import { isOpen, teamTasks } from "./lib/team";
 import { usePoll } from "./hooks/usePoll";
 import { useAutoSelect } from "./hooks/useAutoSelect";
 import { useHotkeys } from "./hooks/useHotkeys";
@@ -16,6 +19,7 @@ import { Toast } from "./components/ui/Toast";
 import { TraceDrawer } from "./components/trace/TraceDrawer";
 import { AmdPanel } from "./components/amd/AmdPanel";
 import { WorkOrdersView } from "./components/workorders/WorkOrdersView";
+import { TeamView } from "./components/team/TeamView";
 
 // Recharts and three.js are most of the bundle: load the heavy views as separate chunks.
 const IncidentView = lazy(() => import("./components/incident/IncidentView").then((m) => ({ default: m.IncidentView })));
@@ -59,6 +63,9 @@ export default function App() {
   const [page, navigate] = useRoute();
   const [incidentId, setIncidentId] = useState<string | null>(mockParam("incident"));
   const [trackedId, setTrackedId] = useState<string | null>(null);
+  const [teamPersonId, setTeamPersonId] = useState<string | null>(null);
+  const stepLog = useStepLog();
+  const preventiveLog = usePreventiveLog();
   const [step, setStep] = useState(Number(mockParam("step") ?? 0));
   const [highlight, setHighlight] = useState<Highlight | null>(null);
   const [drawer, setDrawer] = useState<Drawer>(initialDrawer);
@@ -83,6 +90,16 @@ export default function App() {
     closeIncident();
     setTrackedId(id);
     navigate("work-orders");
+  }
+  /** Show one team member's tasks on the Team page. */
+  function showPerson(personId: string) {
+    setTeamPersonId(personId);
+    navigate("team");
+  }
+  /** Open an incident on the step that fits where it stands. */
+  function openIncidentHere(id: string) {
+    const a = alerts.data?.find((x) => x.id === id);
+    openIncident(id, a ? stepFor(a) : 0);
   }
   function goToStep(i: number) {
     if (incident && i >= 0 && i < STEPS.length && isStepEnabled(incident, i)) setStep(i);
@@ -137,6 +154,10 @@ export default function App() {
       closeIncident();
       navigate(page === "prevent" ? "plant" : "prevent");
     },
+    m: () => {
+      closeIncident();
+      navigate(page === "team" ? "plant" : "team");
+    },
     Escape: () => {
       setDrawer(null);
       setHighlight(null);
@@ -146,6 +167,7 @@ export default function App() {
   const now = plant.data?.sim_time;
   const active = alerts.data?.filter(isActive) ?? [];
   const needAction = now ? active.filter((a) => ["waiting", "escalated", "overdue"].includes(stage(a, now))).length : 0;
+  const openTasks = now && alerts.data ? teamTasks(alerts.data, stepLog, preventiveLog, now).filter(isOpen).length : 0;
 
   return (
     <div className="flex h-full flex-col">
@@ -159,6 +181,7 @@ export default function App() {
         activeWork={active.length}
         needAction={needAction}
         earlyWarnings={earlyWarnings.size}
+        openTasks={openTasks}
         amd={amd.data}
         amdFailed={!!amd.error}
         onOpenAmd={() => setDrawer("amd")}
@@ -184,22 +207,19 @@ export default function App() {
             plant={plant.data}
             alerts={alerts.data}
             machines={prevent}
-            onOpenIncident={(id) => {
-              const a = alerts.data?.find((x) => x.id === id);
-              openIncident(id, a ? stepFor(a) : 0);
-            }}
+            onOpenIncident={openIncidentHere}
+            onViewInTeam={showPerson}
           />
         </Suspense>
+      ) : page === "team" ? (
+        <TeamView plant={plant.data} alerts={alerts.data} selectedId={teamPersonId} onSelect={setTeamPersonId} onOpenIncident={openIncidentHere} />
       ) : (
         <WorkOrdersView
           plant={plant.data}
           alerts={alerts.data}
           selectedId={trackedId}
           onSelect={setTrackedId}
-          onOpenIncident={(id) => {
-            const a = alerts.data?.find((x) => x.id === id);
-            openIncident(id, a ? stepFor(a) : 0);
-          }}
+          onOpenIncident={openIncidentHere}
           onGoToPlant={() => navigate("plant")}
         />
       )}

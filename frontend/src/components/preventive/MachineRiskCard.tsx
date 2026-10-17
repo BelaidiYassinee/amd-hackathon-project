@@ -7,7 +7,7 @@ import { RISK, dateLabel, type Prevention, type Risk } from "../../lib/preventiv
 import { TONE, type Tone } from "../../lib/progress";
 import { useFaultTint } from "../../hooks/useFaultTint";
 import { cameraOrbit, modelSrc } from "../factory/machineModel";
-import { ActionChecklist } from "./ActionChecklist";
+import { SuggestedActions } from "./SuggestedActions";
 
 const RISK_TONE: Record<Risk, Tone> = { incident: "red", act_now: "red", watch: "amber", rising: "amber", healthy: "emerald" };
 
@@ -34,6 +34,7 @@ export function MachineRiskCard({
   limit,
   onOpenManual,
   onOpenIncident,
+  onViewInTeam,
 }: {
   machine: MachineSummary;
   prevention: Prevention;
@@ -43,6 +44,7 @@ export function MachineRiskCard({
   limit: number;
   onOpenManual: (sectionId: string) => void;
   onOpenIncident: () => void;
+  onViewInTeam: (personId: string) => void;
 }) {
   const level = p.risk.level;
   const tone = RISK_TONE[level];
@@ -120,7 +122,14 @@ export function MachineRiskCard({
         ) : p.suggestions.length > 0 ? (
           <>
             <div className="eyebrow mb-2">Suggested actions</div>
-            <ActionChecklist machineId={machine.id} suggestions={p.suggestions} people={people} now={now} onOpenManual={onOpenManual} />
+            <SuggestedActions
+              machine={machine}
+              suggestions={p.suggestions}
+              people={people}
+              now={now}
+              onOpenManual={onOpenManual}
+              onViewInTeam={onViewInTeam}
+            />
           </>
         ) : (
           <div className="flex items-center gap-2 text-sm text-zinc-400">

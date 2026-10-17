@@ -1,34 +1,36 @@
 import "@google/model-viewer"; // registers <model-viewer> (also loaded by the Plant page)
 import { useState } from "react";
-import clsx from "clsx";
-import { AlertTriangle, CalendarClock, CheckCircle2, UserCheck, type LucideIcon } from "lucide-react";
+import { AlertTriangle, CalendarClock, CheckCircle2, UserCheck } from "lucide-react";
 import { api } from "../../api";
 import type { Alert, PlantState } from "../../types";
 import type { MachinePrevention } from "../../hooks/usePrevention";
 import { usePoll } from "../../hooks/usePoll";
 import { simTime } from "../../lib/format";
 import { RISK } from "../../lib/preventive";
-import { recordOf, usePreventiveLog } from "../../lib/preventiveLog";
-import { TONE, type Tone } from "../../lib/progress";
+import { allRecords, recordOf, usePreventiveLog } from "../../lib/preventiveLog";
+import { Kpi } from "../ui/Kpi";
 import { Spinner } from "../ui/Spinner";
 import { ManualModal } from "../alert/ManualModal";
 import { MachineRiskCard } from "./MachineRiskCard";
 
 /**
  * Act before a machine fails: every machine's early-warning level (from the AI detector's anomaly score and its
- * drifting signals) and its maintenance plan, with suggested actions to assign and tick off.
+ * drifting signals) and its maintenance plan, with suggested actions to assign to a team member.
  */
 export function PreventView({
   plant,
   alerts,
   machines,
   onOpenIncident,
+  onViewInTeam,
 }: {
   plant: PlantState | null;
   alerts: Alert[] | null;
   /** From usePrevention (App), so this page agrees with the Plant chips and the header badge. */
   machines: MachinePrevention[] | null;
   onOpenIncident: (alertId: string) => void;
+  /** Open the Team page on this person. */
+  onViewInTeam: (personId: string) => void;
 }) {
   const people = usePoll(api.people, 10000);
   const log = usePreventiveLog();
@@ -49,10 +51,10 @@ export function PreventView({
 
   const atRisk = cards.filter((c) => ["rising", "watch", "act_now"].includes(c.p.risk.level));
   const overdue = cards.reduce((n, c) => n + c.p.pm.filter((x) => x.status === "overdue" || x.missedOn).length, 0);
-  const records = cards.flatMap((c) => c.p.suggestions.map((s) => recordOf(log, c.m.id, s.id)));
-  const assigned = records.filter((r) => r.assignee_id && !r.done_at).length;
+  const records = allRecords(log);
+  const assigned = records.filter((r) => !r.done_at).length;
   const done = records.filter((r) => r.done_at).length;
-  const open = records.filter((r) => !r.assignee_id && !r.done_at).length;
+  const unassigned = cards.reduce((n, c) => n + c.p.suggestions.filter((s) => !recordOf(log, c.m.id, s.id)).length, 0);
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-y-auto px-8 pb-8">
@@ -75,7 +77,7 @@ export function PreventView({
         <div className="grid grid-cols-4 gap-4">
           <Kpi icon={AlertTriangle} label="Machines at risk" value={atRisk.length} hint="Score rising or close to the alarm limit" tone={atRisk.length ? "amber" : "zinc"} />
           <Kpi icon={CalendarClock} label="Maintenance overdue" value={overdue} hint="Planned tasks late or skipped" tone={overdue ? "red" : "zinc"} />
-          <Kpi icon={UserCheck} label="Actions assigned" value={assigned} hint={open ? `${open} still unassigned` : "Every action has an owner"} tone="sky" />
+          <Kpi icon={UserCheck} label="Actions assigned" value={assigned} hint={unassigned ? `${unassigned} suggested action${unassigned === 1 ? "" : "s"} without an owner` : "Every action has an owner"} tone="sky" />
           <Kpi icon={CheckCircle2} label="Actions done" value={done} hint="Since the start of this run" tone="emerald" />
         </div>
 
@@ -90,6 +92,7 @@ export function PreventView({
               limit={s?.ewma_limit || 1}
               onOpenManual={setManual}
               onOpenIncident={() => m.active_alert_id && alerts?.some((a) => a.id === m.active_alert_id) && onOpenIncident(m.active_alert_id)}
+              onViewInTeam={onViewInTeam}
             />
           ))}
         </div>
@@ -99,20 +102,3 @@ export function PreventView({
     </main>
   );
 }
-
-function Kpi({ icon: Icon, label, value, hint, tone }: { icon: LucideIcon; label: string; value: number; hint: string; tone: Tone }) {
-  const t = TONE[tone];
-  return (
-    <div className="glass rounded-2xl px-5 py-4">
-      <div className="flex items-center gap-2 text-xs text-zinc-400">
-        <span className={clsx("flex h-6 w-6 items-center justify-center rounded-lg", t.bg, t.text)}>
-          <Icon className="h-3.5 w-3.5" />
-        </span>
-        {label}
-      </div>
-      <div className={clsx("mt-2 text-3xl font-semibold tabular-nums", tone === "zinc" ? "text-zinc-100" : t.text)}>{value}</div>
-      <div className="mt-0.5 text-xs text-zinc-500">{hint}</div>
-    </div>
-  );
-}
-
