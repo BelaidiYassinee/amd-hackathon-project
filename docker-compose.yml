@@ -1,0 +1,16 @@
+# Operion: `docker compose up --build`, then open http://localhost:7860
+# No .env needed: without RADEON_API_KEY the app runs in mock mode (rule-based diagnosis).
+services:
+  operion:
+    build: .
+    image: operion
+    ports:
+      - "7860:7860"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # fixed here so a local .env (PORT, LOG_DIR=backend/logs) can't break the container
+      PORT: 7860
+      LOG_DIR: /tmp/logs
+    restart: unless-stopped
