@@ -1,6 +1,6 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { AlertTriangle, ArrowRight, CheckCircle2, ClipboardList, Clock, ListTodo, RotateCcw, Users } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, ClipboardList, Clock, ListTodo, RotateCcw, Sparkles, Users } from "lucide-react";
 import { api } from "../../api";
 import type { Alert, Person, PlantState } from "../../types";
 import { usePoll } from "../../hooks/usePoll";
@@ -83,6 +83,8 @@ export function TeamView({
   const overdue = tasks.filter((t) => t.status === "overdue").length;
   const done = tasks.filter((t) => t.status === "done").length;
   const onShift = people.data.filter((p) => p.on_shift).length;
+  // The backend routes an alert to a person only once the diagnosis is done: until then nobody owns it.
+  const diagnosing = alerts.filter((a) => a.state === "diagnosing");
 
   return (
     <main className="flex min-h-0 flex-1 flex-col px-8 pb-8">
@@ -103,6 +105,17 @@ export function TeamView({
           <Kpi icon={CheckCircle2} label="Done" value={done} hint="Since the start of this run" tone="emerald" />
           <Kpi icon={Users} label="On shift" value={`${onShift} / ${people.data.length}`} hint="Team members working now" tone="violet" />
         </div>
+
+        {diagnosing.map((a) => (
+          <div key={a.id} className={clsx("glass flex items-center gap-3 rounded-2xl px-5 py-3 text-sm", TONE.violet.border, TONE.violet.bg)}>
+            <Sparkles className={clsx("h-4 w-4 shrink-0", TONE.violet.text)} />
+            <span className="text-zinc-200">
+              The AI is still diagnosing <span className="font-medium text-zinc-50">{a.machine_name}</span> ({a.trace.length} steps so far). It
+              will be routed to a technician when the diagnosis is done.
+            </span>
+            <Spinner className={clsx("ml-auto shrink-0", TONE.violet.text)} />
+          </div>
+        ))}
 
         <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-6">
           {/* Members */}

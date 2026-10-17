@@ -92,15 +92,21 @@ export function createPersistedStore<V>(storageKey: string, maxKeys: number): Pe
 // The plant clock last seen, to notice a new simulation run.
 const RUN = "maintenance-copilot.plant-time";
 let lastPlantTime: string | null = PERSIST ? safeGet(RUN) : null;
+// Alerts in the previous poll of this session (null before the first one).
+let lastAlertCount: number | null = null;
 
 /**
  * Call on every poll. A demo reset (or a backend restart) starts a new run: alert ids restart at ALT-0001, and the
- * simulator is deterministic, so even the creation times repeat. Clear every store when the alert list comes back
- * empty or the plant clock goes backwards.
+ * simulator is deterministic, so even the creation times repeat. Clear every store when the plant clock goes
+ * backwards (a reset restarts it), or when alerts disappear (only a reset removes them). An empty alert list on its
+ * own is not a reset: a healthy plant has no alerts, and the user's assignments must survive it.
  */
 export function syncRun(alerts: Alert[] | null, plantTime: string | undefined) {
   if (!alerts || !plantTime) return;
-  if (alerts.length === 0 || (lastPlantTime != null && plantTime < lastPlantTime)) all.forEach((s) => s.clear());
+  const clockBack = lastPlantTime != null && plantTime < lastPlantTime;
+  const alertsGone = lastAlertCount != null && lastAlertCount > 0 && alerts.length === 0;
+  if (clockBack || alertsGone) all.forEach((s) => s.clear());
   lastPlantTime = plantTime;
+  lastAlertCount = alerts.length;
   if (PERSIST) safeSet(RUN, plantTime);
 }
