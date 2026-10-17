@@ -110,21 +110,19 @@ def test_fault_name_finds_its_troubleshooting_section(query, expected):
     assert tools.search_manual(None, query)[0]["section_id"] == expected
 
 
-@pytest.mark.parametrize("fault, expected", [
-    ("bearing_wear", "P101-TS-01"), ("cavitation", "P101-TS-02"),
-    ("misalignment", "P101-TS-03"), ("motor_overheat", "P101-TS-04"),
-])
-def test_agent_search_shows_the_right_section_on_real_events(fault, expected):
-    """The prefetch agent passes the top 3 search results to the LLM: the right section must be there."""
-    from backend.app.agent import diagnose, tools
-    for seed in (0, 1, 2):
-        event = diagnose._engine_at_event(fault, seed)[1]
-        top3 = [r["section_id"] for r in tools.search_manual(None, diagnose._prefetch_query(event), k=3)]
-        assert expected in top3, (seed, top3)
+def test_prefetch_gets_every_troubleshooting_section_in_full():
+    """Prefetch mode passes get_manual_sections(kinds=["TS"]) to the LLM: every fault's section, uncut."""
+    from backend.app.agent import tools
+    sections = {s["section_id"]: s for s in tools.get_manual_sections(None, ["TS"])}
+    assert list(sections) == [sid for sid in MANUAL_IDS if "-TS-" in sid]
+    for sid in ("P101-TS-01", "P101-TS-02", "P101-TS-03", "P101-TS-04"):   # the four simulated faults
+        assert sections[sid]["text"] == data.manual_sections()[sid].text
+    for sid in ("P101-TS-01", "P101-TS-03", "P101-TS-04"):
+        assert "**Key rule:**" in sections[sid]["text"]
 
 
 def test_key_rules_survive_the_search_cut():
-    """search_manual sends only the first 1200 characters of a section to the LLM."""
+    """Tools mode still uses search_manual, which sends only the first 1200 characters of a section."""
     for sid in ("P101-TS-01", "P101-TS-03", "P101-TS-04"):
         text = data.manual_sections()[sid].text
         start = text.find("**Key rule:**")
