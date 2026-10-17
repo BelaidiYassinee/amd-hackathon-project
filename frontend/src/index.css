@@ -45,3 +45,47 @@ body {
     @apply text-[11px] font-medium uppercase tracking-wider text-zinc-500;
   }
 }
+
+/*
+ * Green confirmation (components/ui/Notifications.tsx): pops up from below, holds, then fades out while drifting up.
+ * Plain CSS on purpose, so it works without a Tailwind config reload. Each step has its own easing:
+ * a quick settle in, a slow even rise out.
+ */
+@keyframes note {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  68% {
+    opacity: 1;
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-36px);
+  }
+}
+@keyframes note-still {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  68% {
+    opacity: 1;
+  }
+}
+.animate-note {
+  animation: note 4s linear forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-note {
+    animation-name: note-still;
+  }
+}

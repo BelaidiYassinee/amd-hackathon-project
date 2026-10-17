@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, ClipboardList, XCircle } from "lucide-react";
 import { api } from "../../api";
+import { notify } from "../../lib/notify";
 import type { Alert, DiagnosedFault, Person } from "../../types";
 import { FAULT_LABELS, roleLabel } from "../../lib/format";
 import { Button } from "../ui/Button";
@@ -67,7 +68,13 @@ export function AlertActions({
             </select>
           </label>
           <div className="flex flex-col gap-2">
-            <Button variant="primary" disabled={busy || !personId} onClick={() => run(() => api.ack(alert.id, { person_id: personId, decision: "accepted" }))}>
+            <Button variant="primary" disabled={busy || !personId} onClick={() =>
+                run(async () => {
+                  await api.ack(alert.id, { person_id: personId, decision: "accepted" });
+                  notify(`Assigned to ${onShift.find((p) => p.id === personId)?.name ?? personId}`, `Work order created · ${alert.machine_name}`);
+                })
+              }
+            >
               <CheckCircle2 className="h-4 w-4" /> Acknowledge &amp; create work order
             </Button>
             <Button variant="ghost" size="sm" disabled={busy || !personId} onClick={() => run(() => api.ack(alert.id, { person_id: personId, decision: "rejected" }))}>
@@ -117,6 +124,7 @@ export function AlertActions({
           onResolve={(actual_fault, note) =>
             run(async () => {
               await api.resolve(alert.id, { actual_fault, note: note || null });
+              notify("Marked as fixed", `${alert.machine_name} · incident closed`);
               setResolveOpen(false);
             })
           }

@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import type { Alert } from "../../types";
 import { simClock } from "../../lib/format";
 import { setStepDone } from "../../lib/stepLog";
+import { notify } from "../../lib/notify";
 import { RefText } from "./RefText";
 
 /**
@@ -25,7 +26,9 @@ export function FixSteps({
   const editable = alert.state === "acknowledged" && alert.work_order != null && now != null;
 
   function toggle(i: number) {
-    if (editable) setStepDone(alert, i, ticks[i] ? null : now);
+    if (!editable) return;
+    setStepDone(alert, i, ticks[i] ? null : now);
+    if (!ticks[i]) notify(`Step ${i + 1} done`, steps[i]);
   }
 
   return (

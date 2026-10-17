@@ -5,6 +5,7 @@ import type { MachineSummary, Person } from "../../types";
 import { roleLabel, simTime } from "../../lib/format";
 import type { Suggestion } from "../../lib/preventive";
 import { assignAction, recordOf, usePreventiveLog } from "../../lib/preventiveLog";
+import { notify } from "../../lib/notify";
 import { Button } from "../ui/Button";
 
 /**
@@ -83,6 +84,7 @@ function ActionRow({
   function assign() {
     if (!choice) return;
     assignAction(machine, s, choice, now);
+    notify(`Assigned to ${people?.find((p) => p.id === choice)?.name ?? choice}`, `${s.text} · ${machine.id}`);
     setChoice("");
     setReassigning(false);
   }

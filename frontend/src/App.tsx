@@ -17,6 +17,7 @@ import { EARLY_WARNING, usePrevention } from "./hooks/usePrevention";
 import { Header } from "./components/layout/Header";
 import { Spinner } from "./components/ui/Spinner";
 import { Toast } from "./components/ui/Toast";
+import { Notifications } from "./components/ui/Notifications";
 import { TraceDrawer } from "./components/trace/TraceDrawer";
 import { AmdPanel } from "./components/amd/AmdPanel";
 import { TeamView, type TeamMode } from "./components/team/TeamView";
@@ -273,6 +274,8 @@ export default function App() {
 
       {drawer === "trace" && <TraceDrawer alert={incident} amd={amd.data} onClose={closeDrawer} />}
       {drawer === "amd" && <AmdPanel stats={amd.data} onClose={closeDrawer} />}
+
+      <Notifications />
 
       {plant.error && (
         <Toast>

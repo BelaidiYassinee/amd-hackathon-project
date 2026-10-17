@@ -7,6 +7,7 @@ import { usePoll } from "../../hooks/usePoll";
 import { roleLabel, simTime } from "../../lib/format";
 import { setActionDone, usePreventiveLog } from "../../lib/preventiveLog";
 import { setOrderPlaced, useDecisionLog } from "../../lib/decisionLog";
+import { notify } from "../../lib/notify";
 import { useStepLog } from "../../lib/stepLog";
 import { STATUS_ORDER, isOpen, teamTasks, type TaskSource, type TaskStatus, type TeamTask } from "../../lib/team";
 import { TONE, type Tone } from "../../lib/progress";
@@ -332,7 +333,11 @@ function TaskRow({ task: t, now, onOpenIncident }: { task: TeamTask; now: string
                 <RotateCcw className="h-3.5 w-3.5" /> Undo
               </Button>
             ) : (
-              <Button variant="primary" size="sm" onClick={() => setOrderPlaced(t.order_key!, now)}>
+              <Button variant="primary" size="sm" onClick={() => {
+                  setOrderPlaced(t.order_key!, now);
+                  notify("Order placed", `${t.title.replace("Place the order: ", "")} · ${t.machine_id}`);
+                }}
+              >
                 <CheckCircle2 className="h-3.5 w-3.5" /> Order placed
               </Button>
             )
@@ -342,7 +347,11 @@ function TaskRow({ task: t, now, onOpenIncident }: { task: TeamTask; now: string
                 <RotateCcw className="h-3.5 w-3.5" /> Undo
               </Button>
             ) : (
-              <Button variant="primary" size="sm" onClick={() => setActionDone(t.machine_id, t.action_id!, now)}>
+              <Button variant="primary" size="sm" onClick={() => {
+                  setActionDone(t.machine_id, t.action_id!, now);
+                  notify("Marked as done", `${t.title} · ${t.machine_id}`);
+                }}
+              >
                 <CheckCircle2 className="h-3.5 w-3.5" /> Mark done
               </Button>
             )

@@ -5,6 +5,7 @@ import { eur, roleLabel, simTime } from "../../lib/format";
 import { decide, recommended, sendPurchaseTask, type Decision } from "../../lib/decisionLog";
 import { AlertActions } from "../alert/AlertActions";
 import { Button } from "../ui/Button";
+import { notify } from "../../lib/notify";
 
 /**
  * Step 5 when the machine is replaced: the recommended model and supplier, and a purchase task for the supervisor
@@ -48,6 +49,7 @@ export function OrderStep({
     if (!now || !chosen) return;
     if (!decision && option) decide(alert, option, now); // going with the recommendation
     sendPurchaseTask(alert, chosen, now);
+    notify(`Purchase task sent to ${name(chosen)}`, `${label} · ${alert.machine_id}`);
   }
 
   return (
