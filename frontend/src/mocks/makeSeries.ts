@@ -21,11 +21,13 @@ const P101_MARKERS: Marker[] = [
  * A realistic series ending at 09:40Z, one point every 5 minutes (24 h -> 288 points).
  * Every signal is base + noise. For P-101, vibration_hf rises +0.07 over the last 2 h
  * and the anomaly score ramps from ~0.2 to 1.62 over the last hour.
+ * P-102 drifts slowly (bearing temperature and HF vibration creep up over 6 h): an early warning for the Prevent page.
  */
 export function makeSeries(machine: MachineSummary, hours: number): Series {
   const n = Math.round((hours * 60) / 5);
   const rand = rng(machine.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0));
   const isP101 = machine.id === "P-101";
+  const isP102 = machine.id === "P-102";
   const points: SeriesPoint[] = [];
 
   for (let k = 0; k < n; k++) {
@@ -36,6 +38,7 @@ export function makeSeries(machine: MachineSummary, hours: number): Series {
       if (isP101 && s.name === "vibration_hf") base = 0.3;
       let v = base + base * 0.015 * rand() * 2;
       if (isP101 && s.name === "vibration_hf" && fromEnd < 24) v += 0.07 * ((24 - fromEnd) / 24);
+      if (isP102 && fromEnd < 72 && (s.name === "bearing_temp" || s.name === "vibration_hf")) v += base * 0.08 * ((72 - fromEnd) / 72);
       values[s.name] = Number(v.toFixed(3));
     }
     values.load_pct = Number((78 + 4 * rand()).toFixed(1));
@@ -43,6 +46,7 @@ export function makeSeries(machine: MachineSummary, hours: number): Series {
     let score = 0.2 + 0.08 * rand();
     if (isP101 && fromEnd < 12) score += (1.62 - 0.2) * ((12 - fromEnd) / 12);
     if (isP101 && fromEnd === 0) score = 1.62;
+    if (isP102 && fromEnd < 72) score += 0.85 * ((72 - fromEnd) / 72);
 
     points.push({ t: new Date(END - fromEnd * STEP_MS).toISOString().replace(".000Z", "Z"), values, score: Number(score.toFixed(3)) });
   }

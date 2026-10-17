@@ -4,11 +4,12 @@ import { MOCK, api } from "./api";
 import type { Alert, ReplaceAnalysis } from "./types";
 import { STEPS, isStepEnabled, type Drawer, type Highlight } from "./lib/uiTypes";
 import { isActive, stage } from "./lib/progress";
-import { syncRun } from "./lib/stepLog";
+import { syncRun } from "./lib/persistedStore";
 import { usePoll } from "./hooks/usePoll";
 import { useAutoSelect } from "./hooks/useAutoSelect";
 import { useHotkeys } from "./hooks/useHotkeys";
 import { useRoute } from "./hooks/useRoute";
+import { EARLY_WARNING, usePrevention } from "./hooks/usePrevention";
 import { Header } from "./components/layout/Header";
 import { Spinner } from "./components/ui/Spinner";
 import { Toast } from "./components/ui/Toast";
@@ -19,6 +20,7 @@ import { WorkOrdersView } from "./components/workorders/WorkOrdersView";
 // Recharts and three.js are most of the bundle: load the heavy views as separate chunks.
 const IncidentView = lazy(() => import("./components/incident/IncidentView").then((m) => ({ default: m.IncidentView })));
 const FactoryView = lazy(() => import("./components/factory/FactoryView").then((m) => ({ default: m.FactoryView })));
+const PreventView = lazy(() => import("./components/preventive/PreventView").then((m) => ({ default: m.PreventView })));
 
 /** URL params for screenshots and design work; always null outside mock mode. */
 function mockParam(name: string): string | null {
@@ -50,6 +52,8 @@ export default function App() {
   const plant = usePoll(api.plant, 1000);
   const alerts = usePoll(api.alerts, 1500);
   const amd = usePoll(api.amdStats, 3000);
+  const prevent = usePrevention(plant.data);
+  const earlyWarnings = new Set(prevent?.filter((x) => EARLY_WARNING.has(x.prevention.risk.level)).map((x) => x.machine.id));
 
   // UI state only.
   const [page, navigate] = useRoute();
@@ -129,6 +133,10 @@ export default function App() {
     t: () => incident && setDrawer((d) => (d === "trace" ? null : "trace")),
     a: () => setDrawer("amd"),
     w: () => (incident ? trackIncident(incident.id) : navigate(page === "work-orders" ? "plant" : "work-orders")),
+    p: () => {
+      closeIncident();
+      navigate(page === "prevent" ? "plant" : "prevent");
+    },
     Escape: () => {
       setDrawer(null);
       setHighlight(null);
@@ -150,6 +158,7 @@ export default function App() {
         plant={plant.data}
         activeWork={active.length}
         needAction={needAction}
+        earlyWarnings={earlyWarnings.size}
         amd={amd.data}
         amdFailed={!!amd.error}
         onOpenAmd={() => setDrawer("amd")}
@@ -164,7 +173,21 @@ export default function App() {
             onOpenIncident={openIncident}
             onPlantChanged={plant.refresh}
             onShowWorkOrders={() => navigate("work-orders")}
+            onShowPrevent={() => navigate("prevent")}
+            earlyWarningIds={earlyWarnings}
             initialMachineId={mockParam("machine")}
+          />
+        </Suspense>
+      ) : page === "prevent" ? (
+        <Suspense fallback={<Loading />}>
+          <PreventView
+            plant={plant.data}
+            alerts={alerts.data}
+            machines={prevent}
+            onOpenIncident={(id) => {
+              const a = alerts.data?.find((x) => x.id === id);
+              openIncident(id, a ? stepFor(a) : 0);
+            }}
           />
         </Suspense>
       ) : (

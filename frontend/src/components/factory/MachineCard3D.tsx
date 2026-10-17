@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ShieldCheck } from "lucide-react";
 import { useRef, type CSSProperties } from "react";
 import type { MachineSummary } from "../../types";
 import { STATUS_LABEL, statusColor } from "../../lib/format";
@@ -15,12 +15,15 @@ export function MachineCard3D({
   machine,
   index,
   fault,
+  earlyWarning,
   onOpen,
 }: {
   machine: MachineSummary;
   index: number;
   /** The part that is not working: painted red on the model. */
   fault: FaultZone | null;
+  /** Drifting towards an alert: an amber chip that points to the Prevent page. */
+  earlyWarning: boolean;
   onOpen: () => void;
 }) {
   const c = statusColor(machine.status);
@@ -81,11 +84,18 @@ export function MachineCard3D({
                 <span className={clsx("text-2xl font-semibold tabular-nums", c.text)}>{machine.health}</span>
                 <span className="text-xs text-zinc-500">health</span>
               </div>
-              {fault && (
+              {fault ? (
                 <span className="mb-0.5 flex min-w-0 items-center gap-1.5 rounded-full bg-red-500/15 px-2.5 py-1 text-xs font-medium text-red-300">
                   <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                   <span className="truncate">{fault.label}</span>
                 </span>
+              ) : (
+                earlyWarning && (
+                  <span className="mb-0.5 flex items-center gap-1.5 rounded-full bg-amber-400/15 px-2.5 py-1 text-xs font-medium text-amber-300">
+                    <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+                    Early warning
+                  </span>
+                )
               )}
             </div>
           </div>

@@ -5,7 +5,7 @@ import zonesJson from "./modelZones.json";
 /** Zone top-centres in model coordinates, written by scripts/blender/fault_zones.py. */
 const ZONE_POSITION: Record<string, Record<string, number[]>> = zonesJson;
 
-const ZONE_LABEL: Record<string, string> = {
+export const ZONE_LABEL: Record<string, string> = {
   motor: "Motor",
   coupling: "Coupling & shaft",
   bearing: "Bearing housing",
@@ -24,7 +24,7 @@ const FAULT_ZONE: Record<string, Partial<Record<DiagnosedFault, string>>> = {
 };
 
 // Before the diagnosis (or for "other"): the part the most deviating signal measures.
-const SIGNAL_ZONE: Record<string, Record<string, string>> = {
+export const SIGNAL_ZONE: Record<string, Record<string, string>> = {
   pump: {
     vibration_rms: "bearing", vibration_hf: "bearing", bearing_temp: "bearing",
     motor_temp: "motor", motor_current: "motor", discharge_pressure: "casing", flow: "casing",

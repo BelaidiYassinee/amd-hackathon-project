@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
-export type Page = "plant" | "work-orders";
+export type Page = "plant" | "prevent" | "work-orders";
 
-const HASH: Record<Page, string> = { plant: "#/", "work-orders": "#/work-orders" };
+const HASH: Record<Page, string> = { plant: "#/", prevent: "#/prevent", "work-orders": "#/work-orders" };
 
 function read(): Page {
-  return window.location.hash === HASH["work-orders"] ? "work-orders" : "plant";
+  const hash = window.location.hash;
+  return (Object.keys(HASH) as Page[]).find((p) => p !== "plant" && HASH[p] === hash) ?? "plant";
 }
 
 /** The current page, kept in the URL hash so back/forward and reloads work without a router. */

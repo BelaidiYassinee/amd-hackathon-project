@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ClipboardList, Factory, Gauge, type LucideIcon } from "lucide-react";
+import { ClipboardList, Factory, Gauge, ShieldCheck, type LucideIcon } from "lucide-react";
 import type { AmdStats, PlantState } from "../../types";
 import type { Page } from "../../hooks/useRoute";
 import { simTime } from "../../lib/format";
@@ -19,7 +19,7 @@ function Tab({
   label: string;
   active: boolean;
   badge?: number;
-  badgeTone?: "sky" | "red";
+  badgeTone?: "sky" | "amber" | "red";
   onClick: () => void;
   title?: string;
 }) {
@@ -40,7 +40,7 @@ function Tab({
         <span
           className={clsx(
             "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold tabular-nums",
-            badgeTone === "red" ? "bg-red-500 text-white" : "bg-sky-500/20 text-sky-300",
+            badgeTone === "red" ? "bg-red-500 text-white" : badgeTone === "amber" ? "bg-amber-400/20 text-amber-300" : "bg-sky-500/20 text-sky-300",
           )}
         >
           {badge}
@@ -56,6 +56,7 @@ export function Header({
   plant,
   activeWork,
   needAction,
+  earlyWarnings,
   amd,
   amdFailed,
   onOpenAmd,
@@ -68,6 +69,8 @@ export function Header({
   activeWork: number;
   /** Of those, how many wait on someone (turns the badge red). */
   needAction: number;
+  /** Machines drifting towards an alert (badge on Prevent). */
+  earlyWarnings: number;
   amd: AmdStats | null;
   amdFailed: boolean;
   onOpenAmd: () => void;
@@ -85,6 +88,15 @@ export function Header({
 
       <nav aria-label="Pages" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1 backdrop-blur-md">
         <Tab icon={Factory} label="Plant" active={page === "plant"} badge={attention} badgeTone="red" onClick={() => onNavigate("plant")} title="The four machines, live" />
+        <Tab
+          icon={ShieldCheck}
+          label="Prevent"
+          active={page === "prevent"}
+          badge={earlyWarnings}
+          badgeTone="amber"
+          onClick={() => onNavigate("prevent")}
+          title="Act before a machine fails (p)"
+        />
         <Tab
           icon={ClipboardList}
           label="Work orders"

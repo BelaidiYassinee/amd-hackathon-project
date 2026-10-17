@@ -16,14 +16,18 @@ interface Material {
 }
 type ModelViewer = HTMLElement & { loaded?: boolean; model?: { materials: Material[] } };
 
-const RED: RGBA = [0.78, 0.07, 0.05, 1];
+// Red for a part that is failing (an alert), amber for one that is drifting (early warning).
+const TINT = {
+  red: { base: [0.78, 0.07, 0.05, 1] as RGBA, glow: [1, 0.04, 0.03] as RGB },
+  amber: { base: [0.85, 0.5, 0.05, 1] as RGBA, glow: [1, 0.55, 0.05] as RGB },
+};
 const FRAME_MS = 60; // ~16 fps is plenty for a slow glow, and keeps four viewers cheap
 
 /**
- * Paints one fault zone of a <model-viewer> red, with a slow glow, and restores the original look when `zone` clears.
+ * Paints one fault zone of a <model-viewer> red (or amber), with a slow glow, and restores the original look when `zone` clears.
  * The zone's materials are named "<material>__<zone>" by scripts/blender/fault_zones.py.
  */
-export function useFaultTint(ref: RefObject<HTMLElement>, zone: string | null) {
+export function useFaultTint(ref: RefObject<HTMLElement>, zone: string | null, color: keyof typeof TINT = "red") {
   useEffect(() => {
     const el = ref.current as ModelViewer | null;
     if (!el || !zone) return;
@@ -42,10 +46,11 @@ export function useFaultTint(ref: RefObject<HTMLElement>, zone: string | null) {
         emissive: [...m.emissiveFactor] as RGB,
       }));
       for (const m of mats) {
-        m.pbrMetallicRoughness.setBaseColorFactor(RED);
+        m.pbrMetallicRoughness.setBaseColorFactor(TINT[color].base);
         m.pbrMetallicRoughness.setMetallicFactor(0.15); // metal reflects the grey studio, so it would never read as red
       }
-      const glow = (k: number) => mats.forEach((m) => m.setEmissiveFactor([k, k * 0.04, k * 0.03]));
+      const [r, g, b] = TINT[color].glow;
+      const glow = (k: number) => mats.forEach((m) => m.setEmissiveFactor([k * r, k * g, k * b]));
       if (still) glow(0.45);
       else timer = setInterval(() => glow(0.2 + 0.4 * (0.5 + 0.5 * Math.sin(performance.now() / 450))), FRAME_MS);
 
@@ -66,5 +71,5 @@ export function useFaultTint(ref: RefObject<HTMLElement>, zone: string | null) {
       el.removeEventListener("load", apply);
       restore();
     };
-  }, [ref, zone]);
+  }, [ref, zone, color]);
 }
