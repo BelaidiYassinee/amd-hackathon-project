@@ -10,9 +10,6 @@ export interface Highlight {
 
 export type Drawer = "trace" | "amd" | null;
 
-/** Header tabs. An open incident covers either one. */
-export type View = "overview" | "factory";
-
 /** The incident flow, in order. `title` is the stepper label; `heading`/`hint` explain the screen in plain words. */
 export const STEPS = [
   { title: "Detect", heading: "The AI spotted it early", hint: "Signals drifted away from their learned normal long before any fixed alarm." },

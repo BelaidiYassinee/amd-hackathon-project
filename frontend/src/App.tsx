@@ -2,7 +2,7 @@ import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { WifiOff } from "lucide-react";
 import { MOCK, api } from "./api";
 import type { Alert, ReplaceAnalysis } from "./types";
-import { STEPS, isStepEnabled, type Drawer, type Highlight, type View } from "./lib/uiTypes";
+import { STEPS, isStepEnabled, type Drawer, type Highlight } from "./lib/uiTypes";
 import { usePoll } from "./hooks/usePoll";
 import { useAutoSelect } from "./hooks/useAutoSelect";
 import { useHotkeys } from "./hooks/useHotkeys";
@@ -12,10 +12,8 @@ import { Toast } from "./components/ui/Toast";
 import { TraceDrawer } from "./components/trace/TraceDrawer";
 import { AmdPanel } from "./components/amd/AmdPanel";
 
-// Recharts is most of the bundle: load the chart-heavy views as separate chunks.
-const HomeView = lazy(() => import("./components/home/HomeView").then((m) => ({ default: m.HomeView })));
+// Recharts and three.js are most of the bundle: load the heavy views as separate chunks.
 const IncidentView = lazy(() => import("./components/incident/IncidentView").then((m) => ({ default: m.IncidentView })));
-// three.js (via model-viewer) only downloads when the Factory tab opens.
 const FactoryView = lazy(() => import("./components/factory/FactoryView").then((m) => ({ default: m.FactoryView })));
 
 /** URL params for screenshots and design work; always null outside mock mode. */
@@ -43,8 +41,6 @@ export default function App() {
   const amd = usePoll(api.amdStats, 3000);
 
   // UI state only.
-  const [view, setView] = useState<View>(mockParam("view") === "factory" ? "factory" : "overview");
-  const [selectedMachineId, setSelectedMachineId] = useState("P-101");
   const [incidentId, setIncidentId] = useState<string | null>(mockParam("incident"));
   const [step, setStep] = useState(Number(mockParam("step") ?? 0));
   const [highlight, setHighlight] = useState<Highlight | null>(null);
@@ -73,7 +69,6 @@ export default function App() {
   useAutoSelect(
     alerts.data,
     useCallback((a: Alert) => {
-      setSelectedMachineId(a.machine_id);
       setIncidentId(a.id);
       setStep(0);
     }, []),
@@ -123,21 +118,24 @@ export default function App() {
         plant={plant.data}
         amd={amd.data}
         amdFailed={!!amd.error}
-        view={incident ? null : view}
-        onView={(v) => {
-          closeIncident();
-          setView(v);
-        }}
-        onHome={() => {
-          closeIncident();
-          setView("overview");
-        }}
+        onHome={closeIncident}
         onOpenAmd={() => setDrawer("amd")}
         onPlantChanged={plant.refresh}
       />
 
       <Suspense fallback={<Loading />}>
-        {incident && incidentMachine ? (
+        <FactoryView
+          plant={plant.data}
+          alerts={alerts.data}
+          onOpenIncident={openIncident}
+          onPlantChanged={plant.refresh}
+          initialMachineId={mockParam("machine")}
+        />
+      </Suspense>
+
+      {/* The incident opens over the blurred factory. */}
+      {incident && incidentMachine && (
+        <Suspense fallback={null}>
           <IncidentView
             alert={incident}
             machine={incidentMachine}
@@ -155,19 +153,8 @@ export default function App() {
             replaceResult={replaceResults[incidentMachine.id]}
             onReplaceResult={(r) => setReplaceResults((prev) => ({ ...prev, [r.machine_id]: r }))}
           />
-        ) : view === "factory" ? (
-          <FactoryView plant={plant.data} initialMachineId={mockParam("machine")} />
-        ) : (
-          <HomeView
-            plant={plant.data}
-            alerts={alerts.data}
-            selectedMachineId={selectedMachineId}
-            onSelectMachine={setSelectedMachineId}
-            onOpenIncident={openIncident}
-            onPlantChanged={plant.refresh}
-          />
-        )}
-      </Suspense>
+        </Suspense>
+      )}
 
       {drawer === "trace" && <TraceDrawer alert={incident} amd={amd.data} onClose={closeDrawer} />}
       {drawer === "amd" && <AmdPanel stats={amd.data} onClose={closeDrawer} />}

@@ -1,15 +1,26 @@
 import clsx from "clsx";
-import { X } from "lucide-react";
+import { AlertTriangle, ArrowRight, X } from "lucide-react";
 import { useEffect } from "react";
 import { api } from "../../api";
-import type { MachineSummary } from "../../types";
+import type { Alert, MachineSummary } from "../../types";
 import { usePoll } from "../../hooks/usePoll";
 import { STATUS_LABEL, statusColor } from "../../lib/format";
 import { cameraOrbit, modelSrc } from "./machineModel";
 import { SignalList } from "./SignalList";
 
 /** Medium pop-up over the blurred factory: the machine (drag to inspect) on the left, its live signals on the right. */
-export function MachinePopup({ machine, onClose }: { machine: MachineSummary; onClose: () => void }) {
+export function MachinePopup({
+  machine,
+  alert,
+  onClose,
+  onOpenIncident,
+}: {
+  machine: MachineSummary;
+  /** The machine's active incident, if any. */
+  alert: Alert | null;
+  onClose: () => void;
+  onOpenIncident: (alertId: string) => void;
+}) {
   // Only polls while the pop-up is open.
   const series = usePoll(() => api.series(machine.id, 6), 2000, [machine.id]);
   const c = statusColor(machine.status);
@@ -27,7 +38,7 @@ export function MachinePopup({ machine, onClose }: { machine: MachineSummary; on
         aria-modal="true"
         aria-label={machine.name}
         onClick={(e) => e.stopPropagation()}
-        className="grid h-[min(560px,85vh)] w-[min(960px,92vw)] animate-pop-in grid-cols-2 overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/75 shadow-2xl backdrop-blur-xl"
+        className="grid h-[min(640px,88vh)] w-[min(960px,92vw)] animate-pop-in grid-cols-2 overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/75 shadow-2xl backdrop-blur-xl"
       >
         <div className="relative bg-gradient-to-b from-white/[0.04] to-transparent">
           <model-viewer
@@ -72,6 +83,25 @@ export function MachinePopup({ machine, onClose }: { machine: MachineSummary; on
             </span>
             <span className="ml-auto text-xs text-zinc-500">Last 6 h</span>
           </div>
+
+          {alert && (
+            <button
+              type="button"
+              onClick={() => onOpenIncident(alert.id)}
+              className="group mx-6 mb-3 flex items-center gap-3 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-left transition-colors hover:border-red-400/70 hover:bg-red-500/15"
+            >
+              <AlertTriangle className="h-5 w-5 shrink-0 text-red-400" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-zinc-100">Active incident</span>
+                <span className="block truncate text-xs text-zinc-400">
+                  {alert.diagnosis ? alert.diagnosis.fault_label : "The AI is investigating…"}
+                </span>
+              </span>
+              <span className="flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white group-hover:bg-red-500">
+                Open incident <ArrowRight className="h-4 w-4" />
+              </span>
+            </button>
+          )}
 
           <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4">
             <SignalList signals={machine.signals} latest={machine.latest} series={series.data} />

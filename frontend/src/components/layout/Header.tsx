@@ -1,21 +1,13 @@
 import clsx from "clsx";
 import { Gauge } from "lucide-react";
 import type { AmdStats, PlantState } from "../../types";
-import type { View } from "../../lib/uiTypes";
 import { AmdChip } from "./AmdChip";
 import { DemoMenu } from "./DemoMenu";
-
-const TABS: { view: View; label: string }[] = [
-  { view: "overview", label: "Overview" },
-  { view: "factory", label: "Factory" },
-];
 
 export function Header({
   plant,
   amd,
   amdFailed,
-  view,
-  onView,
   onHome,
   onOpenAmd,
   onPlantChanged,
@@ -23,9 +15,6 @@ export function Header({
   plant: PlantState | null;
   amd: AmdStats | null;
   amdFailed: boolean;
-  /** Highlighted tab; null while an incident has the screen. */
-  view: View | null;
-  onView: (v: View) => void;
   onHome: () => void;
   onOpenAmd: () => void;
   onPlantChanged: () => void;
@@ -45,23 +34,6 @@ export function Header({
           {plant.paused ? "Paused" : "Live"}
         </span>
       )}
-
-      <nav className="ml-4 flex rounded-lg bg-zinc-900 p-0.5" aria-label="Views">
-        {TABS.map((t) => (
-          <button
-            key={t.view}
-            type="button"
-            onClick={() => onView(t.view)}
-            aria-current={view === t.view ? "page" : undefined}
-            className={clsx(
-              "rounded-md px-3 py-1 text-sm transition-colors",
-              view === t.view ? "bg-zinc-700 text-zinc-100" : "text-zinc-400 hover:text-zinc-200",
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </nav>
 
       <div className="ml-auto flex items-center gap-2">
         <AmdChip stats={amd} failed={amdFailed} onClick={onOpenAmd} />

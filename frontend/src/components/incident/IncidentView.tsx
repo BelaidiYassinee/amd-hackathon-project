@@ -1,12 +1,11 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { ArrowLeft, ArrowRight, Check, FileSearch } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, FileSearch, X } from "lucide-react";
 import { api } from "../../api";
 import type { Alert, AlertState, MachineSummary, PlantState, ReplaceAnalysis } from "../../types";
 import { STEPS, isStepEnabled, type Highlight } from "../../lib/uiTypes";
 import { usePoll } from "../../hooks/usePoll";
 import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
 import { HistoryModal } from "../alert/HistoryModal";
 import { ManualModal } from "../alert/ManualModal";
 import { Stepper } from "./Stepper";
@@ -27,7 +26,7 @@ const STATE_LABEL: Record<AlertState, { text: string; cls: string }> = {
 
 type RefModal = { kind: "manual" | "history"; id: string } | null;
 
-/** One incident as a guided flow: Detect → Diagnose → Assign → Fix → Decide. */
+/** One incident as a guided flow over the factory: Detect → Diagnose → Assign → Fix → Decide. */
 export function IncidentView({
   alert,
   machine,
@@ -66,67 +65,84 @@ export function IncidentView({
   const state = STATE_LABEL[alert.state];
 
   return (
-    <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-5 px-6 pb-6">
-      {/* Incident header */}
-      <div className="flex items-center gap-3 pt-1">
-        <button type="button" onClick={onClose} className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-100">
-          <ArrowLeft className="h-4 w-4" /> All machines
-        </button>
-        <span className="text-zinc-700">/</span>
-        <span className="font-medium text-zinc-100">{alert.machine_name}</span>
-        <span className={clsx("rounded-full px-2.5 py-0.5 text-xs font-medium", state.cls)}>{state.text}</span>
-        <Button size="sm" variant="ghost" className="ml-auto" onClick={onOpenTrace} title="Every step the AI agent took (t)">
-          <FileSearch className="h-3.5 w-3.5" /> Agent trace
-        </Button>
-      </div>
-
-      <Stepper step={step} isEnabled={(i) => isStepEnabled(alert, i)} onStep={onStep} />
-
-      {/* Current step */}
-      <Card className="flex min-h-0 flex-1 flex-col p-6">
-        <div className="mb-5">
-          <h1 className="text-2xl font-semibold text-zinc-50">{s.heading}</h1>
-          <p className="mt-1 text-sm text-zinc-400">{s.hint}</p>
+    // Glass panel over the blurred factory, like the machine pop-up. z-30 keeps the drawers (z-40) and modals (z-50) above it.
+    <div className="fixed inset-0 z-30 flex animate-fade-in items-center justify-center bg-zinc-950/45 backdrop-blur-md" onClick={onClose}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Incident on ${alert.machine_name}`}
+        onClick={(e) => e.stopPropagation()}
+        className="flex h-[min(940px,94vh)] w-[min(1440px,96vw)] animate-pop-in flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/80 shadow-2xl backdrop-blur-xl"
+      >
+        {/* Incident header */}
+        <div className="flex items-center gap-3 px-8 pt-6">
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              <h2 className="truncate text-xl font-semibold text-zinc-50">{alert.machine_name}</h2>
+              <span className={clsx("shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium", state.cls)}>{state.text}</span>
+            </div>
+            <p className="mt-0.5 text-xs text-zinc-500">
+              {machine.id} · {machine.model} · {machine.area}
+            </p>
+          </div>
+          <Button variant="ghost" className="ml-auto" onClick={onOpenTrace} title="Every step the AI agent took (t)">
+            <FileSearch className="h-4 w-4" /> Agent trace
+          </Button>
+          <button type="button" onClick={onClose} className="rounded-lg p-2 text-zinc-400 hover:bg-white/10 hover:text-zinc-200" aria-label="Back to the factory">
+            <X className="h-5 w-5" />
+          </button>
         </div>
-        <div className="min-h-0 flex-1">
-          {step === 0 && <DetectStep alert={alert} machine={machine} plant={plant} highlight={highlight} onPlantChanged={onChanged} />}
-          {step === 1 && (
-            <DiagnoseStep
-              alert={alert}
-              onHighlight={(h) => {
-                onHighlight(h);
-                onStep(0); // show the evidence on the chart
-              }}
-              onOpenManual={openManual}
-              onOpenHistory={openHistory}
-              onOpenTrace={onOpenTrace}
-            />
+
+        <div className="px-8 pt-5">
+          <Stepper step={step} isEnabled={(i) => isStepEnabled(alert, i)} onStep={onStep} />
+        </div>
+
+        {/* Current step */}
+        <div key={step} className="flex min-h-0 flex-1 animate-fade-in flex-col px-8 pb-2 pt-6">
+          <div className="mb-5">
+            <h1 className="text-2xl font-semibold text-zinc-50">{s.heading}</h1>
+            <p className="mt-1 text-sm text-zinc-400">{s.hint}</p>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {step === 0 && <DetectStep alert={alert} machine={machine} plant={plant} highlight={highlight} onPlantChanged={onChanged} />}
+            {step === 1 && (
+              <DiagnoseStep
+                alert={alert}
+                onHighlight={(h) => {
+                  onHighlight(h);
+                  onStep(0); // show the evidence on the chart
+                }}
+                onOpenManual={openManual}
+                onOpenHistory={openHistory}
+                onOpenTrace={onOpenTrace}
+              />
+            )}
+            {step === 2 && <AssignStep alert={alert} people={people.data} onChanged={onChanged} />}
+            {step === 3 && <FixStep alert={alert} people={people.data} onChanged={onChanged} onOpenManual={openManual} />}
+            {step === 4 && <DecideStep alert={alert} machine={machine} result={replaceResult} onResult={onReplaceResult} />}
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between border-t border-white/5 px-8 py-4">
+          <Button variant="ghost" disabled={step === 0} onClick={() => onStep(step - 1)}>
+            <ArrowLeft className="h-4 w-4" /> Back
+          </Button>
+          {!nextEnabled && !last && <span className="text-xs text-zinc-500">Waiting for the AI diagnosis…</span>}
+          {last ? (
+            <Button variant="primary" onClick={onClose}>
+              <Check className="h-4 w-4" /> Done
+            </Button>
+          ) : (
+            <Button variant="primary" disabled={!nextEnabled} onClick={() => onStep(step + 1)} title="Next step (→)">
+              Next: {STEPS[step + 1].title} <ArrowRight className="h-4 w-4" />
+            </Button>
           )}
-          {step === 2 && <AssignStep alert={alert} people={people.data} onChanged={onChanged} />}
-          {step === 3 && <FixStep alert={alert} people={people.data} onChanged={onChanged} onOpenManual={openManual} />}
-          {step === 4 && <DecideStep alert={alert} machine={machine} result={replaceResult} onResult={onReplaceResult} />}
         </div>
-      </Card>
 
-      {/* Navigation */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" disabled={step === 0} onClick={() => onStep(step - 1)}>
-          <ArrowLeft className="h-4 w-4" /> Back
-        </Button>
-        {!nextEnabled && !last && <span className="text-xs text-zinc-500">Waiting for the AI diagnosis…</span>}
-        {last ? (
-          <Button variant="primary" onClick={onClose}>
-            <Check className="h-4 w-4" /> Done
-          </Button>
-        ) : (
-          <Button variant="primary" disabled={!nextEnabled} onClick={() => onStep(step + 1)} title="Next step (→)">
-            Next: {STEPS[step + 1].title} <ArrowRight className="h-4 w-4" />
-          </Button>
-        )}
+        {modal?.kind === "manual" && <ManualModal sectionId={modal.id} onClose={() => setModal(null)} />}
+        {modal?.kind === "history" && <HistoryModal machineId={alert.machine_id} recordId={modal.id} onClose={() => setModal(null)} />}
       </div>
-
-      {modal?.kind === "manual" && <ManualModal sectionId={modal.id} onClose={() => setModal(null)} />}
-      {modal?.kind === "history" && <HistoryModal machineId={alert.machine_id} recordId={modal.id} onClose={() => setModal(null)} />}
     </div>
   );
 }
