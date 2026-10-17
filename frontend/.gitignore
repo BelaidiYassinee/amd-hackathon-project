@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# The root .gitignore ignores Python lib/ folders; our TypeScript src/lib must be committed.
+!src/lib/
