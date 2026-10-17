@@ -1,0 +1,14 @@
+[
+  {"id": "tech-a1", "name": "Sara Benali",     "role": "mechanical_technician",  "shift": "A", "areas": ["Cooling loop", "Utilities"]},
+  {"id": "tech-a2", "name": "Luca Moretti",    "role": "electrical_technician",  "shift": "A", "areas": ["all"]},
+  {"id": "eng-a1",  "name": "Nadia Haddad",    "role": "process_engineer",       "shift": "A", "areas": ["all"]},
+  {"id": "sup-a1",  "name": "Karim Ouali",     "role": "maintenance_supervisor", "shift": "A", "areas": ["all"]},
+  {"id": "tech-a3", "name": "Paolo Ferri",     "role": "mechanical_technician",  "shift": "A", "areas": ["Packaging line"]},
+  {"id": "tech-b1", "name": "Youssef Amrani",  "role": "mechanical_technician",  "shift": "B", "areas": ["all"]},
+  {"id": "tech-b2", "name": "Elena Conti",     "role": "electrical_technician",  "shift": "B", "areas": ["all"]},
+  {"id": "eng-b1",  "name": "Marco Bianchi",   "role": "process_engineer",       "shift": "B", "areas": ["all"]},
+  {"id": "sup-b1",  "name": "Omar Tazi",       "role": "maintenance_supervisor", "shift": "B", "areas": ["all"]},
+  {"id": "tech-c1", "name": "Ines Ferreira",   "role": "mechanical_technician",  "shift": "C", "areas": ["all"]},
+  {"id": "tech-c2", "name": "Hamza Idrissi",   "role": "electrical_technician",  "shift": "C", "areas": ["all"]},
+  {"id": "sup-c1",  "name": "Giulia Romano",   "role": "maintenance_supervisor", "shift": "C", "areas": ["all"]}
+]
