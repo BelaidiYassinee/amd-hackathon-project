@@ -80,8 +80,8 @@ export function DemoMenu({ plant, onChanged }: { plant: PlantState | null; onCha
 
   return (
     <div className="relative">
-      <Button size="sm" variant={open ? "secondary" : "ghost"} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <SlidersHorizontal className="h-3.5 w-3.5" /> Demo
+      <Button className="h-11 px-3.5 text-[15px]" variant={open ? "secondary" : "ghost"} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        <SlidersHorizontal className="h-4 w-4" /> Demo
         {activeFaults.length > 0 && <span className="h-1.5 w-1.5 rounded-full bg-red-500" aria-label="A demo fault is active" />}
       </Button>
       {open && (

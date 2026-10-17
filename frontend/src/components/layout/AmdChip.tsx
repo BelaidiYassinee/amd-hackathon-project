@@ -8,10 +8,10 @@ export function AmdChip({ stats, failed, onClick }: { stats: AmdStats | null; fa
       type="button"
       onClick={onClick}
       title="AI inference details (a)"
-      className="inline-flex h-8 items-center gap-2 rounded-full border border-red-600/50 bg-red-600/10 pl-1 pr-3 text-xs text-zinc-200 hover:bg-red-600/20"
+      className="inline-flex h-11 items-center gap-2 rounded-full border border-red-600/50 bg-red-600/10 pl-1.5 pr-4 text-[15px] text-zinc-200 hover:bg-red-600/20"
     >
-      <span className="flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white">
-        <Cpu className="h-3 w-3" /> AMD
+      <span className="flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold text-white">
+        <Cpu className="h-3.5 w-3.5" /> AMD
       </span>
       {stats ? (
         <span className="whitespace-nowrap">

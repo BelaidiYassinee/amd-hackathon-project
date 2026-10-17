@@ -30,16 +30,16 @@ function Tab({
       aria-current={active ? "page" : undefined}
       title={title}
       className={clsx(
-        "flex h-8 items-center gap-2 rounded-full px-4 text-sm font-medium transition-colors",
+        "flex h-11 items-center gap-2 rounded-full px-5 text-base font-medium transition-colors",
         active ? "bg-white/10 text-zinc-50 shadow-inner shadow-white/5" : "text-zinc-400 hover:text-zinc-200",
       )}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-5 w-5" />
       {label}
       {!!badge && (
         <span
           className={clsx(
-            "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold tabular-nums",
+            "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold tabular-nums",
             badgeTone === "red" ? "bg-red-500 text-white" : badgeTone === "amber" ? "bg-amber-400/20 text-amber-300" : "bg-sky-500/20 text-sky-300",
           )}
         >
@@ -79,15 +79,15 @@ export function Header({
   const attention = plant?.machines.filter((m) => m.active_alert_id).length ?? 0;
   // Three columns, so the centred page tabs can never run into the controls on the right.
   return (
-    <header className="relative z-20 grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 py-3">
-      <button type="button" onClick={() => onNavigate("plant")} className="flex items-center gap-2.5 justify-self-start rounded-lg hover:opacity-90">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/15 text-sky-400">
-          <Gauge className="h-4 w-4" />
+    <header className="relative z-20 grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 pb-3 pt-6">
+      <button type="button" onClick={() => onNavigate("plant")} className="flex items-center gap-3 justify-self-start rounded-lg hover:opacity-90">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/15 text-sky-400">
+          <Gauge className="h-6 w-6" />
         </span>
-        <span className="font-semibold text-zinc-100">Operion</span>
+        <span className="text-xl font-semibold text-zinc-100">Operion</span>
       </button>
 
-      <nav aria-label="Pages" className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1 backdrop-blur-md">
+      <nav aria-label="Pages" className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1.5 backdrop-blur-md">
         <Tab icon={Factory} label="Plant" active={page === "plant"} badge={attention} badgeTone="red" onClick={() => onNavigate("plant")} title="The four machines, live" />
         <Tab
           icon={ShieldCheck}
@@ -111,7 +111,7 @@ export function Header({
 
       <div className="flex items-center gap-3 justify-self-end">
         {plant && (
-          <span className="flex items-center gap-2 text-xs text-zinc-400" title={plant.paused ? "Simulation paused" : "Simulation running"}>
+          <span className="flex items-center gap-2 text-[15px] text-zinc-400" title={plant.paused ? "Simulation paused" : "Simulation running"}>
             <span className={clsx("h-2 w-2 rounded-full", plant.paused ? "bg-amber-400" : "animate-pulse bg-emerald-500")} />
             <span className="tabular-nums" title={`Plant time ${simTime(plant.sim_time)}`}>
               {simClock(plant.sim_time)}
