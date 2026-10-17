@@ -7,11 +7,11 @@
 
 ## 1. What we are building
 
-**Working name:** *Maintenance Copilot* (P4 picks the final name).
+**Working name:** *Operion* (P4 picks the final name).
 
 **Hackathon:** AMD Developer Hackathon Act III (lablab.ai), **Track 1: Intelligent Industry**.
 
-**One-liner:** an AI maintenance copilot that catches a machine fault early, explains it with evidence, alerts the right on-shift technician with fix steps, and helps decide between repairing and replacing the machine.
+**One-liner:** an AI Operion that catches a machine fault early, explains it with evidence, alerts the right on-shift technician with fix steps, and helps decide between repairing and replacing the machine.
 
 **Users:**
 - **Maintenance technicians**, who receive the alert and do the fix.
@@ -797,7 +797,7 @@ async def lifespan(app: FastAPI):
     task.cancel()
 
 
-app = FastAPI(title="Maintenance Copilot", lifespan=lifespan)
+app = FastAPI(title="Operion", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware, allow_origins=["http://localhost:5173"], allow_methods=["*"], allow_headers=["*"]
 )

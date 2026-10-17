@@ -1,6 +1,6 @@
 # AquaFlow CP-80 coolant pump P-101: operation and maintenance manual
 
-Plant copy for coolant pump P-101 (cooling loop). Fictional equipment, written for the Maintenance Copilot demo. Section IDs are referenced by work orders and by the maintenance assistant; do not renumber them.
+Plant copy for coolant pump P-101 (cooling loop). Fictional equipment, written for the Operion demo. Section IDs are referenced by work orders and by the maintenance assistant; do not renumber them.
 
 ## [P101-OV-01] Overview and specifications
 

@@ -424,7 +424,7 @@ Open http://localhost:7860: the UI is served by FastAPI and the full loop works.
 
    ```
    ---
-   title: Maintenance Copilot
+   title: Operion
    emoji: 🛠️
    colorFrom: red
    colorTo: gray

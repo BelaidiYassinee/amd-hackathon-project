@@ -84,7 +84,7 @@ export function Header({
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/15 text-sky-400">
           <Gauge className="h-4 w-4" />
         </span>
-        <span className="font-semibold text-zinc-100">Maintenance Copilot</span>
+        <span className="font-semibold text-zinc-100">Operion</span>
       </button>
 
       <nav aria-label="Pages" className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1 backdrop-blur-md">

@@ -53,7 +53,7 @@ Keep large files (video, PSD) **out of the repo**. Small PNGs are OK; tell P4 if
 **Product name.** Pick one before recording (the team can decide it any time):
 - short, about maintenance and uptime, easy to say in a video
 - not an existing product: search the web and GitHub
-- replaces "Maintenance Copilot" everywhere (tell P3 for the UI title and P4 for the Space name)
+- replaces "Operion" everywhere (tell P3 for the UI title and P4 for the Space name)
 
 ---
 

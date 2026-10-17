@@ -1,4 +1,4 @@
-# Maintenance Copilot: one image that serves the API and the React UI (Hugging Face Space, port 7860).
+# Operion: one image that serves the API and the React UI (Hugging Face Space, port 7860).
 
 # ---- stage 1: build the UI ----
 # Until P3's frontend/ is in the repo, this stage writes a placeholder page instead,
@@ -10,7 +10,7 @@ RUN if [ -f frontend/package.json ]; then \
         cd frontend && npm ci && npm run build; \
     else \
         mkdir -p frontend/dist && \
-        echo '<!doctype html><title>Maintenance Copilot</title><p>UI not built yet. API docs: <a href="/docs">/docs</a></p>' \
+        echo '<!doctype html><title>Operion</title><p>UI not built yet. API docs: <a href="/docs">/docs</a></p>' \
             > frontend/dist/index.html; \
     fi
 

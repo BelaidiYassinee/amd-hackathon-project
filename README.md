@@ -1,5 +1,5 @@
 ---
-title: Maintenance Copilot
+title: Operion
 emoji: 🛠️
 colorFrom: red
 colorTo: gray

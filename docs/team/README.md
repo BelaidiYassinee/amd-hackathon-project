@@ -1,6 +1,6 @@
 # Team briefs: AMD Hackathon Act III (Track 1, Intelligent Industry)
 
-**What we're building:** an AI maintenance copilot. A simulated machine develops a fault. The system detects it early, an agent running on the **AMD Radeon API** diagnoses it with verified evidence, the alert goes to the on-shift technician with fix steps, and a repair-vs-replace comparison supports the supervisor's decision. The scope follows our mentor's feedback: one strong end-to-end workflow, done well.
+**What we're building:** an AI Operion. A simulated machine develops a fault. The system detects it early, an agent running on the **AMD Radeon API** diagnoses it with verified evidence, the alert goes to the on-shift technician with fix steps, and a repair-vs-replace comparison supports the supervisor's decision. The scope follows our mentor's feedback: one strong end-to-end workflow, done well.
 
 ## How to use these files
 
