@@ -185,7 +185,7 @@
   "diagnosis": {
     "n": 40,
     "skipped_no_event": 0,
-    "accuracy": 0.775,
+    "accuracy": 0.975,
     "per_fault": {
       "bearing_wear": {
         "n": 10,
@@ -199,8 +199,8 @@
       },
       "misalignment": {
         "n": 10,
-        "correct": 1,
-        "accuracy": 0.1
+        "correct": 9,
+        "accuracy": 0.9
       },
       "motor_overheat": {
         "n": 10,
@@ -224,9 +224,9 @@
         "other": 0
       },
       "misalignment": {
-        "bearing_wear": 9,
+        "bearing_wear": 1,
         "cavitation": 0,
-        "misalignment": 1,
+        "misalignment": 9,
         "motor_overheat": 0,
         "other": 0
       },
@@ -239,84 +239,20 @@
       }
     },
     "verified_rate": 1.0,
-    "fallback_count": 1,
-    "avg_latency_ms": 31607.3,
-    "median_latency_ms": 29550,
-    "avg_llm_calls": 1,
-    "avg_prompt_tokens": 7150.2,
-    "avg_completion_tokens": 761.5,
-    "avg_tokens_per_s": 25.3,
+    "fallback_count": 0,
+    "avg_latency_ms": 31524.7,
+    "median_latency_ms": 29236.5,
+    "avg_llm_calls": 1.0,
+    "avg_prompt_tokens": 9951.7,
+    "avg_completion_tokens": 757.1,
+    "avg_tokens_per_s": 24.9,
     "misdiagnosed": [
-      {
-        "id": "misalignment-00",
-        "actual": "misalignment",
-        "predicted": "bearing_wear",
-        "confidence": 0.85,
-        "summary": "Vibration RMS is rising steadily and has been deviating for 1.8 hours, while high-frequency vibration energy is also increasing, matching the early bearing wear signature. The maintenance history shows a missed bearing re-greasing and a prior bearing replacement, supporting this diagnosis.",
-        "error": null
-      },
       {
         "id": "misalignment-01",
         "actual": "misalignment",
         "predicted": "bearing_wear",
         "confidence": 0.85,
-        "summary": "Vibration RMS is rising steadily and is the only signal beyond the anomaly threshold, while bearing temperature is falling and discharge pressure is stable, pointing to bearing wear rather than cavitation or misalignment. The manual section P101-TS-01 (not directly retrieved but implied) describes vibration-first bearing wear, and the maintenance history shows a skipped re-greasing and a prior bearing replacement.",
-        "error": null
-      },
-      {
-        "id": "misalignment-02",
-        "actual": "misalignment",
-        "predicted": "bearing_wear",
-        "confidence": 0.85,
-        "summary": "Overall vibration is rising steadily and has been deviating for about an hour, while high-frequency vibration is also slightly up. The pattern matches the early-to-mid stage of bearing wear described in the manual, and the machine has a history of missed lubrication and prior bearing issues.",
-        "error": null
-      },
-      {
-        "id": "misalignment-03",
-        "actual": "misalignment",
-        "predicted": "bearing_wear",
-        "confidence": 0.85,
-        "summary": "Overall vibration and bearing temperature are rising together, which matches the later stage of bearing wear. The motor temperature is also rising slightly, likely from heat conducted from the bearing, but vibration is the leading indicator.",
-        "error": null
-      },
-      {
-        "id": "misalignment-05",
-        "actual": "misalignment",
-        "predicted": "bearing_wear",
-        "confidence": 0.85,
-        "summary": "Vibration RMS is rising and has the highest anomaly score, while bearing temperature is also trending up, consistent with early bearing wear. The manual P101-TS-01 lists high-frequency vibration first, but here overall vibration is the main signal, suggesting the wear may be progressing.",
-        "error": null
-      },
-      {
-        "id": "misalignment-06",
-        "actual": "misalignment",
-        "predicted": "bearing_wear",
-        "confidence": 0.85,
-        "summary": "Vibration RMS has been rising since 01:30 and is the only signal beyond the anomaly threshold, while bearing temperature is also trending upward. The manual's bearing wear section lists high-frequency vibration first, but here overall vibration is the leading indicator, consistent with later-stage bearing wear.",
-        "error": null
-      },
-      {
-        "id": "misalignment-07",
-        "actual": "misalignment",
-        "predicted": "bearing_wear",
-        "confidence": 0.85,
-        "summary": "Overall vibration (vibration_rms) is rising steadily and is the only signal deviating, while high-frequency vibration and other signals remain normal. This pattern matches the later stage of bearing wear, especially given the missed re-greasing and recent bearing history.",
-        "error": null
-      },
-      {
-        "id": "misalignment-08",
-        "actual": "misalignment",
-        "predicted": "bearing_wear",
-        "confidence": 0.85,
-        "summary": "Overall vibration is rising steadily and is the only signal deviating, with a z-score of 2.6 and a positive slope, while motor temperature, discharge pressure, and flow remain near baseline. This pattern matches the early stage of bearing wear, especially given the missed re-greasing and prior bearing issues.",
-        "error": null
-      },
-      {
-        "id": "misalignment-09",
-        "actual": "misalignment",
-        "predicted": "bearing_wear",
-        "confidence": 0.85,
-        "summary": "Overall vibration is rising with a positive slope and high z-score, while high-frequency vibration is not increasing, which points to a developing bearing defect. The flow and discharge pressure are slightly down, but the dominant signal is the vibration trend, and the machine has a history of bearing issues and missed lubrication.",
+        "summary": "Vibration_rms has been rising steadily since 17:35 and is now at 2.189 mm/s (z=3.6), while vibration_hf is also elevated (0.377 g, z=2.8). The pattern matches bearing wear in the manual, which starts with high-frequency vibration and is followed by overall vibration; the maintenance history shows a missed re-greasing and a previous bearing replacement.",
         "error": null
       }
     ],
@@ -335,13 +271,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "High-frequency vibration energy has risen sharply and is the only signal deviating, matching the early bearing wear signature. Other signals like discharge pressure and flow remain near normal, ruling out cavitation and misalignment.",
-        "latency_ms": 29043,
+        "summary": "High-frequency vibration (vibration_hf) has risen sharply and is the only signal deviating, which matches the early signature of bearing wear. The maintenance history shows a missed re-greasing and a prior bearing replacement, supporting this diagnosis.",
+        "latency_ms": 35583,
         "llm_calls": 1,
-        "prompt_tokens": 7040,
-        "completion_tokens": 776,
+        "prompt_tokens": 9608,
+        "completion_tokens": 943,
         "tokens_per_s": [
-          26.7
+          26.5
         ]
       },
       {
@@ -352,13 +288,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "High-frequency vibration energy is rising sharply and is the only signal deviating, matching the early bearing wear signature. Bearing temperature is still normal but trending up, and the machine had a missed lubrication event and prior bearing issues.",
-        "latency_ms": 34718,
+        "summary": "High-frequency vibration energy has risen sharply since 13:10, while other signals remain near normal, matching the early bearing wear signature. The maintenance history shows a missed re-greasing and a prior bearing replacement, supporting this diagnosis.",
+        "latency_ms": 27083,
         "llm_calls": 1,
-        "prompt_tokens": 7126,
-        "completion_tokens": 720,
+        "prompt_tokens": 9688,
+        "completion_tokens": 652,
         "tokens_per_s": [
-          20.7
+          24.1
         ]
       },
       {
@@ -369,81 +305,81 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "High-frequency vibration energy has risen sharply and is the only signal deviating, matching the early bearing wear signature. The pump had a missed bearing re-greasing in July and a prior bearing failure, increasing the likelihood.",
-        "latency_ms": 28982,
+        "summary": "High-frequency vibration energy (vibration_hf) has risen sharply and is the only signal deviating, matching the early bearing wear signature. The maintenance history shows a missed re-greasing and a prior bearing replacement, supporting this diagnosis.",
+        "latency_ms": 24720,
         "llm_calls": 1,
-        "prompt_tokens": 7118,
-        "completion_tokens": 841,
+        "prompt_tokens": 9687,
+        "completion_tokens": 679,
         "tokens_per_s": [
-          29.0
+          27.5
         ]
       },
       {
         "id": "bearing_wear-03",
         "actual": "bearing_wear",
         "predicted": "bearing_wear",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "High-frequency vibration is rising sharply while other signals remain near normal, matching the early bearing wear signature. The pump had a skipped lubrication event and a prior bearing failure, increasing risk.",
-        "latency_ms": 34924,
+        "summary": "High-frequency vibration (vibration_hf) has risen sharply and is the only signal deviating, matching the early bearing wear signature. The maintenance history shows a missed re-greasing and a prior bearing failure, supporting this diagnosis.",
+        "latency_ms": 24739,
         "llm_calls": 1,
-        "prompt_tokens": 7207,
-        "completion_tokens": 734,
+        "prompt_tokens": 9691,
+        "completion_tokens": 683,
         "tokens_per_s": [
-          21.0
+          27.6
         ]
       },
       {
         "id": "bearing_wear-04",
         "actual": "bearing_wear",
         "predicted": "bearing_wear",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "High-frequency vibration energy has risen sharply since 15:15, while bearing temperature is still normal, matching the early bearing wear signature. The pump had a missed re-greasing in July and a bearing replacement last year, so lubrication or bearing life is the likely cause.",
-        "latency_ms": 41850,
+        "summary": "High-frequency vibration energy has risen sharply and is the only signal deviating, matching the early bearing wear signature. The pump has a history of missed lubrication and prior bearing issues, supporting this diagnosis.",
+        "latency_ms": 36769,
         "llm_calls": 1,
-        "prompt_tokens": 7117,
-        "completion_tokens": 716,
+        "prompt_tokens": 9600,
+        "completion_tokens": 912,
         "tokens_per_s": [
-          17.1
+          24.8
         ]
       },
       {
         "id": "bearing_wear-05",
         "actual": "bearing_wear",
         "predicted": "bearing_wear",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "High-frequency vibration energy has risen sharply since 06:15, matching the early bearing wear signature, while other signals remain near normal. The machine had a missed bearing re-greasing in July and a prior bearing failure, increasing the likelihood of this fault.",
-        "latency_ms": 24678,
+        "summary": "High-frequency vibration (vibration_hf) has been rising since 06:15 and is the only signal deviating, which matches the early bearing wear signature. The maintenance history shows a missed bearing re-greasing in July 2026, supporting lubrication-related bearing damage.",
+        "latency_ms": 29131,
         "llm_calls": 1,
-        "prompt_tokens": 7204,
-        "completion_tokens": 660,
+        "prompt_tokens": 9687,
+        "completion_tokens": 708,
         "tokens_per_s": [
-          26.7
+          24.3
         ]
       },
       {
         "id": "bearing_wear-06",
         "actual": "bearing_wear",
         "predicted": "bearing_wear",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "High-frequency vibration energy has risen sharply and is deviating, while other signals like bearing temperature and motor current remain near normal. This matches the early bearing wear signature in the manual, likely due to missed lubrication.",
-        "latency_ms": 33605,
+        "summary": "High-frequency vibration energy has risen sharply and is the only signal deviating, matching the early bearing wear signature. The maintenance history shows a missed re-greasing and prior bearing issues, supporting this diagnosis.",
+        "latency_ms": 29342,
         "llm_calls": 1,
-        "prompt_tokens": 7030,
-        "completion_tokens": 875,
+        "prompt_tokens": 9600,
+        "completion_tokens": 858,
         "tokens_per_s": [
-          26.0
+          29.2
         ]
       },
       {
@@ -454,47 +390,47 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "High-frequency vibration energy has risen sharply and is the first signal to deviate, matching the early bearing wear signature. Motor temperature is falling, which is not typical for motor overheating, and other signals remain near normal.",
-        "latency_ms": 34467,
+        "summary": "High-frequency vibration (vibration_hf) has risen sharply since 03:55, while overall vibration and other signals remain near normal, matching the early bearing wear signature. The maintenance history shows a missed re-greasing and a prior bearing replacement, supporting this diagnosis.",
+        "latency_ms": 23958,
         "llm_calls": 1,
-        "prompt_tokens": 7234,
-        "completion_tokens": 907,
+        "prompt_tokens": 9718,
+        "completion_tokens": 754,
         "tokens_per_s": [
-          26.3
+          31.5
         ]
       },
       {
         "id": "bearing_wear-08",
         "actual": "bearing_wear",
         "predicted": "bearing_wear",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "High-frequency vibration is rising sharply while overall vibration and flow remain near normal, matching the early bearing wear signature. The pump had a missed re-greasing and a prior bearing replacement, increasing the likelihood of bearing degradation.",
-        "latency_ms": 30310,
+        "summary": "High-frequency vibration (vibration_hf) has risen sharply and is the only signal deviating, which matches the early signature of bearing wear. The maintenance history shows a missed re-greasing and a previous bearing replacement, supporting this diagnosis.",
+        "latency_ms": 21916,
         "llm_calls": 1,
-        "prompt_tokens": 7116,
-        "completion_tokens": 723,
+        "prompt_tokens": 9686,
+        "completion_tokens": 595,
         "tokens_per_s": [
-          23.9
+          27.1
         ]
       },
       {
         "id": "bearing_wear-09",
         "actual": "bearing_wear",
         "predicted": "bearing_wear",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "High-frequency vibration energy has risen sharply and is the only signal beyond the alarm limit, matching the early bearing wear signature. Motor current and temperature are rising slightly, but bearing temperature and overall vibration are still normal, consistent with the early stage of bearing wear.",
-        "latency_ms": 33922,
+        "summary": "High-frequency vibration (vibration_hf) has risen sharply and is the only signal deviating, matching the early signature of bearing wear. The maintenance history shows a missed re-greasing and a previous bearing replacement, supporting this diagnosis.",
+        "latency_ms": 25544,
         "llm_calls": 1,
-        "prompt_tokens": 7035,
-        "completion_tokens": 854,
+        "prompt_tokens": 9597,
+        "completion_tokens": 723,
         "tokens_per_s": [
-          25.2
+          28.3
         ]
       },
       {
@@ -505,13 +441,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration rises, matching the cavitation signature in the manual. The pump is likely losing suction due to a clogged strainer or low inlet level, and should be inspected promptly.",
-        "latency_ms": 30080,
+        "summary": "Discharge pressure and flow are both dropping together, with a slight rise in high-frequency vibration, matching the cavitation signature. The pump is likely suffering from low suction pressure or a clogged strainer, and the condition is progressing toward loss of cooling flow.",
+        "latency_ms": 27866,
         "llm_calls": 1,
-        "prompt_tokens": 7148,
-        "completion_tokens": 738,
+        "prompt_tokens": 9736,
+        "completion_tokens": 754,
         "tokens_per_s": [
-          24.5
+          27.1
         ]
       },
       {
@@ -522,13 +458,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration rises, matching the cavitation signature in the manual. The pump is likely suffering from low suction pressure, possibly due to a clogged strainer or low tank level.",
-        "latency_ms": 37284,
+        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration rises, matching the cavitation signature. The pump is likely suffering from low suction pressure or a clogged strainer.",
+        "latency_ms": 25125,
         "llm_calls": 1,
-        "prompt_tokens": 7143,
-        "completion_tokens": 827,
+        "prompt_tokens": 9731,
+        "completion_tokens": 714,
         "tokens_per_s": [
-          22.2
+          28.4
         ]
       },
       {
@@ -539,47 +475,48 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration is rising, matching the cavitation signature in the manual. The pump is likely suffering from low suction pressure or a clogged strainer.",
-        "latency_ms": 23333,
+        "summary": "Discharge pressure is dropping sharply and flow is falling together, while high-frequency vibration is rising moderately, matching the cavitation signature. The pump is likely suffering from low suction pressure or a clogged strainer, and action is needed to prevent impeller damage.",
+        "latency_ms": 38770,
         "llm_calls": 1,
-        "prompt_tokens": 7166,
-        "completion_tokens": 611,
+        "prompt_tokens": 9754,
+        "completion_tokens": 780,
         "tokens_per_s": [
-          26.2
+          20.1
         ]
       },
       {
         "id": "cavitation-03",
         "actual": "cavitation",
         "predicted": "cavitation",
-        "confidence": 0.9,
+        "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration is rising, matching the cavitation signature in the manual. The pump is likely suffering from low suction pressure, possibly due to a clogged strainer or low tank level.",
-        "latency_ms": 28700,
+        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration is rising, matching the cavitation signature. The pump is likely suffering from low suction pressure or a clogged strainer, and the condition is progressing quickly.",
+        "latency_ms": 27142,
         "llm_calls": 1,
-        "prompt_tokens": 7147,
-        "completion_tokens": 776,
+        "prompt_tokens": 9735,
+        "completion_tokens": 749,
         "tokens_per_s": [
-          27.0
+          27.6
         ]
       },
       {
         "id": "cavitation-04",
         "actual": "cavitation",
         "predicted": "cavitation",
-        "confidence": 0.85,
+        "confidence": 0.9,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration is rising, matching the cavitation signature in the manual. The flow is projected to hit its alarm limit in about 4.7 hours, so action is needed soon.",
-        "latency_ms": 34965,
-        "llm_calls": 1,
-        "prompt_tokens": 7148,
-        "completion_tokens": 669,
+        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration rises, matching the cavitation signature. The flow is projected to hit its alarm limit in about 4.7 hours, so action is needed soon.",
+        "latency_ms": 51042,
+        "llm_calls": 2,
+        "prompt_tokens": 20202,
+        "completion_tokens": 1315,
         "tokens_per_s": [
-          19.1
+          25.7,
+          25.8
         ]
       },
       {
@@ -590,13 +527,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration rises, matching the cavitation signature in the manual. Motor current is also falling, confirming the pump is doing less work due to suction-side flow loss.",
-        "latency_ms": 28523,
+        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration rises, matching the cavitation signature. The pump is likely suffering from low suction pressure or a clogged strainer, and flow is projected to hit the alarm limit in about 7 hours.",
+        "latency_ms": 32541,
         "llm_calls": 1,
-        "prompt_tokens": 7167,
-        "completion_tokens": 759,
+        "prompt_tokens": 9755,
+        "completion_tokens": 785,
         "tokens_per_s": [
-          26.6
+          24.1
         ]
       },
       {
@@ -607,13 +544,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration is rising, matching the cavitation signature in the manual. The pump is likely losing suction due to a clogged strainer or low inlet level, and flow is projected to hit the alarm limit in about 3.7 hours.",
-        "latency_ms": 29550,
+        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration rises, matching the cavitation signature. The pump likely has a suction-side restriction or low inlet pressure, and flow is projected to hit the low alarm in about 3.7 hours.",
+        "latency_ms": 25728,
         "llm_calls": 1,
-        "prompt_tokens": 7169,
-        "completion_tokens": 819,
+        "prompt_tokens": 9757,
+        "completion_tokens": 678,
         "tokens_per_s": [
-          27.7
+          26.4
         ]
       },
       {
@@ -624,13 +561,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration is rising, matching the cavitation signature in the manual. The pump is likely suffering from low suction pressure, possibly due to a clogged strainer or low tank level.",
-        "latency_ms": 23489,
+        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration is rising, matching the cavitation pattern. The pump is likely losing suction due to a clogged strainer or low tank level, and needs immediate attention.",
+        "latency_ms": 24443,
         "llm_calls": 1,
-        "prompt_tokens": 7164,
-        "completion_tokens": 676,
+        "prompt_tokens": 9752,
+        "completion_tokens": 619,
         "tokens_per_s": [
-          28.8
+          25.3
         ]
       },
       {
@@ -641,13 +578,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration is rising, matching the cavitation signature. The pump is likely losing suction due to a clogged strainer or low inlet level, and flow is projected to hit the alarm limit in about 3 hours.",
-        "latency_ms": 26433,
+        "summary": "Discharge pressure and flow are dropping together while high-frequency vibration rises, matching the cavitation signature. The pump is likely suffering from low suction pressure or a clogged strainer, and flow is projected to hit the alarm limit in about 3 hours.",
+        "latency_ms": 30687,
         "llm_calls": 1,
-        "prompt_tokens": 7059,
-        "completion_tokens": 801,
+        "prompt_tokens": 9647,
+        "completion_tokens": 790,
         "tokens_per_s": [
-          30.3
+          25.7
         ]
       },
       {
@@ -658,30 +595,30 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Discharge pressure is dropping and flow is falling, while overall vibration is rising, matching the cavitation signature in the manual. The pump is likely cavitating due to low suction pressure or a clogged strainer, risking impeller damage and loss of cooling flow.",
-        "latency_ms": 28299,
+        "summary": "Discharge pressure is dropping and flow is falling together, with rising overall vibration and a slight rise in high-frequency vibration, matching the cavitation pattern. The pump has had three corrective repairs in the last year)Skip, but the leading signals point to suction-side issues rather than bearing wear or misalignment.",
+        "latency_ms": 50981,
         "llm_calls": 1,
-        "prompt_tokens": 7235,
-        "completion_tokens": 804,
+        "prompt_tokens": 9733,
+        "completion_tokens": 700,
         "tokens_per_s": [
-          28.4
+          13.7
         ]
       },
       {
         "id": "misalignment-00",
         "actual": "misalignment",
-        "predicted": "bearing_wear",
+        "predicted": "misalignment",
         "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Vibration RMS is rising steadily and has been deviating for 1.8 hours, while high-frequency vibration energy is also increasing, matching the early bearing wear signature. The maintenance history shows a missed bearing re-greasing and a prior bearing replacement, supporting this diagnosis.",
-        "latency_ms": 23077,
+        "summary": "Overall vibration (vibration_rms) has been rising steadily since 21:10 while high-frequency vibration (vibration_hf) remains near normal, matching the manual's signature for shaft misalignment. Bearing temperature is also rising slightlyaine, and the maintenance history shows a recent alignment correction and coupling replacement, supporting this diagnosis.",
+        "latency_ms": 31644,
         "llm_calls": 1,
-        "prompt_tokens": 7114,
-        "completion_tokens": 740,
+        "prompt_tokens": 9692,
+        "completion_tokens": 894,
         "tokens_per_s": [
-          32.1
+          28.3
         ]
       },
       {
@@ -692,148 +629,149 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Vibration RMS is rising steadily and is the only signal beyond the anomaly threshold, while bearing temperature is falling and discharge pressure is stable, pointing to bearing wear rather than cavitation or misalignment. The manual section P101-TS-01 (not directly retrieved but implied) describes vibration-first bearing wear, and the maintenance history shows a skipped re-greasing and a prior bearing replacement.",
-        "latency_ms": 31113,
+        "summary": "Vibration_rms has been rising steadily since 17:35 and is now at 2.189 mm/s (z=3.6), while vibration_hf is also elevated (0.377 g, z=2.8). The pattern matches bearing wear in the manual, which starts with high-frequency vibration and is followed by overall vibration; the maintenance history shows a missed re-greasing and a previous bearing replacement.",
+        "latency_ms": 32094,
         "llm_calls": 1,
-        "prompt_tokens": 7119,
-        "completion_tokens": 795,
+        "prompt_tokens": 9692,
+        "completion_tokens": 882,
         "tokens_per_s": [
-          25.6
+          27.5
         ]
       },
       {
         "id": "misalignment-02",
         "actual": "misalignment",
-        "predicted": "bearing_wear",
+        "predicted": "misalignment",
         "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Overall vibration is rising steadily and has been deviating for about an hour, while high-frequency vibration is also slightly up. The pattern matches the early-to-mid stage of bearing wear described in the manual, and the machine has a history of missed lubrication and prior bearing issues.",
-        "latency_ms": 25248,
+        "summary": "Overall vibration (vibration_rms) is rising steadily and is the only signal that has deviated, while high-frequency vibration (vibration_hf) remains near normal. This pattern matches shaft misalignment, especially given a recent alignment correction and coupling replacement in the maintenance history.",
+        "latency_ms": 26097,
         "llm_calls": 1,
-        "prompt_tokens": 7195,
-        "completion_tokens": 741,
+        "prompt_tokens": 9694,
+        "completion_tokens": 669,
         "tokens_per_s": [
-          29.3
+          25.6
         ]
       },
       {
         "id": "misalignment-03",
         "actual": "misalignment",
-        "predicted": "bearing_wear",
+        "predicted": "misalignment",
         "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Overall vibration and bearing temperature are rising together, which matches the later stage of bearing wear. The motor temperature is also rising slightly, likely from heat conducted from the bearing, but vibration is the leading indicator.",
-        "latency_ms": 33047,
+        "summary": "Overall vibration and bearing temperature are rising steadily while high-frequency vibration stays near normal, matching the misalignment signature. The machine had a recent alignment correction and coupling replacement, supporting this diagnosis.",
+        "latency_ms": 31189,
         "llm_calls": 1,
-        "prompt_tokens": 7159,
-        "completion_tokens": 842,
+        "prompt_tokens": 9738,
+        "completion_tokens": 793,
         "tokens_per_s": [
-          25.5
+          25.4
         ]
       },
       {
         "id": "misalignment-04",
         "actual": "misalignment",
         "predicted": "misalignment",
-        "confidence": 0.5,
-        "verified": true,
-        "fallback": true,
-        "error": "AMD API unavailable: APITimeoutError: Request timed out.. Rule-based fallback used.",
-        "summary": "The detector flagged P-101 because vibration RMS and motor winding temperature moved away from their learned baseline. A fixed rule matches this pattern to shaft misalignment; the AI diagnosis was not available.",
-        "latency_ms": 0,
-        "llm_calls": 0,
-        "prompt_tokens": 0,
-        "completion_tokens": 0,
-        "tokens_per_s": []
-      },
-      {
-        "id": "misalignment-05",
-        "actual": "misalignment",
-        "predicted": "bearing_wear",
         "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Vibration RMS is rising and has the highest anomaly score, while bearing temperature is also trending up, consistent with early bearing wear. The manual P101-TS-01 lists high-frequency vibration first, but here overall vibration is the main signal, suggesting the wear may be progressing.",
-        "latency_ms": 35641,
+        "summary": "Overall vibration (vibration_rms) has been rising steadily since 20:40 and is the only signal deviating, while high-frequency vibration (vibration_hf) remains near normal. This matches the manual signature for shaft misalignment, and the machine had a recent alignment correction and coupling replacement.",
+        "latency_ms": 32372,
         "llm_calls": 1,
-        "prompt_tokens": 7112,
-        "completion_tokens": 792,
+        "prompt_tokens": 9691,
+        "completion_tokens": 843,
         "tokens_per_s": [
-          22.2
+          26.0
+        ]
+      },
+      {
+        "id": "misalignment-05",
+        "actual": "misalignment",
+        "predicted": "misalignment",
+        "confidence": 0.85,
+        "verified": true,
+        "fallback": false,
+        "error": null,
+        "summary": "Overall vibration is rising first and is the only signal clearly deviating, while high-frequency vibration stays near normal, matching the misalignment signature. Bearing temperature and motor current are also creeping up, and the machine had a recent alignment correction and coupling replacement, supporting this diagnosis.",
+        "latency_ms": 25401,
+        "llm_calls": 1,
+        "prompt_tokens": 9691,
+        "completion_tokens": 713,
+        "tokens_per_s": [
+          28.1
         ]
       },
       {
         "id": "misalignment-06",
         "actual": "misalignment",
-        "predicted": "bearing_wear",
+        "predicted": "misalignment",
         "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Vibration RMS has been rising since 01:30 and is the only signal beyond the anomaly threshold, while bearing temperature is also trending upward. The manual's bearing wear section lists high-frequency vibration first, but here overall vibration is the leading indicator, consistent with later-stage bearing wear.",
-        "latency_ms": 47156,
+        "summary": "Vibration RMS is rising steadily and is the only signal deviating, while high-frequency vibration stays near normal, matching the misalignment signature. Bearing temperature is also rising slightlyholistically, and the machine had a recent alignment correction and coupling replacement, supporting this diagnosis.",
+        "latency_ms": 35687,
         "llm_calls": 1,
-        "prompt_tokens": 7113,
-        "completion_tokens": 791,
+        "prompt_tokens": 9692,
+        "completion_tokens": 750,
         "tokens_per_s": [
-          16.8
+          21.0
         ]
       },
       {
         "id": "misalignment-07",
         "actual": "misalignment",
-        "predicted": "bearing_wear",
+        "predicted": "misalignment",
         "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Overall vibration (vibration_rms) is rising steadily and is the only signal deviating, while high-frequency vibration and other signals remain normal. This pattern matches the later stage of bearing wear, especially given the missed re-greasing and recent bearing history.",
-        "latency_ms": 48992,
+        "summary": "Overall vibration (vibration_rms) is rising steadily and is the only signal deviating, while high-frequency vibration (vibration_hf) remains normal. This matches the manual's signature for shaft misalignment, not bearing wear. Recent alignment work and a coupling replacement in the maintenance history support this diagnosis.",
+        "latency_ms": 26947,
         "llm_calls": 1,
-        "prompt_tokens": 7113,
-        "completion_tokens": 928,
+        "prompt_tokens": 9691,
+        "completion_tokens": 756,
         "tokens_per_s": [
-          18.9
+          28.1
         ]
       },
       {
         "id": "misalignment-08",
         "actual": "misalignment",
-        "predicted": "bearing_wear",
+        "predicted": "misalignment",
         "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Overall vibration is rising steadily and is the only signal deviating, with a z-score of 2.6 and a positive slope, while motor temperature, discharge pressure, and flow remain near baseline. This pattern matches the early stage of bearing wear, especially given the missed re-greasing and prior bearing issues.",
-        "latency_ms": 66254,
-        "llm_calls": 2,
-        "prompt_tokens": 15191,
-        "completion_tokens": 1770,
+        "summary": "Overall vibration (vibration_rms) is rising steadily and is the only signal that has deviated, while high-frequency vibration (vibration_hf) remains near normal. This matches the manual signature for shaft misalignment, and the machine had a recent alignment correction and coupling replacement.",
+        "latency_ms": 29003,
+        "llm_calls": 1,
+        "prompt_tokens": 9693,
+        "completion_tokens": 702,
         "tokens_per_s": [
-          26.2,
-          27.2
+          24.2
         ]
       },
       {
         "id": "misalignment-09",
         "actual": "misalignment",
-        "predicted": "bearing_wear",
+        "predicted": "misalignment",
         "confidence": 0.85,
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Overall vibration is rising with a positive slope and high z-score, while high-frequency vibration is not increasing, which points to a developing bearing defect. The flow and discharge pressure are slightly down, but the dominant signal is the vibration trend, and the machine has a history of bearing issues and missed lubrication.",
-        "latency_ms": 32123,
+        "summary": "Overall vibration (vibration_rms) is rising steadily and is the only signal that has deviated, while high-frequency vibration (vibration_hf) remains near normal. This pattern matches shaft misalignment, especially given the recent alignment correction and coupling replacement in the maintenance history.",
+        "latency_ms": 31938,
         "llm_calls": 1,
-        "prompt_tokens": 7101,
-        "completion_tokens": 738,
+        "prompt_tokens": 9694,
+        "completion_tokens": 813,
         "tokens_per_s": [
-          23.0
+          25.5
         ]
       },
       {
@@ -844,13 +782,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Motor winding temperature is rising steadily with a high anomaly score, while motor current is also elevated and vibration signals remain normal, matching the motor overheating pattern. The manual P101-TS-04 describes this exact symptom sequence and points to electrical causes such as a blocked fan or cooling issue.",
-        "latency_ms": 22264,
+        "summary": "Motor winding temperature is rising steadily with a high anomaly score, while motor current is also elevated, and vibration signals remain normal. This pattern matches the motor overheating troubleshooting section, not bearing wear or misalignment.",
+        "latency_ms": 26979,
         "llm_calls": 1,
-        "prompt_tokens": 7072,
-        "completion_tokens": 658,
+        "prompt_tokens": 9598,
+        "completion_tokens": 746,
         "tokens_per_s": [
-          29.6
+          27.7
         ]
       },
       {
@@ -861,13 +799,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Motor temperature and current are rising steadily while vibration signals remain normal, matching the motor overheating signature in the manual. The motor is likely overheating due to a blocked cooling fan or dirty fins, and should be inspected soon.",
-        "latency_ms": 25914,
+        "summary": "Motor temperature and current are rising together while vibration signals remain normal, matching the motor overheating signature. The trend started about 1.3 hours ago and is projected to reach alarm in about 13 hours.",
+        "latency_ms": 25567,
         "llm_calls": 1,
-        "prompt_tokens": 7044,
-        "completion_tokens": 744,
+        "prompt_tokens": 9621,
+        "completion_tokens": 716,
         "tokens_per_s": [
-          28.7
+          28.0
         ]
       },
       {
@@ -878,13 +816,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Motor winding temperature is rising steadily with a slight increase in motor current, while vibration remains normalholistically. This matches the motor overheating pattern in the manual, likely due to cooling issues or electrical problems.",
-        "latency_ms": 25331,
+        "summary": "Motor winding temperature is rising steadily with a slight increase in motor current, while vibration signals remain normal. This matches the motor overheating pattern in the manual, likely due to cooling issues or electrical supply problems.",
+        "latency_ms": 61665,
         "llm_calls": 1,
-        "prompt_tokens": 7134,
-        "completion_tokens": 709,
+        "prompt_tokens": 9708,
+        "completion_tokens": 637,
         "tokens_per_s": [
-          28.0
+          10.3
         ]
       },
       {
@@ -895,13 +833,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Motor temperature and current are rising together while vibration signals remain near normal, indicating motor overheating rather than a mechanical pump fault. The high-frequency vibration is elevated but not deviating, and the pattern matches the motor overheating troubleshooting section.",
-        "latency_ms": 26809,
+        "summary": "Motor temperature and current are rising together while vibration signals remain near normal, indicating motor overheating rather than a pump mechanical fault. The pattern matches the motor overheating troubleshooting section.",
+        "latency_ms": 37484,
         "llm_calls": 1,
-        "prompt_tokens": 7130,
-        "completion_tokens": 672,
+        "prompt_tokens": 9709,
+        "completion_tokens": 718,
         "tokens_per_s": [
-          25.1
+          19.2
         ]
       },
       {
@@ -912,13 +850,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Motor winding temperature is rising steadily with a slight rise in bearing temperature, while vibration signals remain normal, matching the motor overheating pattern. The motor current is also slightly elevated, supporting an electrical/thermal issue rather than a mechanical one.",
-        "latency_ms": 28628,
+        "summary": "Motor winding temperature is rising steadily with a high anomaly score, while vibration signals remain normalcars. This matches the motor overheating signature in the manual, likely due to cooling issues or electrical problems.",
+        "latency_ms": 28417,
         "llm_calls": 1,
-        "prompt_tokens": 7132,
-        "completion_tokens": 747,
+        "prompt_tokens": 9709,
+        "completion_tokens": 738,
         "tokens_per_s": [
-          26.1
+          26.0
         ]
       },
       {
@@ -929,13 +867,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Motor winding temperature is rising steadily and is the only signal beyond the anomaly threshold, while vibration signals remain near normal. This matches the manual's motor overheating signature, likely due to cooling or electrical issues.",
-        "latency_ms": 22529,
+        "summary": "Motor winding temperature is rising steadily and is the only signal deviating, while vibration signals remain near normal. This matches the manual signature for motor overheating, not bearing wear or misalignment.",
+        "latency_ms": 29616,
         "llm_calls": 1,
-        "prompt_tokens": 7021,
-        "completion_tokens": 636,
+        "prompt_tokens": 9600,
+        "completion_tokens": 724,
         "tokens_per_s": [
-          28.2
+          24.4
         ]
       },
       {
@@ -946,13 +884,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Motor winding temperature is rising steadily with motor current, while vibration remains normal, indicating motor overheating rather than a pump fault. The pattern matches the motor overheating troubleshooting section.",
-        "latency_ms": 25996,
+        "summary": "Motor temperature is rising steadily with motor current also increasing, while vibration signals remain near normal. This matches the motor overheating pattern in the manual, likely due to cooling issues or electrical problems.",
+        "latency_ms": 28181,
         "llm_calls": 1,
-        "prompt_tokens": 7113,
-        "completion_tokens": 741,
+        "prompt_tokens": 9687,
+        "completion_tokens": 746,
         "tokens_per_s": [
-          28.5
+          26.5
         ]
       },
       {
@@ -963,13 +901,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Motor winding temperature is rising with a high anomaly score, while vibration signals remain near normal)Skip. The pattern matches the motor overheating section of the manual, not bearing wear.",
-        "latency_ms": 29151,
+        "summary": "Motor temperature is deviating with a high EWMA score, while vibration signals remain near normal)Skip. The pattern matches motor overheating: motor_temp rises first, motor_current follows, and vibration stays normal.",
+        "latency_ms": 34500,
         "llm_calls": 1,
-        "prompt_tokens": 7104,
-        "completion_tokens": 670,
+        "prompt_tokens": 9683,
+        "completion_tokens": 675,
         "tokens_per_s": [
-          23.0
+          19.6
         ]
       },
       {
@@ -980,13 +918,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Motor winding temperature is rising steadily with motor current, while vibration and bearing temperature remain near normal, matching the motor overheating signature. The manual indicates this is an electrical issue, likely blocked cooling or insulation aging.",
-        "latency_ms": 33594,
+        "summary": "Motor winding temperature is rising steadily while motor current is slightly elevated and vibration signals remain normal, matching the motor overheating pattern. The deviation started 1.3 hours ago and the temperature is still far from alarm limits.",
+        "latency_ms": 43752,
         "llm_calls": 1,
-        "prompt_tokens": 7132,
-        "completion_tokens": 659,
+        "prompt_tokens": 9709,
+        "completion_tokens": 717,
         "tokens_per_s": [
-          19.6
+          16.4
         ]
       },
       {
@@ -997,13 +935,13 @@
         "verified": true,
         "fallback": false,
         "error": null,
-        "summary": "Motor winding temperature is rising steadily with a high anomaly score, while vibration signals are normal or fallingaine. The manual for motor overheating matches this pattern, indicating an electrical issue rather than a mechanical one.",
-        "latency_ms": 32663,
+        "summary": "Motor winding temperature is rising steadily while vibration signals are normal or falling, matching the motor overheating pattern. The motor current is not rising yet, but the temperature trend and lack of vibration changes point to an electrical cooling issue.",
+        "latency_ms": 29343,
         "llm_calls": 1,
-        "prompt_tokens": 7138,
-        "completion_tokens": 800,
+        "prompt_tokens": 9712,
+        "completion_tokens": 663,
         "tokens_per_s": [
-          24.5
+          22.6
         ]
       }
     ]
