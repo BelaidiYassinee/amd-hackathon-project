@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Factory, Gauge, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import { Factory, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 import type { AmdStats, PlantState } from "../../types";
 import type { Page } from "../../hooks/useRoute";
 import { simClock, simTime } from "../../lib/format";
@@ -80,11 +80,8 @@ export function Header({
   // Three columns, so the centred page tabs can never run into the controls on the right.
   return (
     <header className="relative z-20 grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 pb-3 pt-6">
-      <button type="button" onClick={() => onNavigate("plant")} className="flex items-center gap-3 justify-self-start rounded-lg hover:opacity-90">
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/15 text-sky-400">
-          <Gauge className="h-6 w-6" />
-        </span>
-        <span className="text-xl font-semibold text-zinc-100">Operion</span>
+      <button type="button" onClick={() => onNavigate("plant")} className="flex items-center justify-self-start rounded-lg hover:opacity-90">
+        <img src="/operion.svg" alt="Operion" className="h-8 w-auto" />
       </button>
 
       <nav aria-label="Pages" className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1.5 backdrop-blur-md">
