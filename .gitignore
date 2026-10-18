@@ -222,3 +222,8 @@ __marimo__/
 node_modules/
 frontend/dist/
 backend/logs/
+
+eval/report_smoke.*
+scripts/step*.py
+.env.*
+!.env.example
