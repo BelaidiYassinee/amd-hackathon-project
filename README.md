@@ -1,13 +1,3 @@
----
-title: Operion Agent
-emoji: 🛠️
-colorFrom: red
-colorTo: gray
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 <p align="center">
   <img src="docs/readme/hero.svg" alt="Operion: predict, diagnose, decide. Operion flags a pump fault 36.4 hours before failure; the legacy alarm gives 6.2 hours." width="100%">
 </p>
