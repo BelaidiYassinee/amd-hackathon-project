@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 330" width="1280" height="330" role="img" aria-label="The Operion workflow: detect, diagnose on AMD, verify evidence, alert the on-shift technician, decide repair or replace. Acting on the machine is the next step.">
+<title>Operion workflow: detect, diagnose, verify, alert, decide, act</title>
+<defs>
+  <style>
+    .t { font-family: 'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif; }
+    .m { font-family: ui-monospace, SFMono-Regular, Consolas, Menlo, monospace; }
+    .card { fill: #111827; stroke: #ffffff; stroke-opacity: .1; }
+    .ico { fill: none; stroke: #FF5B1F; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .step { font-size: 12px; font-weight: 700; letter-spacing: 2px; fill: #FF5B1F; }
+    .desc { font-size: 13.5px; fill: #94A3B8; }
+    .big { font-size: 26px; font-weight: 700; fill: #F2F4F7; }
+    .lbl { font-size: 12.5px; fill: #64748B; }
+    .flow { stroke-dasharray: 4 6; animation: flow 1.2s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -20; } }
+    @media (prefers-reduced-motion: reduce) { .flow { animation: none; } }
+  </style>
+</defs>
+<rect width="1280" height="330" rx="20" fill="#0B0F17"/>
+<text x="32" y="38" class="t" font-size="15" font-weight="600" fill="#F2F4F7">One workflow, from a drifting signal to a spending decision</text>
+<text x="1248" y="38" class="m" font-size="12" fill="#64748B" text-anchor="end">every LLM call → AMD Radeon API</text>
+
+<!-- connectors -->
+<g stroke="#FF5B1F" stroke-width="2" stroke-opacity=".7" fill="none">
+  <path class="flow" d="M218 186H238"/><path class="flow" d="M424 186H444"/><path class="flow" d="M630 186H650"/><path class="flow" d="M836 186H856"/>
+  <path class="flow" d="M1042 186H1062" stroke-opacity=".35"/>
+</g>
+
+<!-- 1 detect -->
+<g transform="translate(32 56)">
+  <rect width="186" height="250" rx="14" class="card"/>
+  <text x="18" y="32" class="t step">01 · DETECT</text>
+  <g transform="translate(18 50)"><path class="ico" d="M0 14H6L10 4L16 24L20 10L24 14H30"/></g>
+  <text class="t desc"><tspan x="18" y="112">Learns normal from</tspan><tspan x="18" y="131">72 h of history, then</tspan><tspan x="18" y="150">scores drift per signal.</tspan></text>
+  <text x="18" y="208" class="t big">40/40</text>
+  <text x="18" y="230" class="t lbl">faults caught early</text>
+</g>
+
+<!-- 2 diagnose -->
+<g transform="translate(238 56)">
+  <rect width="186" height="250" rx="14" class="card" style="stroke:#ED1C24;stroke-opacity:.55"/>
+  <text x="18" y="32" class="t step">02 · DIAGNOSE</text>
+  <g transform="translate(18 50)"><rect class="ico" x="5" y="5" width="20" height="20" rx="3"/><path class="ico" d="M10 0V5M15 0V5M20 0V5M10 25V30M15 25V30M20 25V30M0 10H5M0 15H5M0 20H5M25 10H30M25 15H30M25 20H30"/></g>
+  <rect x="112" y="52" width="58" height="22" rx="11" fill="#ED1C24" fill-opacity=".16" stroke="#ED1C24" stroke-opacity=".6"/>
+  <text x="141" y="67" class="t" font-size="11.5" font-weight="700" fill="#FF8A8F" text-anchor="middle">on AMD</text>
+  <text class="t desc"><tspan x="18" y="112">Agent reads sensors,</tspan><tspan x="18" y="131">history, the manual and</tspan><tspan x="18" y="150">spare-parts stock.</tspan></text>
+  <text x="18" y="208" class="t big">97.5%</text>
+  <text x="18" y="230" class="t lbl">correct diagnoses</text>
+</g>
+
+<!-- 3 verify -->
+<g transform="translate(444 56)">
+  <rect width="186" height="250" rx="14" class="card"/>
+  <text x="18" y="32" class="t step">03 · VERIFY</text>
+  <g transform="translate(18 50)"><path class="ico" d="M14 1L26 5V13C26 21 21 26 14 29C7 26 2 21 2 13V5Z"/><path class="ico" d="M9 15L13 19L20 10"/></g>
+  <text class="t desc"><tspan x="18" y="112">Each evidence ref is</tspan><tspan x="18" y="131">checked against plant</tspan><tspan x="18" y="150">data before any alert.</tspan></text>
+  <text x="18" y="208" class="t big">100%</text>
+  <text x="18" y="230" class="t lbl">evidence verified</text>
+</g>
+
+<!-- 4 alert -->
+<g transform="translate(650 56)">
+  <rect width="186" height="250" rx="14" class="card"/>
+  <text x="18" y="32" class="t step">04 · ALERT</text>
+  <g transform="translate(18 50)"><path class="ico" d="M6 21V13A8 8 0 0 1 22 13V21L25 24H3Z"/><path class="ico" d="M11 27A3 3 0 0 0 17 27"/></g>
+  <text class="t desc"><tspan x="18" y="112">Routed to the on-shift</tspan><tspan x="18" y="131">technician; escalates</tspan><tspan x="18" y="150">when nobody answers.</tspan></text>
+  <text x="18" y="208" class="t big">1 click</text>
+  <text x="18" y="230" class="t lbl">to a work order</text>
+</g>
+
+<!-- 5 decide -->
+<g transform="translate(856 56)">
+  <rect width="186" height="250" rx="14" class="card"/>
+  <text x="18" y="32" class="t step">05 · DECIDE</text>
+  <g transform="translate(18 50)"><path class="ico" d="M15 2V27M5 7H25M9 27H21M5 7L1 17H9ZM25 7L21 17H29Z"/></g>
+  <text class="t desc"><tspan x="18" y="112">Repair or replace on</tspan><tspan x="18" y="131">5-year cost, with an AI</tspan><tspan x="18" y="150">rationale checked by code.</tspan></text>
+  <text x="18" y="208" class="t big">5-year</text>
+  <text x="18" y="230" class="t lbl">cost of ownership</text>
+</g>
+
+<!-- 6 act (next) -->
+<g transform="translate(1062 56)">
+  <rect width="186" height="250" rx="14" fill="none" stroke="#FF5B1F" stroke-opacity=".5" stroke-dasharray="6 6"/>
+  <text x="18" y="32" class="t step" style="fill:#FDBA74">06 · ACT</text>
+  <g transform="translate(18 50)"><path class="ico" style="stroke:#FDBA74" d="M17 1L6 16H14L12 29L24 12H16Z"/></g>
+  <rect x="112" y="52" width="58" height="22" rx="11" fill="#FF5B1F" fill-opacity=".12" stroke="#FF5B1F" stroke-opacity=".5"/>
+  <text x="141" y="67" class="t" font-size="11.5" font-weight="700" fill="#FDBA74" text-anchor="middle">next</text>
+  <text class="t desc"><tspan x="18" y="112">Reset, switch to the</tspan><tspan x="18" y="131">standby pump, order</tspan><tspan x="18" y="150">parts: a human approves.</tspan></text>
+  <text x="18" y="208" class="t big" style="fill:#FDBA74">L3 → L4</text>
+  <text x="18" y="230" class="t lbl">see the roadmap</text>
+</g>
+</svg>

@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 620" width="1280" height="620" role="img" aria-label="The tech stack drawn as a process and instrumentation diagram: a Python and NumPy simulator feeds a NumPy detector into a FastAPI controller, which serves a React control room, reads a knowledge silo searched with rank-bm25, and sends every LLM call to the AMD Radeon API running DeepSeek-V4-Flash. Answers return through an evidence check. Telegram is an optional alarm horn. pytest and the eval harness form the test bench.">
+<title>Operion stack as a P&amp;ID</title>
+<defs>
+  <pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#ffffff" stroke-opacity=".05"/></pattern>
+  <pattern id="G" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0H0V100" fill="none" stroke="#ffffff" stroke-opacity=".08"/></pattern>
+  <marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#A9D1F5"/></marker>
+  <style>
+    .t { font-family: 'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif; }
+    .m { font-family: ui-monospace, SFMono-Regular, Consolas, Menlo, monospace; }
+    .eq { fill: #0E2740; stroke: #A9D1F5; stroke-width: 2; }
+    .pipe { fill: none; stroke: #A9D1F5; stroke-width: 3; }
+    .sigl { fill: none; stroke: #A9D1F5; stroke-width: 1.5; stroke-dasharray: 8 4 2 4; }
+    .tag { font-size: 11.5px; fill: #7FB2E5; }
+    .nm { font-size: 13px; font-weight: 700; fill: #F2F4F7; letter-spacing: .5px; }
+    .tx { font-size: 12.5px; fill: #C7DDF2; }
+    .bub { fill: #0B1F33; stroke: #A9D1F5; stroke-width: 1.6; }
+    .bt { font-size: 12px; font-weight: 700; fill: #F2F4F7; }
+    .bv { font-size: 10px; fill: #FDBA74; }
+    .flow { fill: none; stroke: #FF5B1F; stroke-width: 3; stroke-dasharray: 3 21; animation: fl 1.4s linear infinite; }
+    @keyframes fl { to { stroke-dashoffset: -24; } }
+    @media (prefers-reduced-motion: reduce) { .flow { animation: none; } }
+  </style>
+</defs>
+<rect width="1280" height="620" rx="20" fill="#0B1F33"/>
+<rect width="1280" height="620" rx="20" fill="url(#g)"/>
+<rect width="1280" height="620" rx="20" fill="url(#G)"/>
+
+<!-- skid / battery limit -->
+<rect x="36" y="24" width="654" height="524" rx="6" fill="none" stroke="#A9D1F5" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="14 6"/>
+<text x="52" y="48" class="m nm" style="font-size:12px">SKID-01 · ONE DOCKER IMAGE</text>
+<text x="52" y="66" class="t tx" style="font-size:11.5px">node:20 builds the UI → python:3.11-slim</text>
+<text x="52" y="82" class="t tx" style="font-size:11.5px">Hugging Face Spaces · port 7860</text>
+<text x="698" y="540" class="m tag" transform="rotate(-90 698 540)">BATTERY LIMIT · OFF-SKID →</text>
+
+<!-- TK-101 simulator -->
+<path class="eq" d="M70 210A50 40 0 0 1 170 210V300A50 40 0 0 1 70 300Z"/>
+<path d="M70 230H170M70 280H170" stroke="#A9D1F5" stroke-opacity=".35"/>
+<text x="120" y="262" text-anchor="middle" class="m tag">4 × 7</text>
+<text x="120" y="360" text-anchor="middle" class="m tag">TK-101</text>
+<text x="120" y="378" text-anchor="middle" class="t nm">SIMULATOR</text>
+<text x="120" y="396" text-anchor="middle" class="t tx">Python 3.11 · NumPy</text>
+<text x="120" y="413" text-anchor="middle" class="t tx">PyYAML plant config</text>
+
+<!-- P1 + FT -->
+<path class="pipe" d="M170 250H262" marker-mid="url(#ar)"/>
+<path class="flow" d="M170 250H262"/>
+<line x1="216" y1="222" x2="216" y2="250" stroke="#A9D1F5" stroke-width="1.2"/>
+<circle cx="216" cy="200" r="22" class="bub"/><line x1="194" y1="200" x2="238" y2="200" stroke="#A9D1F5" stroke-width="1"/>
+<text x="216" y="195" text-anchor="middle" class="t bt">FT</text><text x="216" y="213" text-anchor="middle" class="t bv">5 min</text>
+
+<!-- V-201 detector -->
+<path class="eq" d="M262 234V266L294 250ZM326 234V266L294 250Z"/>
+<line x1="294" y1="250" x2="294" y2="222" stroke="#A9D1F5" stroke-width="2"/>
+<rect x="280" y="206" width="28" height="16" rx="2" class="eq"/>
+<text x="294" y="290" text-anchor="middle" class="m tag">V-201</text>
+<text x="294" y="308" text-anchor="middle" class="t nm">DETECTOR</text>
+<text x="294" y="326" text-anchor="middle" class="t tx">EWMA robust z</text>
+<text x="294" y="343" text-anchor="middle" class="t tx">6 samples in a row</text>
+
+<!-- P2 -->
+<path class="pipe" d="M326 250H420"/>
+<path class="flow" d="M326 250H420"/>
+
+<!-- PLC-301 FastAPI -->
+<rect x="420" y="196" width="170" height="108" rx="6" class="eq"/>
+<g fill="#22C55E"><circle cx="436" cy="210" r="3"/><circle cx="447" cy="210" r="3"><animate attributeName="opacity" values="1;.2;1" dur="1.2s" repeatCount="indefinite"/></circle></g>
+<circle cx="458" cy="210" r="3" fill="#FF5B1F"/>
+<text x="505" y="232" text-anchor="middle" class="m tag">PLC-301</text>
+<text x="505" y="251" text-anchor="middle" class="t nm">CONTROLLER</text>
+<text x="505" y="270" text-anchor="middle" class="t tx">FastAPI · Uvicorn</text>
+<text x="505" y="288" text-anchor="middle" class="t tx">Pydantic v2 contract</text>
+
+<!-- HMI-401 React -->
+<rect x="380" y="44" width="250" height="100" rx="8" class="eq"/>
+<rect x="388" y="52" width="234" height="84" rx="4" fill="#0B1F33" stroke="#A9D1F5" stroke-opacity=".3"/>
+<path d="M495 144V154M470 158H540" stroke="#A9D1F5" stroke-width="3"/>
+<text x="505" y="72" text-anchor="middle" class="t nm">HMI-401 · CONTROL ROOM</text>
+<text x="505" y="92" text-anchor="middle" class="t tx">React 18 · TypeScript · Vite</text>
+<text x="505" y="110" text-anchor="middle" class="t tx">Tailwind · Recharts · lucide-react</text>
+<text x="505" y="128" text-anchor="middle" class="t tx">model-viewer · Blender .glb models</text>
+<path class="pipe" d="M505 196V160"/>
+<line x1="505" y1="178" x2="534" y2="178" stroke="#A9D1F5" stroke-width="1.2"/>
+<circle cx="554" cy="178" r="20" class="bub"/><line x1="534" y1="178" x2="574" y2="178" stroke="#A9D1F5" stroke-width="1"/>
+<text x="554" y="174" text-anchor="middle" class="t bt">PI</text><text x="554" y="191" text-anchor="middle" class="t bv">1–3 s</text>
+
+<!-- S-601 knowledge silo -->
+<path class="eq" d="M440 392Q505 372 570 392V468L522 508H488L440 468Z"/>
+<path d="M440 420H570" stroke="#A9D1F5" stroke-opacity=".35"/>
+<text x="505" y="452" text-anchor="middle" class="m tag">S-601</text>
+<path class="pipe" d="M505 380V304"/>
+<text x="424" y="426" text-anchor="end" class="t nm">KNOWLEDGE SILO</text>
+<text x="424" y="444" text-anchor="end" class="t tx">Markdown pump manual · rank-bm25</text>
+<text x="424" y="461" text-anchor="end" class="t tx">roster · spare parts · maintenance log</text>
+<text x="424" y="478" text-anchor="end" class="t tx">replacement catalog (JSON)</text>
+
+<!-- P3 to AMD, FI -->
+<path class="pipe" d="M590 236H770"/>
+<path class="flow" d="M590 236H770"/>
+<path d="M686 224V248M694 224V248" stroke="#A9D1F5" stroke-width="3"/>
+<line x1="736" y1="208" x2="736" y2="236" stroke="#A9D1F5" stroke-width="1.2"/>
+<circle cx="736" cy="186" r="22" class="bub"/><line x1="714" y1="186" x2="758" y2="186" stroke="#A9D1F5" stroke-width="1"/>
+<text x="736" y="182" text-anchor="middle" class="t bt">FI</text><text x="736" y="199" text-anchor="middle" class="t bv">24.9 t/s</text>
+
+<!-- P4 return through V-502 -->
+<path class="pipe" d="M770 276H590"/>
+<path class="flow" d="M770 276H590"/>
+<path class="eq" d="M664 262V290L636 276Z"/><line x1="632" y1="262" x2="632" y2="290" stroke="#A9D1F5" stroke-width="3"/>
+<text x="640" y="312" text-anchor="middle" class="m tag">V-502</text>
+<text x="640" y="329" text-anchor="middle" class="t nm" style="font-size:12px">EVIDENCE CHECK</text>
+<text x="640" y="346" text-anchor="middle" class="t tx" style="font-size:11.5px">no unverified ref passes</text>
+
+<!-- R-501 AMD -->
+<text x="880" y="128" text-anchor="middle" class="m tag" style="fill:#FF8A8F">OFF-SKID · AMD CLOUD</text>
+<rect x="770" y="140" width="220" height="220" rx="44" fill="#2A0F16" stroke="#ED1C24" stroke-width="2.5"/>
+<rect x="772" y="172" width="216" height="10" fill="#ED1C24"/>
+<text x="880" y="212" text-anchor="middle" class="m tag" style="fill:#FF8A8F">R-501</text>
+<text x="880" y="236" text-anchor="middle" class="t" font-size="16" font-weight="800" fill="#F2F4F7">AMD RADEON API</text>
+<text x="880" y="258" text-anchor="middle" class="m" font-size="13" fill="#FF8A8F">DeepSeek-V4-Flash</text>
+<text x="880" y="280" text-anchor="middle" class="t tx">OpenAI SDK client</text>
+<text x="880" y="302" text-anchor="middle" class="t tx">diagnosis · alert text</text>
+<text x="880" y="320" text-anchor="middle" class="t tx">repair-vs-replace rationale</text>
+
+<!-- H-701 Telegram -->
+<path class="sigl" d="M590 214H676V70H846"/>
+<path class="eq" d="M850 62H862L894 46V94L862 78H850Z"/>
+<path d="M904 56Q914 70 904 84M914 50Q928 70 914 90" fill="none" stroke="#A9D1F5" stroke-width="1.5"/>
+<text x="936" y="66" class="t nm">H-701 · TELEGRAM</text>
+<text x="936" y="84" class="t tx">alarm horn, Bot API via httpx (optional)</text>
+
+<!-- QA-801 -->
+<path class="sigl" d="M990 250H1040"/>
+<rect x="1040" y="196" width="200" height="124" rx="6" class="eq"/>
+<text x="1140" y="220" text-anchor="middle" class="m tag">QA-801</text>
+<text x="1140" y="239" text-anchor="middle" class="t nm">TEST BENCH</text>
+<text x="1140" y="259" text-anchor="middle" class="t tx">pytest · 196 tests</text>
+<text x="1140" y="277" text-anchor="middle" class="t tx">eval/ · 50 seeded runs</text>
+<text x="1140" y="295" text-anchor="middle" class="t tx">oxlint · tsc</text>
+
+<!-- legend -->
+<g class="t" font-size="12" fill="#C7DDF2">
+  <path class="pipe" d="M44 584H84"/><text x="92" y="588">process line (data)</text>
+  <path class="sigl" d="M226 584H266"/><text x="274" y="588">signal line</text>
+  <circle cx="378" cy="584" r="10" class="bub"/><text x="396" y="588">instrument (live reading)</text>
+  <rect x="566" y="574" width="26" height="20" rx="3" class="eq"/><text x="600" y="588">equipment (component)</text>
+  <path d="M760 578h24" stroke="#FF5B1F" stroke-width="3" stroke-dasharray="3 6"/><text x="792" y="588" fill="#FDBA74">data moving</text>
+</g>
+
+<!-- title block -->
+<g class="t">
+  <rect x="900" y="400" width="344" height="196" fill="#0B1F33" stroke="#A9D1F5" stroke-width="1.5"/>
+  <path d="M900 448H1244M900 488H1244M900 528H1244M900 562H1244M1020 448V528M1140 448V488" stroke="#A9D1F5" stroke-opacity=".6"/>
+  <text x="914" y="422" class="nm" style="font-size:13px">OPERION</text>
+  <text x="914" y="439" class="tx" style="font-size:11px">PROCESS &amp; INSTRUMENTATION DIAGRAM · TECH STACK</text>
+  <text x="912" y="462" class="m tag" style="font-size:9.5px">DWG NO.</text><text x="912" y="479" class="m tx" style="font-size:12px">OPR-PID-001</text>
+  <text x="1032" y="462" class="m tag" style="font-size:9.5px">REV</text><text x="1032" y="479" class="m tx" style="font-size:12px">A</text>
+  <text x="1152" y="462" class="m tag" style="font-size:9.5px">SCALE</text><text x="1152" y="479" class="m tx" style="font-size:12px">NTS</text>
+  <text x="912" y="502" class="m tag" style="font-size:9.5px">DRAWN</text><text x="912" y="519" class="m tx" style="font-size:12px">Crew A–D</text>
+  <text x="1032" y="502" class="m tag" style="font-size:9.5px">DATE</text><text x="1032" y="519" class="m tx" style="font-size:12px">2026-10-18</text>
+  <text x="912" y="550" class="tx" style="font-size:11.5px">AMD Developer Hackathon Act III · Track 1</text>
+  <text x="912" y="584" class="tx" style="font-size:11px" fill="#7FB2E5">All AI reasoning flows through R-501.</text>
+</g>
+</svg>
