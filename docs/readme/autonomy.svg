@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 490" width="1280" height="490" role="img" aria-label="Autonomy ladder. Live today: L0 watch, L1 explain, L2 recommend. Next: L3 act on approval, L4 act within guardrails. Later: L5 self-healing fleet. From L3 up, a person approves every action.">
+<title>Autonomy ladder: from copilot to autopilot</title>
+<defs><style>
+  .grow { transform-box: fill-box; transform-origin: 50% 100%; animation: g .7s cubic-bezier(.3,1.4,.5,1) backwards; }
+  @keyframes g { from { transform: scaleY(0); } }
+  .bob { animation: b 1.6s ease-in-out infinite; }
+  @keyframes b { 50% { transform: translateY(-5px); } }
+  @media (prefers-reduced-motion: reduce) { .grow, .bob { animation: none; } }
+</style></defs>
+<rect width="1280" height="490" rx="20" fill="#0B0F17"/>
+<text x="32" y="44" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#F2F4F7">From copilot to autopilot, one rung at a time</text>
+<text x="32" y="68" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="13.5" fill="#94A3B8">Today Operion stops at L2: it recommends and people decide. Every rung above adds actions, never removes the human gate.</text>
+
+<rect x="32" y="92" width="196" height="196" rx="14" fill="#111827" stroke="#22C55E" stroke-opacity="0.45"/>
+<text x="48" y="126" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="22" font-weight="800" fill="#22C55E">L0</text>
+<rect x="158" y="108" width="54" height="22" rx="11" fill="#22C55E" fill-opacity=".15" stroke="#22C55E" stroke-opacity=".5"/><text x="185" y="123" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="10.5" font-weight="700" fill="#86EFAC">LIVE</text>
+<text x="48" y="152" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#F2F4F7">Watch</text>
+<text x="48" y="178" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">Every signal on every</text>
+<text x="48" y="197" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">machine, against its own</text>
+<text x="48" y="216" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">learned normal.</text>
+<text x="48" y="268" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="11.5" fill="#86EFAC">detector.update()</text>
+<rect x="32" y="410" width="196" height="30" rx="6" fill="#22C55E" fill-opacity="0.28" stroke="#22C55E" stroke-opacity=".6" class="grow" style="animation-delay:0.00s"/>
+<rect x="236" y="92" width="196" height="196" rx="14" fill="#111827" stroke="#22C55E" stroke-opacity="0.45"/>
+<text x="252" y="126" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="22" font-weight="800" fill="#22C55E">L1</text>
+<rect x="362" y="108" width="54" height="22" rx="11" fill="#22C55E" fill-opacity=".15" stroke="#22C55E" stroke-opacity=".5"/><text x="389" y="123" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="10.5" font-weight="700" fill="#86EFAC">LIVE</text>
+<text x="252" y="152" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#F2F4F7">Explain</text>
+<text x="252" y="178" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">Names the fault on AMD,</text>
+<text x="252" y="197" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">cites sensors, manual and</text>
+<text x="252" y="216" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">history; each ref checked.</text>
+<text x="252" y="268" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="11.5" fill="#86EFAC">diagnose()</text>
+<rect x="236" y="392" width="196" height="48" rx="6" fill="#22C55E" fill-opacity="0.28" stroke="#22C55E" stroke-opacity=".6" class="grow" style="animation-delay:0.12s"/>
+<rect x="440" y="92" width="196" height="196" rx="14" fill="#111827" stroke="#22C55E" stroke-opacity="0.45"/>
+<text x="456" y="126" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="22" font-weight="800" fill="#22C55E">L2</text>
+<rect x="566" y="108" width="54" height="22" rx="11" fill="#22C55E" fill-opacity=".15" stroke="#22C55E" stroke-opacity=".5"/><text x="593" y="123" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="10.5" font-weight="700" fill="#86EFAC">LIVE</text>
+<text x="456" y="152" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#F2F4F7">Recommend</text>
+<text x="456" y="178" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">On-shift technician, fix</text>
+<text x="456" y="197" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">steps, safety first, and</text>
+<text x="456" y="216" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">repair vs. replace.</text>
+<text x="456" y="268" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="11.5" fill="#86EFAC">routing.pick()</text>
+<rect x="440" y="374" width="196" height="66" rx="6" fill="#22C55E" fill-opacity="0.28" stroke="#22C55E" stroke-opacity=".6" class="grow" style="animation-delay:0.24s"/>
+<rect x="644" y="92" width="196" height="196" rx="14" fill="#111827" stroke="#FF5B1F" stroke-opacity="0.35" stroke-dasharray="6 5"/>
+<text x="660" y="126" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="22" font-weight="800" fill="#FF5B1F">L3</text>
+<rect x="770" y="108" width="54" height="22" rx="11" fill="#FF5B1F" fill-opacity=".15" stroke="#FF5B1F" stroke-opacity=".5"/><text x="797" y="123" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="10.5" font-weight="700" fill="#FDBA74">NEXT</text>
+<text x="660" y="152" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#F2F4F7">Act on approval</text>
+<text x="660" y="178" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">Reserves spare parts,</text>
+<text x="660" y="197" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">books the repair window,</text>
+<text x="660" y="216" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">drafts the purchase order.</text>
+<text x="660" y="268" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="11.5" fill="#FDBA74">reserve_parts()</text>
+<rect x="644" y="356" width="196" height="84" rx="6" fill="#FF5B1F" fill-opacity="0.12" stroke="#FF5B1F" stroke-opacity=".6" stroke-dasharray="6 5" class="grow" style="animation-delay:0.36s"/>
+<rect x="848" y="92" width="196" height="196" rx="14" fill="#111827" stroke="#FF5B1F" stroke-opacity="0.35" stroke-dasharray="6 5"/>
+<text x="864" y="126" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="22" font-weight="800" fill="#FF5B1F">L4</text>
+<rect x="974" y="108" width="54" height="22" rx="11" fill="#FF5B1F" fill-opacity=".15" stroke="#FF5B1F" stroke-opacity=".5"/><text x="1001" y="123" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="10.5" font-weight="700" fill="#FDBA74">NEXT</text>
+<text x="864" y="152" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#F2F4F7">Act in guardrails</text>
+<text x="864" y="178" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">Resets a tripped drive,</text>
+<text x="864" y="197" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">fails over to the standby</text>
+<text x="864" y="216" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">pump, derates the load.</text>
+<text x="864" y="268" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="11.5" fill="#FDBA74">switch_to_standby()</text>
+<rect x="848" y="338" width="196" height="102" rx="6" fill="#FF5B1F" fill-opacity="0.12" stroke="#FF5B1F" stroke-opacity=".6" stroke-dasharray="6 5" class="grow" style="animation-delay:0.48s"/>
+<rect x="1052" y="92" width="196" height="196" rx="14" fill="#111827" stroke="#A78BFA" stroke-opacity="0.35" stroke-dasharray="6 5"/>
+<text x="1068" y="126" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="22" font-weight="800" fill="#A78BFA">L5</text>
+<rect x="1178" y="108" width="54" height="22" rx="11" fill="#A78BFA" fill-opacity=".15" stroke="#A78BFA" stroke-opacity=".5"/><text x="1205" y="123" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="10.5" font-weight="700" fill="#C4B5FD">LATER</text>
+<text x="1068" y="152" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#F2F4F7">Self-healing fleet</text>
+<text x="1068" y="178" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">Learns from every fix,</text>
+<text x="1068" y="197" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">tunes limits per machine,</text>
+<text x="1068" y="216" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12.5" fill="#94A3B8">shares fault signatures.</text>
+<text x="1068" y="268" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" font-size="11.5" fill="#C4B5FD">learn_from_fix()</text>
+<rect x="1052" y="320" width="196" height="120" rx="6" fill="#A78BFA" fill-opacity="0.12" stroke="#A78BFA" stroke-opacity=".6" stroke-dasharray="6 5" class="grow" style="animation-delay:0.60s"/>
+<line x1="640.0" y1="84" x2="640.0" y2="452" stroke="#F2F4F7" stroke-opacity=".5" stroke-width="1.5" stroke-dasharray="3 5"/>
+<rect x="566.0" y="452" width="148" height="26" rx="13" fill="#0B0F17" stroke="#F2F4F7" stroke-opacity=".5"/><text x="640.0" y="470" text-anchor="middle" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#F2F4F7">a person approves →</text>
+<g class="bob"><path d="M538.0 366l-8-12h16z" fill="#22C55E"/>
+<rect x="486.0" y="332" width="104" height="22" rx="11" fill="#22C55E"/><text x="538.0" y="347" text-anchor="middle" font-family="'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#0B0F17">YOU ARE HERE</text></g>
+</svg>

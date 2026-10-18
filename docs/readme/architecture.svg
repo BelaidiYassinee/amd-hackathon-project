@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 620" width="1280" height="620" role="img" aria-label="Architecture: a React single-page app polls one FastAPI process. Inside it the simulator feeds the detector, anomalies open alerts, the agent diagnoses with tools over plant data, and every LLM call goes to the AMD Radeon API. One Docker image serves everything.">
+<title>Operion architecture</title>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#94A3B8"/></marker>
+  <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#ED1C24"/></marker>
+  <style>
+    .t { font-family: 'Segoe UI', Inter, -apple-system, Helvetica, Arial, sans-serif; }
+    .m { font-family: ui-monospace, SFMono-Regular, Consolas, Menlo, monospace; }
+    .box { fill: #111827; stroke: #ffffff; stroke-opacity: .1; }
+    .mod { font-size: 15px; font-weight: 700; fill: #FF5B1F; }
+    .own { font-size: 11px; fill: #64748B; }
+    .d { font-size: 13px; fill: #94A3B8; }
+    .ln { fill: none; stroke: #94A3B8; stroke-width: 1.6; }
+    .amd { fill: none; stroke: #ED1C24; stroke-width: 2; }
+    .lab { font-size: 11.5px; fill: #94A3B8; }
+    .chip { fill: #ffffff; fill-opacity: .05; stroke: #ffffff; stroke-opacity: .12; }
+    .ct { font-size: 12.5px; fill: #CBD5E1; }
+    .pulse { stroke-dasharray: 5 7; animation: p 1s linear infinite; }
+    @keyframes p { to { stroke-dashoffset: -24; } }
+    @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+  </style>
+</defs>
+<rect width="1280" height="620" rx="20" fill="#0B0F17"/>
+
+<!-- control room -->
+<rect x="32" y="28" width="868" height="112" rx="14" class="box"/>
+<text x="56" y="58" class="t" font-size="15" font-weight="700" fill="#F2F4F7">Control room · React single-page app</text>
+<text x="876" y="58" class="t own" text-anchor="end">frontend/ · P3</text>
+<g class="t">
+  <rect x="56" y="78" width="92" height="30" rx="15" class="chip"/><text x="102" y="98" class="ct" text-anchor="middle">3D plant view</text>
+  <rect x="158" y="78" width="118" height="30" rx="15" class="chip"/><text x="217" y="98" class="ct" text-anchor="middle">Incident stepper</text>
+  <rect x="286" y="78" width="104" height="30" rx="15" class="chip"/><text x="338" y="98" class="ct" text-anchor="middle">Live charts</text>
+  <rect x="400" y="78" width="96" height="30" rx="15" class="chip"/><text x="448" y="98" class="ct" text-anchor="middle">Agent trace</text>
+  <rect x="506" y="78" width="112" height="30" rx="15" class="chip"/><text x="562" y="98" class="ct" text-anchor="middle">Prevent page</text>
+  <rect x="628" y="78" width="98" height="30" rx="15" class="chip"/><text x="677" y="98" class="ct" text-anchor="middle">Team page</text>
+  <rect x="736" y="78" width="140" height="30" rx="15" class="chip"/><text x="806" y="98" class="ct" text-anchor="middle">AMD inference panel</text>
+</g>
+
+<!-- poll arrow -->
+<path d="M466 142V194" class="ln" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="478" y="172" class="t lab">polls /api every 1–3 s · same origin</text>
+
+<!-- backend container -->
+<rect x="32" y="196" width="868" height="346" rx="14" fill="#0E1520" stroke="#ffffff" stroke-opacity=".14"/>
+<text x="56" y="226" class="t" font-size="15" font-weight="700" fill="#F2F4F7">FastAPI · one process, one worker, in-memory plant state</text>
+<text x="876" y="226" class="t own" text-anchor="end">backend/app/</text>
+
+<g class="t">
+  <rect x="56" y="248" width="256" height="112" rx="12" class="box"/>
+  <text x="74" y="274" class="m mod">sim/</text><text x="294" y="274" class="own" text-anchor="end">P1</text>
+  <text class="d"><tspan x="74" y="298">Accelerated plant clock,</tspan><tspan x="74" y="317">4 machines × 7 signals,</tspan><tspan x="74" y="336">fault injection and markers</tspan></text>
+
+  <rect x="336" y="248" width="256" height="112" rx="12" class="box"/>
+  <text x="354" y="274" class="m mod">detect/</text><text x="574" y="274" class="own" text-anchor="end">P1</text>
+  <text class="d"><tspan x="354" y="298">Load-regressed robust z,</tspan><tspan x="354" y="317">EWMA drift, k-in-a-row rule,</tspan><tspan x="354" y="336">legacy threshold baseline</tspan></text>
+
+  <rect x="616" y="248" width="256" height="112" rx="12" class="box"/>
+  <text x="634" y="274" class="m mod">alerts/</text><text x="854" y="274" class="own" text-anchor="end">P4</text>
+  <text class="d"><tspan x="634" y="298">Lifecycle, routing by role,</tspan><tspan x="634" y="317">area and shift, escalation,</tspan><tspan x="634" y="336">work orders</tspan></text>
+
+  <rect x="56" y="390" width="256" height="112" rx="12" class="box"/>
+  <text x="74" y="416" class="m mod">data/</text><text x="294" y="416" class="own" text-anchor="end">P4 · P2</text>
+  <text class="d"><tspan x="74" y="440">Roster, spare parts, pump</tspan><tspan x="74" y="459">manual, maintenance log,</tspan><tspan x="74" y="478">replacement catalog</tspan></text>
+
+  <rect x="336" y="390" width="256" height="112" rx="12" class="box" style="stroke:#ED1C24;stroke-opacity:.45"/>
+  <text x="354" y="416" class="m mod">agent/</text><text x="574" y="416" class="own" text-anchor="end">P2</text>
+  <text class="d"><tspan x="354" y="440">LLM client and call log, tools,</tspan><tspan x="354" y="459">diagnosis loop, evidence</tspan><tspan x="354" y="478">validation, rule-based fallback</tspan></text>
+
+  <rect x="616" y="390" width="256" height="112" rx="12" class="box"/>
+  <text x="634" y="416" class="m mod">decide/</text><text x="854" y="416" class="own" text-anchor="end">P2</text>
+  <text class="d"><tspan x="634" y="440">5-year cost of ownership,</tspan><tspan x="634" y="459">duty-point fit, rationale</tspan><tspan x="634" y="478">whose numbers code checks</tspan></text>
+</g>
+
+<!-- internal flow -->
+<g class="t">
+  <path d="M312 304H334" class="ln" marker-end="url(#a)"/>
+  <path d="M592 304H614" class="ln" marker-end="url(#a)"/>
+  <text x="603" y="244" class="lab" text-anchor="middle">anomaly</text>
+  <path d="M700 360V375H464V388" class="ln" marker-end="url(#a)"/>
+  <text x="572" y="386" class="lab" text-anchor="middle">diagnose()</text>
+  <path d="M336 446H314" class="ln" marker-end="url(#a)"/>
+</g>
+
+<!-- telegram -->
+<rect x="960" y="150" width="288" height="72" rx="14" class="box"/>
+<text x="980" y="179" class="t" font-size="14" font-weight="700" fill="#F2F4F7">Telegram Bot API</text>
+<text x="980" y="202" class="t d">optional push to the on-shift phone</text>
+<path d="M872 280H916V186H958" class="ln" marker-end="url(#a)"/>
+
+<!-- AMD -->
+<rect x="960" y="248" width="288" height="254" rx="14" fill="#1A0D10" stroke="#ED1C24" stroke-opacity=".75" stroke-width="1.5"/>
+<rect x="960" y="248" width="288" height="8" rx="4" fill="#ED1C24"/>
+<text x="980" y="290" class="t" font-size="20" font-weight="800" fill="#F2F4F7">AMD Radeon API</text>
+<text x="980" y="314" class="m" font-size="13.5" fill="#FF8A8F">DeepSeek-V4-Flash</text>
+<text x="980" y="334" class="t d">OpenAI-compatible endpoint</text>
+<text class="t" font-size="13" fill="#CBD5E1"><tspan x="980" y="366">· fault diagnosis</tspan><tspan x="980" y="386">· alert message for the technician</tspan><tspan x="980" y="406">· repair-vs-replace rationale</tspan></text>
+<line x1="980" y1="424" x2="1228" y2="424" stroke="#ED1C24" stroke-opacity=".3"/>
+<text x="980" y="450" class="t" font-size="22" font-weight="800" fill="#F2F4F7">24.9 <tspan font-size="13" font-weight="400" fill="#94A3B8">tokens/s average</tspan></text>
+<text x="980" y="476" class="t" font-size="12" fill="#94A3B8">every call logged → <tspan class="m" fill="#FF8A8F">/api/amd/stats</tspan></text>
+
+<path d="M872 316H958" class="amd pulse" marker-end="url(#r)"/>
+<path d="M872 446H958" class="amd pulse" marker-end="url(#r)"/>
+<path d="M464 502V524H1104V504" class="amd pulse" marker-end="url(#r)"/>
+<text x="915" y="310" class="t lab" text-anchor="middle">alert text</text>
+<text x="915" y="440" class="t lab" text-anchor="middle">rationale</text>
+<text x="784" y="518" class="t" font-size="12" font-weight="600" fill="#FF8A8F" text-anchor="middle">every AI reasoning step runs on AMD</text>
+
+<!-- deploy strip -->
+<rect x="32" y="560" width="1216" height="40" rx="12" fill="#ffffff" fill-opacity=".04" stroke="#ffffff" stroke-opacity=".1"/>
+<text x="56" y="585" class="t" font-size="13" fill="#CBD5E1"><tspan font-weight="700" fill="#F2F4F7">One Docker image</tspan>  ·  Node builds the UI, Python 3.11 serves API + UI  ·  Hugging Face Spaces, port 7860  ·  <tspan class="m" fill="#FF8A8F">docker compose up</tspan></text>
+</svg>
