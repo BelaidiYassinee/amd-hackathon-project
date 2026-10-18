@@ -1,0 +1,19 @@
+# The demo (https://operion-peach.vercel.app) proxies /api to Render's free plan, which sleeps
+# after 15 idle minutes; the next visitor then waits ~50 s. A ping every 5 minutes keeps it awake.
+name: Keep Render awake
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Ping the backend
+        # a long timeout lets a sleeping instance wake up; a failed ping only warns, so no failure emails
+        run: |
+          curl -fsS --max-time 120 --retry 2 https://operion-dqwy.onrender.com/api/health \
+            || echo "::warning::Render backend did not answer"
