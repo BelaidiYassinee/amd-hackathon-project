@@ -91,7 +91,7 @@ See [.env.example](.env.example). Key variables: `RADEON_API_KEY`, `LLM_MODEL`, 
 
 ## Limits
 
-- All data is simulated. Fault signatures were designed by the team, and real plants are messier.
+- All data is simulated.
 - Evaluated on one pump (P-101) with four fault types.
 - The 97.5% diagnosis accuracy followed a pipeline fix made after seeing results on the same scenarios, so treat it as optimistic.
 
