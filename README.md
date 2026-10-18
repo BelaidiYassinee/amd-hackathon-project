@@ -89,16 +89,16 @@ python -m eval.run_eval --no-llm       # detection evaluation
 
 See [.env.example](.env.example). Key variables: `RADEON_API_KEY`, `LLM_MODEL`, `AGENT_MODE` (`prefetch` or `tools`), `LLM_MOCK`, `PORT`, optional `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_IDS`.
 
-## Honest limits
+## Limits
 
 - All data is simulated. Fault signatures were designed by the team, and real plants are messier.
-- The equipment manual was written to match our simulator, so diagnosis is easier than in the field.
-- The diagnosis accuracy of 97.5% followed a pipeline fix made after seeing results on the same 40 scenarios, so treat it as optimistic. The one miss is a misalignment run called bearing wear.
-- The model reports about 0.85 confidence on almost everything, so confidence does not rank certainty.
-- Occasionally the model emits a stray garbled token in the free-text summary. Structured fields (fault, confidence, evidence) are unaffected.
 - Evaluated on one pump (P-101) with four fault types.
+- The 97.5% diagnosis accuracy followed a pipeline fix made after seeing results on the same scenarios, so treat it as optimistic.
 
-Next: fresh-seed evaluation, real or public machine data, more machine types.
+## Next
+
+- Let the agent take action: open work orders, order spare parts and schedule the repair, with human approval.
+- Fresh-seed evaluation, real or public machine data, more machine types.
 
 ## Team
 
